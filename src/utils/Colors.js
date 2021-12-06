@@ -1,0 +1,21 @@
+export const colors = {
+    purple_200: '#FFBB86FC',
+    colorPrimary: '#6200EE',
+    purple_700: '#FF3700B3',
+    teal_200 : '#FF03DAC5',
+    teal_700 : '#FF018786',
+    black : '#FF000000',
+    white : '#FFFFF',
+    Gray3 : '#949494',
+    Gray4 : '#737070',
+    Black3 : '#242424',
+    CoolGray2 : '#F4F3F3',
+    logo_color : '#01233F',
+    success_color: '#3DB49E',
+    LightRed : '#ED6565',
+    CoolGray1 : '#DAD7D7',
+    Gray2 : '#DBDBDB',
+    orange : '#F0AD4E',
+    transparent : '#0000',
+    ActionRed :'#ED6565'
+}
