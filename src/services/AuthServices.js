@@ -10,7 +10,7 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
   const send = {
     "data": {
       "email": email,
-      "pass": password
+      "pass": "11111"
     }
   }  
 
@@ -20,14 +20,18 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
       storeValue('token', res.data.body.accessToken)
 
       //  login(send,res.data.body.accessToken,successCallBack,errorCallback)
-
+      
       let config = getHeaderConfig(res.data.body.accessToken)
-      console.log(send,res.data.body.accessToken)
+      console.log("eeeee",config)
+
       instance.post(`/login`, send, config)
         .then(res => {
           console.log(res.data)
-          //storeInfoLocally(res.data)
-          //  successCallBack()
+          if(res.data?.error?.code === 200){
+            storeInfoLocally(res.data)
+            successCallBack()
+          }
+          
         }).catch(function (error) {
           console.log("error", error.message)
 
@@ -57,7 +61,7 @@ const login = ({ send, token, successCallBack, errorCallback }) => {
 
 const storeInfoLocally = (res) => {
   const d = new Date();
-
+  console.log("res", res)
   storeValue('lastLoginDate', d.getTime().toString())
   storeValue('age', res.body.user.age)
   storeValue('car', res.body.user.car)
