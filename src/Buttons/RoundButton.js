@@ -17,6 +17,7 @@ export function RoundButton({
     return (
       <View>
         <TouchableOpacity
+        activeOpacity={0.8}
           style={[
             container,
             containerStyle, 
