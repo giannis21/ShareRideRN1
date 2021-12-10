@@ -17,5 +17,6 @@ export const colors = {
     Gray2 : '#DBDBDB',
     orange : '#F0AD4E',
     transparent : '#0000',
-    ActionRed :'#ED6565'
+    ActionRed :'#ED6565',
+    infoGreen :'#64c46c'
 }

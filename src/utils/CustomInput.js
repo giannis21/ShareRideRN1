@@ -4,7 +4,7 @@ import { Spacer } from "../layout/Spacer";
 import { colors } from '../utils/Colors';
 import Feather from 'react-native-vector-icons/Feather';
 
-export function CustomInput({ text, hasIcon, keyboardType,secureTextEntry,onChangeText,onIconPressed }) {
+export function CustomInput({ text, hasIcon, keyboardType,secureTextEntry,onChangeText,onIconPressed,value }) {
 
     return (
         <View style={styles.SectionStyle}>
@@ -21,7 +21,8 @@ export function CustomInput({ text, hasIcon, keyboardType,secureTextEntry,onChan
                     secureTextEntry={secureTextEntry ? true : false}
                     //  returnKeyType="next"
                     blurOnSubmit={false}
-                    onChangeText={onChangeText} />
+                    onChangeText={onChangeText}
+                    value={value}/>
 
                 {hasIcon ? <TouchableOpacity activeOpacity={0.1} style={{ marginRight: 10 }} onPress={onIconPressed}>
                     {secureTextEntry ?

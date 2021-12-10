@@ -11,12 +11,38 @@ import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture
 import { RoundButton } from '../Buttons/RoundButton';
 import { colors } from '../utils/Colors';
 import { routes } from '../navigation/RouteNames';
-import { createToken } from '../services/AuthServices';
+import { createToken,forgotPass } from '../services/AuthServices';
 import { Loader } from '../utils/Loader';
 import { CustomInput } from '../utils/CustomInput';
+import { InfoPopupModal } from '../utils/InfoPopupModal';
+import { CustomInfoLayout } from '../utils/CustomInfoLayout';
+ 
+
+let infoMessage = ''
+let hasErrors = false
+
 const LoginScreen = ({ navigation }) => {
+
   const [data, setData] = React.useState({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
   const [isLoading, setIsLoading] = React.useState(false)
+  const [isModalVisible, setIsModalVisible] = React.useState(false)
+  const [modalInput, setModalInput] = React.useState(false)
+  const [areFieldsOkay, setAreFieldsOkay] = React.useState({ areEmpty: false, isPasswordValid: true, isEmailValid: true })
+  const [showInfoModal, setShowInfoModal] = React.useState(false);
+
+
+  React.useEffect(() => {
+    const unsubscribe = navigation.addListener('focus', () => {
+        setData({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
+        setIsModalVisible(false)
+        setShowInfoModal(false)
+        console.log("email",data.email)
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
+
   const goToRegister = () => {
     navigation.navigate('Register')
   }
@@ -30,42 +56,113 @@ const LoginScreen = ({ navigation }) => {
   const updateSecureTextEntry = () => {
     setData({ ...data, secureTextEntry: !data.secureTextEntry });
   }
+  const modalInputChange = (value) => {
+    setModalInput(value)
+  }
+  React.useEffect(() => {
 
+
+  },[])
   const onLogin = () => {
-    let email = data.email
-    let password = data.password
+  
+    if (!valid())
+      return
+
     setIsLoading(true)
     createToken({
-      email,
-      password,
+      email: data.email,
+      password: data.password,
       successCallBack: userSuccessCallback,
       errorCallback: userErrorCallback
     })
   }
-  const openModal = () => {
-    
+
+  const valid = () => {
+    if (data.email.length === 0 || data.password.length === 0) {
+      infoMessage = "Συμπληρώστε τα πεδία πρώτα."
+      hasErrors = true
+      showCustomLayout()
+      return false
+    }
+
+    if (data.password.length < 5) {
+      infoMessage = "Ο κωδικός αποτελείται απο τουλάχιστον 5 χαρακτήρες."
+      hasErrors = true
+      showCustomLayout()
+      return false
+    }
+
+    return true
+
   }
-  const userSuccessCallback = () => {
-    //navigation.navigate(routes.REGISTER_SCREEN)
-    // login({
-    //   email,
-    //   pass,
-    //   successCallBack: tokenSuccessCallback,
-    //   errorCallback: tokenErrorCallback
-    //   })
-    setIsLoading(false)
+  const openModal = () => {
+    setIsModalVisible(true)
   }
 
-  const userErrorCallback = () => {
-    setIsLoading(false)
-    // navigation.navigate(routes.REGISTER_SCREEN)
+  const closeModal = () => {
+    setIsModalVisible(false)
   }
+
+  const modalSubmit = () => {
+    setIsLoading(true)
+    forgotPass({
+      email: modalInput,
+      successCallBack: forgotPassSuccessCallback,
+      errorCallback: forgotPassErrorCallback
+    })
+  }
+  const userSuccessCallback = (message) => {
+    console.log(message)
+    infoMessage = message
+    hasErrors = false
+    setIsLoading(false)
+  }
+  const forgotPassSuccessCallback = (_otp) => {
+    setIsLoading(false)
+    navigation.navigate(routes.OTP_SCREEN,{otp:_otp})
+  }
+
+  const userErrorCallback = (message) => {
+    console.log("callback+ " + message)
+    infoMessage = message
+    hasErrors = true
+
+    setIsLoading(false)
+    showCustomLayout()
+
+  }
+
+  const forgotPassErrorCallback = (message) => {
+    console.log("callback+ " + message)
+    infoMessage = message
+    hasErrors = true
+
+    setIsLoading(false)
+    showCustomLayout()
+
+  }
+
+  const showCustomLayout = () => {
+    setShowInfoModal(true)
+
+    setTimeout(function () {
+      setShowInfoModal(false)
+    }, 3000);
+  }
+
   return (
 
 
     <BaseView statusBarColor={colors.colorPrimary}>
-
-      <KeyboardAwareScrollView
+      <Loader isLoading={isLoading} />
+      <CustomInfoLayout
+        isVisible={showInfoModal}
+        title={infoMessage}
+        icon={hasErrors ? 'x-circle' : 'check-circle'}
+        success={!hasErrors}
+      />
+        
+     <KeyboardAwareScrollView
         extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
         showsVerticalScrollIndicator={false}
         automaticallyAdjustContentInsets={true}
@@ -75,13 +172,14 @@ const LoginScreen = ({ navigation }) => {
 
           <Spacer height={35} />
           <Feather style={{ alignSelf: 'center' }} name="eye-off" size={80} color='grey' />
-
+ 
           <Spacer height={35} />
 
           <CustomInput
             text='εδώ, δίνεις το email σου'
             keyboardType="email-address"
             onChangeText={onEmailChanged}
+            value={data.email}
           />
 
           <CustomInput
@@ -92,20 +190,42 @@ const LoginScreen = ({ navigation }) => {
             onChangeText={onPasswordChanged}
             onIconPressed={updateSecureTextEntry}
             hasIcon={true}
-
+            value={data.password}
           />
 
           <Spacer height={6} />
           <TouchableWithoutFeedback onPress={openModal}>
-            <Text style={{ color: '#8b9cb5', alignSelf: 'flex-end' }} >Ξέχασες τον κωδικό σου;</Text>
+            <Text style={styles.forgotPass} >Ξέχασες τον κωδικό σου;</Text>
           </TouchableWithoutFeedback>
+
           <Spacer height={26} />
-          <RoundButton text="Είσοδος" onPress={onLogin} backgroundColor={colors.colorPrimary} />
+          <RoundButton
+            text="Είσοδος"
+            onPress={onLogin}
+            backgroundColor={colors.colorPrimary} />
           <Spacer height={16} />
-          <RoundButton text="Εγγραφή" textColor={colors.colorPrimary.toString()} onPress={() => navigation.navigate(routes.REGISTER_SCREEN)} />
+
+          <RoundButton
+            text="Εγγραφή"
+            textColor={colors.colorPrimary.toString()}
+            onPress={() =>
+              goToRegister()
+              //navigation.navigate(routes.OTP_SCREEN,{otp:'1234',email:"giannisgra"})
+            } />
         </View>
 
-      </KeyboardAwareScrollView>
+        <InfoPopupModal
+          isVisible={isModalVisible}
+          description={"Δώσε μας το email που χρησιμοποίησες για την εγγραφή σου και θα σου στείλουμε έναν νέο κωδικό τον οποίον μπορείς να τον αλλάξεις."}
+          buttonText={"Πάμε"}
+          closeAction={() => {
+            setIsModalVisible(false);
+          }}
+          buttonPress={modalSubmit}
+          descrStyle={true}
+          onChangeText={modalInputChange}
+        />
+      </KeyboardAwareScrollView>  
 
     </BaseView>
 
@@ -117,17 +237,8 @@ const LoginScreen = ({ navigation }) => {
 export default LoginScreen
 
 const styles = StyleSheet.create({
-  SectionStyle: {
-    flexDirection: 'column',
-    height: 'auto',
-    marginTop: 20,
-    borderBottomWidth: 1,
-    borderBottomColor: colors.colorPrimary,
-  },
-
-  inputStyle: {
-    flex: 1,
-    color: 'black',
-
-  },
+  forgotPass: {
+    color: '#8b9cb5',
+    alignSelf: 'flex-end'
+  }
 })
