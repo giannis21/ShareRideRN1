@@ -15,6 +15,7 @@ target 'ShareRide' do
     :path => config[:reactNativePath],
     :hermes_enabled => podfile_properties['expo.jsEngine'] == 'hermes'
   )
+ 
 
   # Uncomment to opt-in to using Flipper
   #

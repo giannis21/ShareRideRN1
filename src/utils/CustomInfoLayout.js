@@ -14,32 +14,32 @@ export function CustomInfoLayout({
 }) {
   const { modal, container } = styles;
   const selectedColor = success ? colors.infoGreen : colors.LightRed
- 
+
   return (
-    <View>
-      <Modal
-        isVisible={isVisible}
-        style={modal}
-        transparent={true} 
-        useNativeDriver={true}
-        swipeDirection='up'
-      >
-        <View style={[container,{backgroundColor: selectedColor}]}>
-          <View style={{flexDirection:'row',justifyContent:'space-between'}}>
-             <Text style={{color:'white',alignSelf:'center',flexWrap:'wrap',width:'88%'}}>{title}</Text>  
-             <Feather style={{alignSelf:'center'}} name={icon} size={20} color='white' />  
-           </View> 
-         
+
+    <Modal
+      isVisible={isVisible}
+      style={modal}
+      transparent={true}
+
+      swipeDirection='up'
+    >
+      <View style={[container, { backgroundColor: selectedColor }]}>
+        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+          <Text style={{ color: 'white', alignSelf: 'center', flexWrap: 'wrap', width: '88%' }}>{title}</Text>
+          <Feather style={{ alignSelf: 'center' }} name={icon} size={20} color='white' />
         </View>
-      </Modal>
-    </View>
+
+      </View>
+    </Modal>
+
   );
 }
 
 const styles = StyleSheet.create({
   topLine: {
     marginTop: 16,
-    
+
     width: 60,
     backgroundColor: 'black',
     borderRadius: 26,
@@ -51,13 +51,13 @@ const styles = StyleSheet.create({
     marginBottom: 20
   },
   container: {
-     
+
     borderRadius: 14,
     height: 'auto',
-    paddingHorizontal:15,
-    paddingVertical:15,
-    marginTop:15,
-   
+    paddingHorizontal: 15,
+    paddingVertical: 15,
+    marginTop: 15,
+
   },
   descriptionStyle: {
     paddingHorizontal: 16,

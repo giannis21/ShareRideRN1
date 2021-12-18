@@ -5,6 +5,7 @@ import AsyncStorage from "@react-native-community/async-storage";
 import { useDispatch } from "react-redux";
 import * as types from '../actions/types'
 import { getHeaderConfig } from "../utils/Functions";
+import {getValue, setValue,keyNames} from '../utils/Storage'
 export const createToken = async ({ email, password, successCallBack, errorCallback }) => {
   
   const send = {
@@ -13,49 +14,79 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
       "pass": password
     }
   }  
-  console.log("res.data.body.accessToken",send)
+ 
   await instance.post(`/createtoken`, send)
     .then(res => {
-      console.log(res.data.body.accessToken)
-      storeValue('token', res.data.body.accessToken)
+ 
+      let token = res.data.accessToken
+     
+      setValue(keyNames.token, token)
 
-       login(send,res.data.body.accessToken,successCallBack,errorCallback)
+      login({send:send,token:token,successCallBack:successCallBack,errorCallback:errorCallback})
       
-      let config = getHeaderConfig(res.data.body.accessToken)
     
-      instance.post(`/login`, send, config)
-        .then(res => {
-       console.log("asasasasas",res.data )
-          if(res.data.body !== null){
-          // storeInfoLocally(res.data)
-           successCallBack()
-          //   console.log("asasasasas" )
-          }else{
-            errorCallback()
-          }
-        }).catch(function (error) {
-          console.log("error", error.message)
-           errorCallback()
-        });
-
-
     }).catch(function (error) {
-      console.log("error", error.message)
-      errorCallback()
+        errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+    });
+
+};
+ 
+
+const login = async({ send, token, successCallBack, errorCallback} ) => {
+  let config = getHeaderConfig(token)
+ 
+  await instance.post(`/login`, send, config)
+    .then(res => {
+      storeInfoLocally(res.data)
+   
+      successCallBack()
+       
+    }).catch(function (error) {
+      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
 
 };
 
-const storeValue = async (key, token) => {
-  try {
-    await AsyncStorage.setItem(key, token);
-  } catch (error) { }
+export const forgotPass = async ({ email,successCallBack, errorCallback }) => {
+  
+  let config = getHeaderConfig()
+  const send = {
+    "data": {
+      "email": email   
+    }
+  }  
+  console.log(config)
+  await instance.post(`/passotp`, send, config)
+    .then(res => {
+       console.log("passotp called ",res.data) 
+       successCallBack(res.data.otp,email)
+ 
+       
+    }).catch(function (error) {
+      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+    });
+
 
 };
 
-const login = ({ send, token, successCallBack, errorCallback }) => {
+export const restorePassword = async ({password, successCallBack, errorCallback }) => {
+  
+  let config = await getHeaderConfig()
+  let email=  await getValue(keyNames.email) 
 
+  const send = {
+    "data": {
+      "email": email,
+      "pass": password
+    }
+  }  
 
+  await instance.post(`/updateUserPass`, send, config)
+    .then(res => {
+       successCallBack(res.data.message)
+    }).catch(function (error) {
+      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+    });
 
 
 };
@@ -63,19 +94,19 @@ const login = ({ send, token, successCallBack, errorCallback }) => {
 const storeInfoLocally = (res) => {
   try{
     const d = new Date();
-    console.log("res",  res.body.user.instagram)
+    console.log("resdfsdfss",  res.user)
   
-    storeValue('lastLoginDate', d.getTime().toString())
-    storeValue('age', res.body.user.age)
-    storeValue('car', res.body.user.car)
-    storeValue('carDate', res.body.user.cardate)
-    storeValue('email', res.body.user.email)
-    storeValue('facebook', res.body.user.facebook)
-    storeValue('fullName', res.body.user.fullname)
-    storeValue('gender', res.body.user.gender ?? "")
-    storeValue('instagram', res.body.user.instagram ?? "")
-    storeValue('phone', res.body.user.mobile)
-    storeValue('password', res.body.user.password)
+    setValue('lastLoginDate', d.getTime().toString())
+    setValue('age', res.user.age)
+    setValue('car', res.user.car)
+    setValue('carDate', res.user.cardate)
+    setValue('email', res.user.email)
+    setValue('facebook', res.user.facebook)
+    setValue('fullName', res.user.fullname)
+    setValue('gender', res.user.gender ?? "")
+    setValue('instagram', res.user.instagram ?? "")
+    setValue('phone', res.user.mobile)
+    setValue('password', res.user.password)
   
   }catch(err){
 

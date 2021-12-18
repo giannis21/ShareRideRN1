@@ -11,7 +11,7 @@ import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture
 import { RoundButton } from '../Buttons/RoundButton';
 import { colors } from '../utils/Colors';
 import { routes } from '../navigation/RouteNames';
-import { createToken,forgotPass } from '../services/AuthServices';
+import { createToken, forgotPass } from '../services/AuthServices';
 import { Loader } from '../utils/Loader';
 import { CustomInput } from '../utils/CustomInput';
 import { InfoPopupModal } from '../utils/InfoPopupModal';
@@ -22,6 +22,7 @@ let infoMessage = ''
 let hasErrors = false
 
 const LoginScreen = ({ navigation }) => {
+  var _ = require('lodash');
 
   const [data, setData] = React.useState({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
   const [isLoading, setIsLoading] = React.useState(false)
@@ -59,10 +60,7 @@ const LoginScreen = ({ navigation }) => {
   const modalInputChange = (value) => {
     setModalInput(value)
   }
-  React.useEffect(() => {
-
-
-  },[])
+ 
   const onLogin = () => {
   
     if (!valid())
@@ -78,7 +76,7 @@ const LoginScreen = ({ navigation }) => {
   }
 
   const valid = () => {
-    if (data.email.length === 0 || data.password.length === 0) {
+    if (_.isEmpty(data.email) || _.isEmpty(data.password)) {
       infoMessage = "Συμπληρώστε τα πεδία πρώτα."
       hasErrors = true
       showCustomLayout()
@@ -104,6 +102,7 @@ const LoginScreen = ({ navigation }) => {
   }
 
   const modalSubmit = () => {
+    console.log("dsd ",modalInput)
     setIsLoading(true)
     forgotPass({
       email: modalInput,
@@ -117,9 +116,9 @@ const LoginScreen = ({ navigation }) => {
     hasErrors = false
     setIsLoading(false)
   }
-  const forgotPassSuccessCallback = (_otp) => {
+  const forgotPassSuccessCallback = (_otp,_email) => {
     setIsLoading(false)
-    navigation.navigate(routes.OTP_SCREEN,{otp:_otp})
+    navigation.navigate(routes.OTP_SCREEN,{otp:_otp,email:_email,goToRestore:true})
   }
 
   const userErrorCallback = (message) => {
@@ -185,7 +184,6 @@ const LoginScreen = ({ navigation }) => {
           <CustomInput
             text='εδώ, τον κωδικό σου'
             keyboardType="default"
-            onChangeText={onEmailChanged}
             secureTextEntry={data.secureTextEntry ? true : false}
             onChangeText={onPasswordChanged}
             onIconPressed={updateSecureTextEntry}
@@ -209,8 +207,9 @@ const LoginScreen = ({ navigation }) => {
             text="Εγγραφή"
             textColor={colors.colorPrimary.toString()}
             onPress={() =>
+              //navigation.navigate("RestorePassword")
               goToRegister()
-              //navigation.navigate(routes.OTP_SCREEN,{otp:'1234',email:"giannisgra"})
+            //  navigation.navigate(routes.OTP_SCREEN,{otp_:'6234',email_:"giannisfragoulis21@gmail.com"})
             } />
         </View>
 
