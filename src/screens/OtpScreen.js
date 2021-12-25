@@ -10,22 +10,22 @@ import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { useTimer } from '../customHooks/useTimer';
 import { forgotPass } from '../services/AuthServices';
+import { routes } from '../navigation/RouteNames';
 
 const OtpScreen = ({ navigation, route }) => {
-  const [data, setData] = React.useState({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
   const [isLoading, setIsLoading] = React.useState(false)
   const [isModalVisible, setIsModalVisible] = React.useState(false)
   const [modalInput, setModalInput] = React.useState(false)
-  const [areFieldsOkay, setAreFieldsOkay] = React.useState({ areEmpty: false, isPasswordValid: true, isEmailValid: true })
   const [showInfoModal, setShowInfoModal] = React.useState(false);
   const [code, setCode] = React.useState('');
   const [showTextError, setShowTextError] = React.useState(false);
-  const { otp_, email_, goToRestore } = route.params;
+  const { _otp, _email, goToRestore } = route.params;
   const [refreshTimer, setRefreshTimer] = React.useState(false);
 
-  const [otp, setOtp] = React.useState(otp_);
-  const [email, setEmail] = React.useState(email_);
+  const [otp, setOtp] = React.useState(_otp);
+  const [email, setEmail] = React.useState(_email);
   const [hasErrors, setHasErrors] = React.useState(false);
+  const [errorMessage, setErrorMessage] = React.useState(false);
 
   let timerTime = useTimer(true, refreshTimer)
 
@@ -52,7 +52,8 @@ const OtpScreen = ({ navigation, route }) => {
       if (goToRestore)
         navigation.navigate("RestorePassword")
       else
-        navigation.popToTop()
+        navigation.navigate(routes.LOGIN_SCREEN, { message: "Η εξακρίβωση του email ολοκληρώθηκε επιτυχώς!" })
+
     } else {
       setTimeout(function () {
         setShowTextError(true)
@@ -72,17 +73,16 @@ const OtpScreen = ({ navigation, route }) => {
     }, 300);
 
     setRefreshTimer(!refreshTimer)
-    // setEmail(_email)
     setOtp(_otp)
     setHasErrors(false)
-    // navigation.navigate(routes.OTP_SCREEN,{otp:_otp,email:_email,goToRestore:true})
   }
 
   const forgotPassErrorCallback = (message) => {
 
     setHasErrors(true)
     setIsLoading(false)
-    //  showCustomLayout()
+    setErrorMessage(message)
+    showCustomLayout()
 
   }
   const modalSubmit = () => {
@@ -91,10 +91,10 @@ const OtpScreen = ({ navigation, route }) => {
 
   }
   const retry = () => {
-    console.log("retry ", email_)
-    //  setIsLoading(true)
+    console.log("retry ", _email)
+    setIsLoading(true)
     forgotPass({
-      email: email_,
+      email: _email,
       successCallBack: forgotPassSuccessCallback,
       errorCallback: forgotPassErrorCallback
     })
@@ -122,7 +122,7 @@ const OtpScreen = ({ navigation, route }) => {
       <View style={{ flex: 1, flexDirection: 'column' }}>
 
         <View style={styles.topContainer}>
-          <TouchableWithoutFeedback onPress={() => { navigation.popToTop() }}>
+          <TouchableWithoutFeedback onPress={() => { navigation.goBack() }}>
             <Feather style={{ alignSelf: 'flex-start' }} name="chevron-left" size={30} color='black' />
           </TouchableWithoutFeedback>
 
@@ -137,7 +137,7 @@ const OtpScreen = ({ navigation, route }) => {
           </View>
 
           <Spacer height={45} />
-          
+
           <Text style={{ fontSize: 17, fontWeight: '900', textAlign: 'center' }}>Έλαβες έναν 4-ψήφιο κωδικό στο {email}; Πληκτρολόγησέ τον εδώ:</Text>
 
           <OTPInputView

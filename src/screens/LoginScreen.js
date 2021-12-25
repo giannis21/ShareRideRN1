@@ -1,8 +1,7 @@
-import * as React from 'react';
-import { View, Text, StyleSheet, Button, Platform, TextInput } from 'react-native';
+
+import React, { useEffect, useRef, useState } from 'react';
+import { View, Text, StyleSheet, Button, Platform, TextInput, Image } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-import { ceil } from 'react-native-reanimated';
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseView } from '../layout/BaseView';
 import { Spacer } from '../layout/Spacer';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -16,33 +15,42 @@ import { Loader } from '../utils/Loader';
 import { CustomInput } from '../utils/CustomInput';
 import { InfoPopupModal } from '../utils/InfoPopupModal';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
- 
+import { useIsFocused } from '@react-navigation/native';
 
-let infoMessage = ''
-let hasErrors = false
-
-const LoginScreen = ({ navigation }) => {
+const LoginScreen = ({ navigation, route }) => {
   var _ = require('lodash');
 
-  const [data, setData] = React.useState({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
-  const [isLoading, setIsLoading] = React.useState(false)
-  const [isModalVisible, setIsModalVisible] = React.useState(false)
-  const [modalInput, setModalInput] = React.useState(false)
-  const [areFieldsOkay, setAreFieldsOkay] = React.useState({ areEmpty: false, isPasswordValid: true, isEmailValid: true })
-  const [showInfoModal, setShowInfoModal] = React.useState(false);
+  const [data, setData] = useState({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
+  const [isLoading, setIsLoading] = useState(false)
+  const [isModalVisible, setIsModalVisible] = useState(false)
+  const [modalInput, setModalInput] = useState(false)
+  const [showInfoModal, setShowInfoModal] = useState(false);
+  const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
+  const isFocused = useIsFocused()
 
-
-  React.useEffect(() => {
+  useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-        setData({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
-        setIsModalVisible(false)
-        setShowInfoModal(false)
-        console.log("email",data.email)
+      setData({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
+      setIsModalVisible(false)
+      setShowInfoModal(false)
+      navigation.setParams({ message: undefined });
+
     });
 
     return unsubscribe;
   }, [navigation]);
 
+  useEffect(() => {
+    setTimeout(function () {
+      if (isFocused) {
+        if (!_.isUndefined(route.params?.message)) {
+          setInfoMessage({ info: route.params.message, success: true })
+          showCustomLayout()
+        }
+      }
+    }, 500);
+
+  }, [isFocused]);
 
   const goToRegister = () => {
     navigation.navigate('Register')
@@ -60,9 +68,9 @@ const LoginScreen = ({ navigation }) => {
   const modalInputChange = (value) => {
     setModalInput(value)
   }
- 
+
   const onLogin = () => {
-  
+
     if (!valid())
       return
 
@@ -77,15 +85,13 @@ const LoginScreen = ({ navigation }) => {
 
   const valid = () => {
     if (_.isEmpty(data.email) || _.isEmpty(data.password)) {
-      infoMessage = "Συμπληρώστε τα πεδία πρώτα."
-      hasErrors = true
+      setInfoMessage({ info: "Συμπληρώστε τα πεδία πρώτα.", success: false })
       showCustomLayout()
       return false
     }
 
     if (data.password.length < 5) {
-      infoMessage = "Ο κωδικός αποτελείται απο τουλάχιστον 5 χαρακτήρες."
-      hasErrors = true
+      setInfoMessage({ info: "Ο κωδικός αποτελείται απο τουλάχιστον 5 χαρακτήρες.", success: false })
       showCustomLayout()
       return false
     }
@@ -102,7 +108,7 @@ const LoginScreen = ({ navigation }) => {
   }
 
   const modalSubmit = () => {
-    console.log("dsd ",modalInput)
+
     setIsLoading(true)
     forgotPass({
       email: modalInput,
@@ -111,31 +117,26 @@ const LoginScreen = ({ navigation }) => {
     })
   }
   const userSuccessCallback = (message) => {
-    console.log(message)
-    infoMessage = message
-    hasErrors = false
+
+    setInfoMessage({ info: message, success: false })
     setIsLoading(false)
   }
-  const forgotPassSuccessCallback = (_otp,_email) => {
+  const forgotPassSuccessCallback = (_otp, _email) => {
     setIsLoading(false)
-    navigation.navigate(routes.OTP_SCREEN,{otp:_otp,email:_email,goToRestore:true})
+    navigation.navigate(routes.OTP_SCREEN, { otp: _otp, email: _email, goToRestore: true })
   }
 
   const userErrorCallback = (message) => {
-    console.log("callback+ " + message)
-    infoMessage = message
-    hasErrors = true
 
+    setInfoMessage({ info: message, success: false })
     setIsLoading(false)
     showCustomLayout()
 
   }
 
   const forgotPassErrorCallback = (message) => {
-    console.log("callback+ " + message)
-    infoMessage = message
-    hasErrors = true
 
+    setInfoMessage({ info: message, success: false })
     setIsLoading(false)
     showCustomLayout()
 
@@ -143,8 +144,9 @@ const LoginScreen = ({ navigation }) => {
 
   const showCustomLayout = () => {
     setShowInfoModal(true)
-
+    console.log("modal nai")
     setTimeout(function () {
+      console.log("modal oxi")
       setShowInfoModal(false)
     }, 3000);
   }
@@ -156,29 +158,29 @@ const LoginScreen = ({ navigation }) => {
       <Loader isLoading={isLoading} />
       <CustomInfoLayout
         isVisible={showInfoModal}
-        title={infoMessage}
-        icon={hasErrors ? 'x-circle' : 'check-circle'}
-        success={!hasErrors}
+        title={infoMessage.info}
+        icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
+        success={infoMessage.success}
       />
-        
-     <KeyboardAwareScrollView
+
+      <KeyboardAwareScrollView
         extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
         showsVerticalScrollIndicator={false}
         automaticallyAdjustContentInsets={true}
         bounces={true}
         keyboardShouldPersistTaps={'handled'}>
-        <View>
-
-          <Spacer height={35} />
-          <Feather style={{ alignSelf: 'center' }} name="eye-off" size={80} color='grey' />
- 
-          <Spacer height={35} />
+        <Image
+          style={{ width: 280, height: 280, alignSelf: 'center', marginTop: -70 }}
+          source={require('../assets/images/logo_transparent.png')}
+        />
+        <View style={{ marginTop: -26 }}>
 
           <CustomInput
             text='εδώ, δίνεις το email σου'
             keyboardType="email-address"
             onChangeText={onEmailChanged}
             value={data.email}
+
           />
 
           <CustomInput
@@ -209,7 +211,7 @@ const LoginScreen = ({ navigation }) => {
             onPress={() =>
               //navigation.navigate("RestorePassword")
               goToRegister()
-            //  navigation.navigate(routes.OTP_SCREEN,{otp_:'6234',email_:"giannisfragoulis21@gmail.com"})
+              // navigation.navigate(routes.OTP_SCREEN, { _otp: '6234', _email: "giannisfragoulis21@gmail.com" })
             } />
         </View>
 
@@ -224,7 +226,7 @@ const LoginScreen = ({ navigation }) => {
           descrStyle={true}
           onChangeText={modalInputChange}
         />
-      </KeyboardAwareScrollView>  
+      </KeyboardAwareScrollView>
 
     </BaseView>
 

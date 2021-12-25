@@ -5,63 +5,63 @@ import AsyncStorage from "@react-native-community/async-storage";
 import { useDispatch } from "react-redux";
 import * as types from '../actions/types'
 import { getHeaderConfig } from "../utils/Functions";
-import {getValue, setValue,keyNames} from '../utils/Storage'
+import { getValue, setValue, keyNames } from '../utils/Storage'
 export const createToken = async ({ email, password, successCallBack, errorCallback }) => {
-  
+
   const send = {
     "data": {
       "email": email,
       "pass": password
     }
-  }  
- 
+  }
+
   await instance.post(`/createtoken`, send)
     .then(res => {
- 
+
       let token = res.data.accessToken
-     
+
       setValue(keyNames.token, token)
 
-      login({send:send,token:token,successCallBack:successCallBack,errorCallback:errorCallback})
-      
-    
+      login({ send: send, token: token, successCallBack: successCallBack, errorCallback: errorCallback })
+
+
     }).catch(function (error) {
-        errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
 
 };
- 
 
-const login = async({ send, token, successCallBack, errorCallback} ) => {
+
+const login = async ({ send, token, successCallBack, errorCallback }) => {
   let config = getHeaderConfig(token)
- 
+
   await instance.post(`/login`, send, config)
     .then(res => {
       storeInfoLocally(res.data)
-   
+
       successCallBack()
-       
+
     }).catch(function (error) {
       errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
 
 };
 
-export const forgotPass = async ({ email,successCallBack, errorCallback }) => {
-  
+export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
+
   let config = getHeaderConfig()
   const send = {
     "data": {
-      "email": email   
+      "email": email
     }
-  }  
+  }
   console.log(config)
   await instance.post(`/passotp`, send, config)
     .then(res => {
-       console.log("passotp called ",res.data) 
-       successCallBack(res.data.otp,email)
- 
-       
+      console.log("passotp called ", res.data)
+      successCallBack(res.data.otp, email)
+
+
     }).catch(function (error) {
       errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
@@ -69,21 +69,21 @@ export const forgotPass = async ({ email,successCallBack, errorCallback }) => {
 
 };
 
-export const restorePassword = async ({password, successCallBack, errorCallback }) => {
-  
+export const restorePassword = async ({ password, successCallBack, errorCallback }) => {
+
   let config = await getHeaderConfig()
-  let email=  await getValue(keyNames.email) 
+  let email = await getValue(keyNames.email)
 
   const send = {
     "data": {
       "email": email,
       "pass": password
     }
-  }  
+  }
 
   await instance.post(`/updateUserPass`, send, config)
     .then(res => {
-       successCallBack(res.data.message)
+      successCallBack(res.data.message)
     }).catch(function (error) {
       errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
@@ -91,11 +91,61 @@ export const restorePassword = async ({password, successCallBack, errorCallback 
 
 };
 
+export const uploadImage = async (email, singleFile, successCallBack, errorCallback) => {
+  let config = await getHeaderConfig()
+  config.headers = { ...config.headers, "Content-Type": "multipart/form-data" };
+
+  var data = new FormData();
+  data.append('upload', {
+    uri: singleFile,
+    name: email + '.jpeg',
+    type: 'image/*'
+  })
+
+  await instance.post(`/upload`, data, config)
+    .then(res => {
+
+      successCallBack()
+
+    }).catch(function (error) {
+      console.log("error ", error)
+      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+    });
+
+};
+
+export const registerUser = async (data, successCallBack, errorCallback) => {
+  let config = await getHeaderConfig()
+
+  const send = {
+    "data": {
+      "email": data.email,
+      "password": data.password,
+      "mobile": data.phone,
+      "fullname": data.fullName,
+      "gender": data.checked,
+      "car": data.carBrand,
+      "cardate": data.carDate,
+      "age": data.age,
+      "photo": "1"
+    }
+  }
+  await instance.post(`/register`, send, config)
+    .then(res => {
+      console.log("data ", res.data.body.message, res.data.body.otp)
+      successCallBack(res.data.body.message, res.data.body.otp)
+
+    }).catch(function (error) {
+
+      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+    });
+}
+
 const storeInfoLocally = (res) => {
-  try{
+  try {
     const d = new Date();
-    console.log("resdfsdfss",  res.user)
-  
+    console.log("resdfsdfss", res.user)
+
     setValue('lastLoginDate', d.getTime().toString())
     setValue('age', res.user.age)
     setValue('car', res.user.car)
@@ -107,10 +157,10 @@ const storeInfoLocally = (res) => {
     setValue('instagram', res.user.instagram ?? "")
     setValue('phone', res.user.mobile)
     setValue('password', res.user.password)
-  
-  }catch(err){
+
+  } catch (err) {
 
   }
- 
+
 
 }

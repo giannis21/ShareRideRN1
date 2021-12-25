@@ -9,10 +9,10 @@ export function BaseView({ edges, light, statusBarColor, children, translucent, 
 
     return (
         <SafeAreaView
-            style={containerStyle ? containerStyle : { flex: 1, marginHorizontal: 16 }}>
+            style={containerStyle ? containerStyle : { flex: 1, paddingHorizontal: 16, backgroundColor: 'white' }}>
 
             {true && <StatusBar backgroundColor={statusBarColor}
-                barStyle={light ? 'light-content' : 'dark-content'}
+                barStyle={!light ? 'light-content' : 'dark-content'}
                 hidden={false}
                 translucent={translucent} />
             }

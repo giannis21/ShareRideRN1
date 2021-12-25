@@ -1,13 +1,13 @@
 import React from "react";
-import { TextInput, TouchableOpacity,View,Text,StyleSheet } from "react-native";
+import { TextInput, TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { Spacer } from "../layout/Spacer";
 import { colors } from '../utils/Colors';
 import Feather from 'react-native-vector-icons/Feather';
 
-export function CustomInput({ text, hasIcon, keyboardType,secureTextEntry,onChangeText,onIconPressed,value }) {
+export function CustomInput({ text, hasIcon, keyboardType, secureTextEntry, onChangeText, onIconPressed, value, maxLenth, extraStyle }) {
 
     return (
-        <View style={styles.SectionStyle}>
+        <View style={[styles.SectionStyle, { extraStyle }]}>
 
             <Text style={{ color: '#8b9cb5' }}>{text}</Text>
 
@@ -21,17 +21,18 @@ export function CustomInput({ text, hasIcon, keyboardType,secureTextEntry,onChan
                     secureTextEntry={secureTextEntry ? true : false}
                     //  returnKeyType="next"
                     blurOnSubmit={false}
+                    maxLength={maxLenth}
                     onChangeText={onChangeText}
-                    value={value}/>
+                    value={value} />
 
                 {hasIcon ? <TouchableOpacity activeOpacity={0.1} style={{ marginRight: 10 }} onPress={onIconPressed}>
                     {secureTextEntry ?
                         <Feather style={{ color: colors.colorPrimary }} name="eye-off" size={20} color='grey' /> :
                         <Feather style={{ color: colors.colorPrimary }} name="eye" size={20} color='grey' />}
                 </TouchableOpacity>
-                : null
-            }    
-                
+                    : null
+                }
+
             </View>
         </View>
 
@@ -43,6 +44,7 @@ const styles = StyleSheet.create({
     SectionStyle: {
         flexDirection: 'column',
         height: 'auto',
+        width: '100%',
         marginTop: 20,
         borderBottomWidth: 1,
         borderBottomColor: colors.colorPrimary,
