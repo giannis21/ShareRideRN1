@@ -26,6 +26,7 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 
 
     }).catch(function (error) {
+      console.log(error.response.data)
       errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
 
@@ -33,15 +34,15 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 
 
 const login = async ({ send, token, successCallBack, errorCallback }) => {
-  let config = getHeaderConfig(token)
-
+  let config = await getHeaderConfig(token)
   await instance.post(`/login`, send, config)
     .then(res => {
       storeInfoLocally(res.data)
-
-      successCallBack()
+      console.log("res.data.message", res.data.message)
+      successCallBack(res.data.message)
 
     }).catch(function (error) {
+      console.log(error.response.data)
       errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
 
@@ -63,6 +64,7 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
 
 
     }).catch(function (error) {
+      console.log(error.response.data)
       errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
     });
 
@@ -144,19 +146,19 @@ export const registerUser = async (data, successCallBack, errorCallback) => {
 const storeInfoLocally = (res) => {
   try {
     const d = new Date();
-    console.log("resdfsdfss", res.user)
+
 
     setValue('lastLoginDate', d.getTime().toString())
     setValue('age', res.user.age)
     setValue('car', res.user.car)
     setValue('carDate', res.user.cardate)
     setValue('email', res.user.email)
-    setValue('facebook', res.user.facebook)
+    setValue('facebook', res.user.facebook ?? "-")
     setValue('fullName', res.user.fullname)
-    setValue('gender', res.user.gender ?? "")
-    setValue('instagram', res.user.instagram ?? "")
-    setValue('phone', res.user.mobile)
-    setValue('password', res.user.password)
+    setValue('gender', res.user.gender ?? "-")
+    setValue('instagram', res.user.instagram ?? "-")
+    setValue('phone', res.user.mobile.toString())
+    setValue('password', res.user.password.toString())
 
   } catch (err) {
 

@@ -1,7 +1,8 @@
 import { setValue, getValue, keyNames } from "../utils/Storage";
 import ImagePicker from 'react-native-image-crop-picker';
+
 export const getHeaderConfig = async (token) => {
-  let newToken
+  let newToken = token
   if (!token) {
     newToken = await getValue(keyNames.token)
   }
@@ -13,7 +14,7 @@ export const getHeaderConfig = async (token) => {
       "Authorization": "Bearer " + newToken
     }
   }
-
+  console.log("config  ", config)
   return config
 
 }

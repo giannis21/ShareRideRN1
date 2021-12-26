@@ -1,36 +1,33 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { View, Text, StyleSheet, Button, Platform, TextInput, Image, InteractionManager } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
-import { SafeAreaView } from 'react-native-safe-area-context';
 import { BaseView } from '../layout/BaseView';
 import { Spacer } from '../layout/Spacer';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
 import Feather from 'react-native-vector-icons/Feather';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
-import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { RoundButton } from '../Buttons/RoundButton';
 import { colors } from '../utils/Colors';
 import { routes } from '../navigation/RouteNames';
-import { createToken, forgotPass, uploadImage, registerUser } from '../services/AuthServices';
+import { uploadImage, registerUser } from '../services/AuthServices';
 import { Loader } from '../utils/Loader';
 import { CustomInput } from '../utils/CustomInput';
-import { InfoPopupModal } from '../utils/InfoPopupModal';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
-import ActionSheet from 'react-native-actionsheet';
 import { carBrands, onLaunchCamera, onLaunchGallery } from '../utils/Functions';
 import { CheckBox } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
+import { OpenImageModal } from '../utils/OpenImageModal';
+
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
 
      let initalData = { email: '', password: '', carBrand: 'ΟΛΑ', checked: 'male', carDate: '', passwordConfirmed: '', secureTextEntry: true, secureTextEntryConfirmed: true, fullName: '', phone: '', age: '', gender: 'man' }
-     const [data, setData] = React.useState(initalData)
-     const [isLoading, setIsLoading] = React.useState(false)
-     const [isModalVisible, setIsModalVisible] = React.useState(false)
-     const [modalInput, setModalInput] = React.useState(false)
-     const [areFieldsOkay, setAreFieldsOkay] = React.useState({ areEmpty: false, isPasswordValid: true, isEmailValid: true })
-     const [showInfoModal, setShowInfoModal] = React.useState(false);
+     const [data, setData] = useState(initalData)
+     const [isLoading, setIsLoading] = useState(false)
+     const [isModalVisible, setIsModalVisible] = useState(false)
+     const [modalInput, setModalInput] = useState(false)
+     const [areFieldsOkay, setAreFieldsOkay] = useState({ areEmpty: false, isPasswordValid: true, isEmailValid: true })
+     const [showInfoModal, setShowInfoModal] = useState(false);
      const [singleFile, setSingleFile] = useState(null);
      const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
 
@@ -46,13 +43,6 @@ const RegisterScreen = ({ navigation }) => {
           return unsubscribe;
      }, [navigation]);
 
-     const showActionSheet = () => {
-          InteractionManager.runAfterInteractions(() => {
-               actionSheetRef.current.show();
-
-          });
-
-     };
      const goToLogin = () => {
           navigation.goBack()
      }
@@ -137,9 +127,6 @@ const RegisterScreen = ({ navigation }) => {
                     callback()
           }, 3000);
      }
-     const goToRegister = () => {
-          navigation.navigate('Register')
-     }
      const onEmailChanged = (value) => {
           setData({ ...data, email: value })
      }
@@ -181,8 +168,11 @@ const RegisterScreen = ({ navigation }) => {
                     return onLaunchGallery((data) => {
                          setSingleFile(data)
                     });
-               case 2: return null
+               case 2: {
+                    setSingleFile(null)
+                    return null
 
+               }
           }
      };
 
@@ -199,13 +189,7 @@ const RegisterScreen = ({ navigation }) => {
                     icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                     success={infoMessage.success}
                />
-               <ActionSheet
-                    ref={actionSheetRef}
-                    options={['Βγάλε φωτογραφία', 'Επέλεξε φωτογραφία', 'Άκυρο']}
-                    cancelButtonIndex={2}
-                    destructiveButtonIndex={2}
-                    onPress={onActionSheet}
-               />
+
                <KeyboardAwareScrollView
                     extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
                     showsVerticalScrollIndicator={false}
@@ -216,7 +200,7 @@ const RegisterScreen = ({ navigation }) => {
 
                          <Spacer height={35} />
                          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                              <TouchableWithoutFeedback style={styles.circleContainer} onPress={showActionSheet}>
+                              <TouchableWithoutFeedback style={styles.circleContainer} onPress={() => { setIsModalVisible(true) }}>
                                    <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
 
                                         <Image
@@ -377,7 +361,17 @@ const RegisterScreen = ({ navigation }) => {
                     </View>
 
                </KeyboardAwareScrollView>
+               <OpenImageModal
+                    isVisible={isModalVisible}
+                    closeAction={() => {
+                         setIsModalVisible(false);
+                    }}
+                    buttonPress={(index) => {
+                         setIsModalVisible(false);
+                         onActionSheet(index)
+                    }}
 
+               />
           </BaseView >
 
      );

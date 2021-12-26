@@ -117,10 +117,12 @@ const LoginScreen = ({ navigation, route }) => {
     })
   }
   const userSuccessCallback = (message) => {
-
-    setInfoMessage({ info: message, success: false })
+    setInfoMessage({ info: message, success: true })
+    showCustomLayout()
     setIsLoading(false)
   }
+
+
   const forgotPassSuccessCallback = (_otp, _email) => {
     setIsLoading(false)
     navigation.navigate(routes.OTP_SCREEN, { otp: _otp, email: _email, goToRestore: true })
@@ -144,9 +146,7 @@ const LoginScreen = ({ navigation, route }) => {
 
   const showCustomLayout = () => {
     setShowInfoModal(true)
-    console.log("modal nai")
     setTimeout(function () {
-      console.log("modal oxi")
       setShowInfoModal(false)
     }, 3000);
   }
