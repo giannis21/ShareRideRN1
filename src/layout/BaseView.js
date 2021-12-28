@@ -5,11 +5,11 @@ import { Platform, StatusBar } from "react-native";
 
 const STATUSBAR_HEIGHT = Platform.OS === 'android' ? 48 : 0;
 
-export function BaseView({ edges, light, statusBarColor, children, translucent, containerStyle }) {
+export function BaseView({ edges, light, statusBarColor, children, translucent, containerStyle, removePadding }) {
 
     return (
         <SafeAreaView
-            style={containerStyle ? containerStyle : { flex: 1, paddingHorizontal: 16, backgroundColor: 'white' }}>
+            style={containerStyle ? containerStyle : { flex: 1, paddingHorizontal: removePadding ? 0 : 16, backgroundColor: 'white' }}>
 
             {true && <StatusBar backgroundColor={statusBarColor}
                 barStyle={!light ? 'light-content' : 'dark-content'}

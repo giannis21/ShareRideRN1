@@ -17,7 +17,7 @@ import { CustomInput } from '../utils/CustomInput';
 import { InfoPopupModal } from '../utils/InfoPopupModal';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { getValue, setValue } from '../utils/Storage';
-
+import { constVar } from '../utils/constStr'
 let hasErrors = false
 const RestorePasswordScreen = ({ navigation }) => {
   var _ = require('lodash');
@@ -38,12 +38,13 @@ const RestorePasswordScreen = ({ navigation }) => {
     return unsubscribe;
   }, [navigation]);
 
-  const showCustomLayout = (callback) => {
+  function showCustomLayout(callback) {
     setShowInfoModal(true)
 
     setTimeout(function () {
       setShowInfoModal(false)
-      callback()
+      if (callback)
+        callback()
     }, 3000);
   }
   const successCallBack = (message) => {
@@ -59,15 +60,18 @@ const RestorePasswordScreen = ({ navigation }) => {
   const onButtonPressed = () => {
     Keyboard.dismiss()
     if (_.isEmpty(data.password) || _.isEmpty(data.passwordConfirm)) {
-      setInfoMessage({ hasError: true, message: 'Συμπληρώστε τα πεδία πρώτα.' })
+      setInfoMessage({ hasError: true, message: constVar.fillFirst })
       showCustomLayout()
+
     } else if (data.password.length < 5 || data.passwordConfirm.length < 5) {
-      setInfoMessage({ hasError: true, message: 'Ο κωδικός αποτελείται απο 5 χαρακτήρες και άνω.' })
+      setInfoMessage({ hasError: true, message: constVar.passLength })
       showCustomLayout()
+
     }
     else if (data.password !== data.passwordConfirm) {
-      setInfoMessage({ hasError: true, message: 'Οι κωδικοί είναι διαφορετικοί.' })
+      setInfoMessage({ hasError: true, message: constVar.passwordDifferent })
       showCustomLayout()
+
     } else {
       let password = data.password
       restorePassword({ password, successCallBack: successCallBack, errorCallback: errorCallback })
@@ -114,12 +118,12 @@ const RestorePasswordScreen = ({ navigation }) => {
             <Feather style={{ alignSelf: 'flex-start' }} name="chevron-left" size={30} color='black' />
           </TouchableWithoutFeedback>
 
-          <Text style={styles.header}>Νέο password</Text>
+          <Text style={styles.header}>{constVar.newPass}</Text>
         </View>
 
         <Spacer height={80} />
         <CustomInput
-          text='δώσε έναν νέο κωδικό'
+          text={constVar.givePass}
           secureTextEntry={data.secureTextEntry ? true : false}
           onChangeText={onPasswordChanged}
           onIconPressed={updateSecureTextEntry}
@@ -128,7 +132,7 @@ const RestorePasswordScreen = ({ navigation }) => {
         />
 
         <CustomInput
-          text='επιβεβαίωση κωδικού'
+          text={constVar.confirmPass}
           secureTextEntry={data.secureTextEntryConfirmed ? true : false}
           onChangeText={onPasswordConfirmedChanged}
           onIconPressed={updateSecureTextEntryConfirmed}
@@ -137,14 +141,14 @@ const RestorePasswordScreen = ({ navigation }) => {
         />
         <Spacer height={5} />
 
-        <Text style={{ fontSize: 13, color: '#8b9cb5' }}>*Ο κωδικός αποτελείται απο 5 χαρακτήρες και άνω</Text>
+        <Text style={{ fontSize: 13, color: '#8b9cb5' }}>{constVar.passLengthNote}</Text>
         <Spacer height={30} />
 
         <RoundButton
-          text="Πάμε"
+          text={constVar.go}
           backgroundColor={colors.colorPrimary}
           onPress={onButtonPressed}
-         />
+        />
       </KeyboardAwareScrollView>
     </BaseView >
   );
@@ -156,7 +160,6 @@ export default RestorePasswordScreen
 const styles = StyleSheet.create({
   header: {
     fontSize: 23,
-
     marginStart: 14,
     color: 'black',
     fontWeight: 'bold',

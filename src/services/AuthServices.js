@@ -6,6 +6,7 @@ import { useDispatch } from "react-redux";
 import * as types from '../actions/types'
 import { getHeaderConfig } from "../utils/Functions";
 import { getValue, setValue, keyNames } from '../utils/Storage'
+import { constVar } from "../utils/constStr";
 export const createToken = async ({ email, password, successCallBack, errorCallback }) => {
 
   const send = {
@@ -27,7 +28,7 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 
     }).catch(function (error) {
       console.log(error.response.data)
-      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
 };
@@ -38,12 +39,11 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
   await instance.post(`/login`, send, config)
     .then(res => {
       storeInfoLocally(res.data)
-      console.log("res.data.message", res.data.message)
       successCallBack(res.data.message)
 
     }).catch(function (error) {
       console.log(error.response.data)
-      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
 };
@@ -60,12 +60,12 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
   await instance.post(`/passotp`, send, config)
     .then(res => {
       console.log("passotp called ", res.data)
-      successCallBack(res.data.otp, email)
+      successCallBack(res.data.otp, email, res.data.message)
 
 
     }).catch(function (error) {
       console.log(error.response.data)
-      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
 
@@ -87,7 +87,7 @@ export const restorePassword = async ({ password, successCallBack, errorCallback
     .then(res => {
       successCallBack(res.data.message)
     }).catch(function (error) {
-      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
 
@@ -111,7 +111,7 @@ export const uploadImage = async (email, singleFile, successCallBack, errorCallb
 
     }).catch(function (error) {
       console.log("error ", error)
-      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
 };
@@ -136,10 +136,8 @@ export const registerUser = async (data, successCallBack, errorCallback) => {
     .then(res => {
       console.log("data ", res.data.body.message, res.data.body.otp)
       successCallBack(res.data.body.message, res.data.body.otp)
-
     }).catch(function (error) {
-
-      errorCallback(error.response.data.message ?? 'Ουπς, κάτι πήγε λάθος')
+      errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 }
 

@@ -11,6 +11,7 @@ import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { useTimer } from '../customHooks/useTimer';
 import { forgotPass } from '../services/AuthServices';
 import { routes } from '../navigation/RouteNames';
+import { constVar } from '../utils/constStr';
 
 const OtpScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = React.useState(false)
@@ -25,7 +26,7 @@ const OtpScreen = ({ navigation, route }) => {
   const [otp, setOtp] = React.useState(_otp);
   const [email, setEmail] = React.useState(_email);
   const [hasErrors, setHasErrors] = React.useState(false);
-  const [errorMessage, setErrorMessage] = React.useState(false);
+  const [message, setMessage] = React.useState(false);
 
   let timerTime = useTimer(true, refreshTimer)
 
@@ -33,13 +34,7 @@ const OtpScreen = ({ navigation, route }) => {
     setModalInput(value)
   }
   console.log("otp ", otp)
-  const goToLogin = () => {
-    navigation.popToTop()
-  }
 
-  const goToRestorePass = () => {
-    navigation.navigate("RestorePassword")
-  }
 
   const onConfirm = (code) => {
 
@@ -50,9 +45,9 @@ const OtpScreen = ({ navigation, route }) => {
 
     if (code === otp) {
       if (goToRestore)
-        navigation.navigate("RestorePassword")
+        navigation.navigate(routes.RESTORE_PASSWORD_SCREEN)
       else
-        navigation.navigate(routes.LOGIN_SCREEN, { message: "Η εξακρίβωση του email ολοκληρώθηκε επιτυχώς!" })
+        navigation.navigate(routes.LOGIN_SCREEN, { message: constVar.emailApproved })
 
     } else {
       setTimeout(function () {
@@ -64,8 +59,9 @@ const OtpScreen = ({ navigation, route }) => {
   }
 
 
-  const forgotPassSuccessCallback = (_otp, _email) => {
-
+  const forgotPassSuccessCallback = (_otp, _email, message) => {
+    setMessage(message)
+    showCustomLayout()
     setIsLoading(false)
     setTimeout(function () {
       setShowTextError(false)
@@ -81,7 +77,7 @@ const OtpScreen = ({ navigation, route }) => {
 
     setHasErrors(true)
     setIsLoading(false)
-    setErrorMessage(message)
+    setMessage(message)
     showCustomLayout()
 
   }
@@ -91,7 +87,6 @@ const OtpScreen = ({ navigation, route }) => {
 
   }
   const retry = () => {
-    console.log("retry ", _email)
     setIsLoading(true)
     forgotPass({
       email: _email,
@@ -114,7 +109,7 @@ const OtpScreen = ({ navigation, route }) => {
       <Loader isLoading={isLoading} />
       <CustomInfoLayout
         isVisible={showInfoModal}
-        title={"infoMessage"}
+        title={message}
         icon={hasErrors ? 'x-circle' : 'check-circle'}
         success={!hasErrors}
       />
@@ -126,7 +121,7 @@ const OtpScreen = ({ navigation, route }) => {
             <Feather style={{ alignSelf: 'flex-start' }} name="chevron-left" size={30} color='black' />
           </TouchableWithoutFeedback>
 
-          <Text style={styles.header}>Πάμε για επιβεβαίωση</Text>
+          <Text style={styles.header}>{constVar.goConfirm}</Text>
         </View>
 
         <Spacer height={65} />
@@ -158,15 +153,15 @@ const OtpScreen = ({ navigation, route }) => {
             }}
           />
 
-          {showTextError ? (
-            <Text style={styles.wrongPass}>ο κωδικός είναι λάθος ή έχει λήξει</Text>) : null}
+          {showTextError && (
+            <Text style={styles.wrongPass}>{constVar.expiredPass}</Text>)}
 
           <Spacer height={50} />
-          <Text style={{ fontSize: 16, paddingHorizontal: 22, alignSelf: 'center', textAlign: 'center', fontWeight: '900' }}>δεν έλαβες κάποιο email; Τσέκαρε μήπως πήγε στα σπαμ σου ✉</Text>
+          <Text style={{ fontSize: 16, paddingHorizontal: 22, alignSelf: 'center', textAlign: 'center', fontWeight: '900' }}>{constVar.checkEmail}</Text>
           <Spacer height={30} />
 
           <TouchableWithoutFeedback onPress={retry}>
-            <Text style={{ fontSize: 16, paddingHorizontal: 22, alignSelf: 'center', textAlign: 'center', fontWeight: 'bold' }}>retry</Text>
+            <Text style={{ fontSize: 16, paddingHorizontal: 22, alignSelf: 'center', textAlign: 'center', fontWeight: 'bold' }}>{constVar.retry}</Text>
 
           </TouchableWithoutFeedback>
 
@@ -175,19 +170,6 @@ const OtpScreen = ({ navigation, route }) => {
 
 
       </View>
-
-      {/* <InfoPopupModal
-        isVisible={isModalVisible}
-        description={"Δώσε μας το email που χρησιμοποίησες για την εγγραφή σου και θα σου στείλουμε έναν νέο κωδικό τον οποίον μπορείς να τον αλλάξεις."}
-        buttonText={"Πάμε"}
-        closeAction={() => {
-          setIsModalVisible(false);
-        }}
-        buttonPress={modalSubmit}
-        descrStyle={true}
-        onChangeText={modalInputChange}
-      /> */}
-
 
     </BaseView>
 

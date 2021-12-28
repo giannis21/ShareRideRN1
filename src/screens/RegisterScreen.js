@@ -17,6 +17,7 @@ import { carBrands, onLaunchCamera, onLaunchGallery } from '../utils/Functions';
 import { CheckBox } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
 import { OpenImageModal } from '../utils/OpenImageModal';
+import { constVar } from '../utils/constStr';
 
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
@@ -43,12 +44,7 @@ const RegisterScreen = ({ navigation }) => {
           return unsubscribe;
      }, [navigation]);
 
-     const goToLogin = () => {
-          navigation.goBack()
-     }
-     const goToOtp = () => {
-          navigation.navigate('Otp')
-     }
+
      const onRegister = () => {
           if (!valid())
                return
@@ -61,7 +57,6 @@ const RegisterScreen = ({ navigation }) => {
                          setIsLoading(false)
                          setInfoMessage({ info: message, success: true })
                          showCustomLayout(() => {
-                              console.log("_otp ", otp)
                               navigation.navigate(routes.OTP_SCREEN, { _otp: otp, _email: data.email, goToRestore: false })
                          })
                     }),
@@ -155,9 +150,6 @@ const RegisterScreen = ({ navigation }) => {
           setData({ ...data, secureTextEntryConfirmed: !data.secureTextEntryConfirmed });
      }
 
-     const modalInputChange = (value) => {
-          setModalInput(value)
-     }
      const onActionSheet = (index) => {
           switch (index) {
                case 0:
@@ -228,26 +220,26 @@ const RegisterScreen = ({ navigation }) => {
                          <Spacer height={35} />
 
                          <CustomInput
-                              text='εδώ, δίνεις το email σου'
+                              text={constVar.hereEmail}
                               keyboardType="email-address"
                               onChangeText={onEmailChanged}
                               value={data.email}
                          />
 
                          <CustomInput
-                              text='ονοματεπώνυμο'
+                              text={constVar.fullName}
                               keyboardType="default"
                               onChangeText={onFullNameChanged}
                               value={data.fullName}
                          />
                          <CustomInput
-                              text='αριθμός τηλεφώνου'
+                              text={constVar.phone}
                               keyboardType="numeric"
                               onChangeText={onPhoneChanged}
                               value={data.phone}
                          />
                          <CustomInput
-                              text='ηλικία'
+                              text={constVar.age}
                               keyboardType="numeric"
                               onChangeText={onAgeChanged}
                               maxLenth={2}
@@ -259,7 +251,7 @@ const RegisterScreen = ({ navigation }) => {
                               <Spacer width={16} />
                               <CheckBox
                                    center
-                                   title='Άντρας'
+                                   title={constVar.man}
                                    checkedIcon='check-square-o'
                                    uncheckedIcon='square-o'
                                    checked={data.checked === 'male' ? true : false}
@@ -267,19 +259,16 @@ const RegisterScreen = ({ navigation }) => {
                               />
                               <CheckBox
                                    center
-                                   title='Γυναίκα'
+                                   title={constVar.woman}
                                    checkedIcon='check-square-o'
                                    uncheckedIcon='square-o'
                                    checked={data.checked === 'female' ? true : false}
                                    onPress={() => setData({ ...data, checked: 'female' })}
                               />
-
-
-
                          </View>
 
                          <CustomInput
-                              text='εδώ, τον κωδικό σου'
+                              text={constVar.herePass}
                               keyboardType="default"
                               secureTextEntry={data.secureTextEntry ? true : false}
                               onChangeText={onPasswordChanged}
@@ -290,7 +279,7 @@ const RegisterScreen = ({ navigation }) => {
 
 
                          <CustomInput
-                              text='επιβεβαίωση κωδικού'
+                              text={constVar.confirmPass}
                               keyboardType="default"
                               secureTextEntry={data.secureTextEntryConfirmed ? true : false}
                               onChangeText={onPasswordConfirmedChanged}
@@ -299,15 +288,15 @@ const RegisterScreen = ({ navigation }) => {
                               value={data.passwordConfirmed}
                          />
                          <Spacer height={6} />
-                         <Text style={{ fontSize: 13, color: '#8b9cb5' }}>*Ο κωδικός αποτελείται απο 5 χαρακτήρες και άνω</Text>
+                         <Text style={{ fontSize: 13, color: '#8b9cb5' }}>{constVar.passLengthNote}</Text>
                          <Spacer height={26} />
                          <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
                          <Spacer height={26} />
 
-                         <Text style={{ alignSelf: 'center', fontSize: 19, fontWeight: 'bold' }}>Όχημα</Text>
+                         <Text style={{ alignSelf: 'center', fontSize: 19, fontWeight: 'bold' }}>{constVar.carTitle}</Text>
                          <Spacer height={20} />
                          <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                              <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center' }}>Μάρκα</Text>
+                              <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.carBrandTitle}</Text>
                               <Spacer width={20} />
                               <RNPickerSelect
                                    onValueChange={(value) => setData({ ...data, carBrand: value })}
@@ -332,11 +321,11 @@ const RegisterScreen = ({ navigation }) => {
 
 
                          <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                              <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'flex-end' }}>Χρονολογία</Text>
+                              <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'flex-end' }}>{constVar.carAgeTitle}</Text>
                               <Spacer width={20} />
 
                               <CustomInput
-                                   text='Χρονολογία οχήματος'
+                                   text={constVar.carAgeLabel}
                                    keyboardType="default"
                                    onChangeText={oncarDateChanged}
                                    maxLenth={4}
@@ -346,13 +335,13 @@ const RegisterScreen = ({ navigation }) => {
                          </View>
                          <Spacer height={50} />
                          <RoundButton
-                              text="Εγγραφή"
+                              text={constVar.register}
                               onPress={onRegister}
                               backgroundColor={colors.colorPrimary} />
                          <Spacer height={16} />
 
                          <RoundButton
-                              text="Είσοδος"
+                              text={constVar.login}
                               textColor={colors.colorPrimary.toString()}
                               onPress={() => navigation.navigate(routes.LOGIN_SCREEN)}
                          />

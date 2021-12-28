@@ -16,7 +16,7 @@ import { CustomInput } from '../utils/CustomInput';
 import { InfoPopupModal } from '../utils/InfoPopupModal';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { useIsFocused } from '@react-navigation/native';
-
+import { constVar } from '../utils/constStr';
 const LoginScreen = ({ navigation, route }) => {
   var _ = require('lodash');
 
@@ -28,13 +28,13 @@ const LoginScreen = ({ navigation, route }) => {
   const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
   const isFocused = useIsFocused()
 
+
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setData({ email: '', password: '', check_textInputChange: false, secureTextEntry: true })
       setIsModalVisible(false)
       setShowInfoModal(false)
       navigation.setParams({ message: undefined });
-
     });
 
     return unsubscribe;
@@ -85,13 +85,13 @@ const LoginScreen = ({ navigation, route }) => {
 
   const valid = () => {
     if (_.isEmpty(data.email) || _.isEmpty(data.password)) {
-      setInfoMessage({ info: "Συμπληρώστε τα πεδία πρώτα.", success: false })
+      setInfoMessage({ info: constVar.fillFirst, success: false })
       showCustomLayout()
       return false
     }
 
     if (data.password.length < 5) {
-      setInfoMessage({ info: "Ο κωδικός αποτελείται απο τουλάχιστον 5 χαρακτήρες.", success: false })
+      setInfoMessage({ info: constVar.passLength, success: false })
       showCustomLayout()
       return false
     }
@@ -117,15 +117,16 @@ const LoginScreen = ({ navigation, route }) => {
     })
   }
   const userSuccessCallback = (message) => {
-    setInfoMessage({ info: message, success: true })
-    showCustomLayout()
+    // setInfoMessage({ info: message, success: true })
+    // showCustomLayout()
     setIsLoading(false)
+    navigation.navigate(routes.MAIN_TAB_STACK, { screen: routes.SEARCH_ROUTE_SCREEN })
   }
 
 
   const forgotPassSuccessCallback = (_otp, _email) => {
     setIsLoading(false)
-    navigation.navigate(routes.OTP_SCREEN, { otp: _otp, email: _email, goToRestore: true })
+    navigation.navigate(routes.OTP_SCREEN, { _otp: _otp, _email: _email, goToRestore: true })
   }
 
   const userErrorCallback = (message) => {
@@ -169,14 +170,16 @@ const LoginScreen = ({ navigation, route }) => {
         automaticallyAdjustContentInsets={true}
         bounces={true}
         keyboardShouldPersistTaps={'handled'}>
+
         <Image
           style={{ width: 280, height: 280, alignSelf: 'center', marginTop: -70 }}
           source={require('../assets/images/logo_transparent.png')}
         />
+
         <View style={{ marginTop: -26 }}>
 
           <CustomInput
-            text='εδώ, δίνεις το email σου'
+            text={constVar.hereEmail}
             keyboardType="email-address"
             onChangeText={onEmailChanged}
             value={data.email}
@@ -184,7 +187,7 @@ const LoginScreen = ({ navigation, route }) => {
           />
 
           <CustomInput
-            text='εδώ, τον κωδικό σου'
+            text={constVar.herePass}
             keyboardType="default"
             secureTextEntry={data.secureTextEntry ? true : false}
             onChangeText={onPasswordChanged}
@@ -195,30 +198,32 @@ const LoginScreen = ({ navigation, route }) => {
 
           <Spacer height={6} />
           <TouchableWithoutFeedback onPress={openModal}>
-            <Text style={styles.forgotPass} >Ξέχασες τον κωδικό σου;</Text>
+            <Text style={styles.forgotPass} >{constVar.forgotPass}</Text>
           </TouchableWithoutFeedback>
 
           <Spacer height={26} />
           <RoundButton
-            text="Είσοδος"
+            text={constVar.login}
             onPress={onLogin}
             backgroundColor={colors.colorPrimary} />
           <Spacer height={16} />
 
           <RoundButton
-            text="Εγγραφή"
+            text={constVar.register}
             textColor={colors.colorPrimary.toString()}
             onPress={() =>
-              //navigation.navigate("RestorePassword")
               goToRegister()
-              // navigation.navigate(routes.OTP_SCREEN, { _otp: '6234', _email: "giannisfragoulis21@gmail.com" })
-            } />
+            }
+          //navigation.navigate("RestorePassword")
+          // 
+          // navigation.navigate(routes.OTP_SCREEN, {_otp: '6234', _email: "giannisfragoulis21@gmail.com", goToRestore: false })
+          />
         </View>
 
         <InfoPopupModal
           isVisible={isModalVisible}
-          description={"Δώσε μας το email που χρησιμοποίησες για την εγγραφή σου και θα σου στείλουμε έναν νέο κωδικό τον οποίον μπορείς να τον αλλάξεις."}
-          buttonText={"Πάμε"}
+          description={constVar.changePassDescription}
+          buttonText={constVar.go}
           closeAction={() => {
             setIsModalVisible(false);
           }}
