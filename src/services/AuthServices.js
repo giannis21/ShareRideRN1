@@ -38,6 +38,7 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
   let config = await getHeaderConfig(token)
   await instance.post(`/login`, send, config)
     .then(res => {
+      console.log(res.data)
       storeInfoLocally(res.data)
       successCallBack(res.data.message)
 
@@ -146,17 +147,17 @@ const storeInfoLocally = (res) => {
     const d = new Date();
 
 
-    setValue('lastLoginDate', d.getTime().toString())
-    setValue('age', res.user.age)
-    setValue('car', res.user.car)
-    setValue('carDate', res.user.cardate)
-    setValue('email', res.user.email)
-    setValue('facebook', res.user.facebook ?? "-")
-    setValue('fullName', res.user.fullname)
-    setValue('gender', res.user.gender ?? "-")
-    setValue('instagram', res.user.instagram ?? "-")
-    setValue('phone', res.user.mobile.toString())
-    setValue('password', res.user.password.toString())
+    setValue(keyNames.lastLoginDate, d.getTime().toString())
+    setValue(keyNames.age, res.user.age)
+    setValue(keyNames.car, res.user.car)
+    setValue(keyNames.carDate, res.user.cardate)
+    setValue(keyNames.email, res.user.email)
+    setValue(keyNames.facebook, res.user.facebook ?? "-")
+    setValue(keyNames.fullName, res.user.fullname)
+    setValue(keyNames.gender, res.user.gender ?? "-")
+    setValue(keyNames.instagram, res.user.instagram ?? "-")
+    setValue(keyNames.phone, res.user.mobile.toString())
+    setValue(keyNames.password, res.user.password.toString())
 
   } catch (err) {
 

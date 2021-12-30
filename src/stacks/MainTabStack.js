@@ -7,10 +7,22 @@ import CreatePostScreen from '../screens/main_flow/CreatePostScreen';
 import SearchRouteScreen from '../screens/main_flow/search_route/SearchRouteScreen';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/Colors';
+import ProfileScreen from '../screens/main_flow/ProfileScreen';
 const Tab = createMaterialBottomTabNavigator();
+const Stack = createNativeStackNavigator();
 
-
-
+const HomeStack = () => (
+    <Stack.Navigator>
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.MAIN_TAB_STACK}
+            component={MainTabStack} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.PROFILE_SCREEN}
+            component={ProfileScreen} />
+    </Stack.Navigator>
+);
 const MainTabStack = () => (
     <Tab.Navigator>
         <Tab.Screen
@@ -20,11 +32,7 @@ const MainTabStack = () => (
             options={{
                 options: { headerShown: false },
                 tabBarLabel: 'Αναζήτηση',
-                tabBarColor: '#009387',
-                tabBarOptions: {
-                    style: { backgroundColor: '#f9f9f9', }
-                },
-
+                tabBarColor: colors.colorPrimary,
                 tabBarIcon: ({ color }) => (
                     <Icon name="ios-home" color={color} size={26} />
                 ),
@@ -36,15 +44,12 @@ const MainTabStack = () => (
             options={{
                 options: { headerShown: false },
                 tabBarLabel: 'Δημιουργία Post',
-                tabBarColor: '#009387',
-                tabBarOptions: {
-                    style: { backgroundColor: colors.colorPrimary }
-                },
+                tabBarColor: colors.colorPrimary,
                 tabBarIcon: ({ color }) => (
                     <Icon name="ios-home" color={color} size={26} />
                 ),
             }} />
-    </Tab.Navigator>
+    </Tab.Navigator >
 );
 
-export default MainTabStack;
+export default HomeStack;

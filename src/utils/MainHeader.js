@@ -11,7 +11,9 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 
 export function MainHeader({
     title,
-    icon,
+    onSettingsPress,
+    onClose,
+    showX
 }) {
     const { modal, container } = styles;
     const selectedColor = colors.colorPrimary
@@ -19,12 +21,15 @@ export function MainHeader({
     return (
 
         <View style={{ flexDirection: 'row' }}>
-            <TouchableWithoutFeedback style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                <Icon name="close-circle-outline" color='black' size={40} style={{ marginStart: 16 }} />
-            </TouchableWithoutFeedback>
+            {showX &&
+                <TouchableWithoutFeedback
+                    onPress={onClose}
+                    style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
+                    <Icon name="close-circle-outline" color='black' size={40} style={{ marginStart: 16 }} />
+                </TouchableWithoutFeedback>
+            }
 
-
-            <View style={[container, { flex: 1 }]}>
+            <View style={[container, { flex: 1, marginStart: showX ? 8 : 30 }]}>
 
                 <View style={{
                     flexDirection: 'row',
@@ -33,9 +38,12 @@ export function MainHeader({
                 }}>
                     <Text style={{ color: 'white', alignSelf: 'center', flexWrap: 'wrap', fontSize: 19, marginStart: 14 }}>{title}</Text>
                     <View style={{ flexDirection: 'row' }}>
+
                         <Icon name="filter" color='white' size={23} style={{ alignSelf: 'center' }} />
                         <Spacer width={10} />
-                        <Icon name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />
+                        <TouchableWithoutFeedback onPress={onSettingsPress}>
+                            <Icon name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />
+                        </TouchableWithoutFeedback>
                     </View>
 
                 </View>

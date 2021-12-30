@@ -21,8 +21,8 @@ export function CustomInfoLayout({
       isVisible={isVisible}
       style={modal}
       transparent={true}
-
-      swipeDirection='up'
+      animationIn={'fadeIn'}
+      animationOut={'fadeOut'}
     >
       <View style={[container, { backgroundColor: selectedColor }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>

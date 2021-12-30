@@ -33,16 +33,16 @@ export function InfoPopupModal({
         <View style={container}>
           <View style={styles.topLine} />
           <Spacer height={20} />
-          <Text style={{alignSelf:'center',textAlign:'center'}}>{description}</Text>
+          <Text style={{ alignSelf: 'center', textAlign: 'center' }}>{description}</Text>
 
           <CustomInput
             text='εδώ, δίνεις το email σου'
             keyboardType="email-address"
             onChangeText={onChangeText}
           />
-          <Spacer height={16}/>
+          <Spacer height={16} />
           <RoundButton text={buttonText} onPress={buttonPress} backgroundColor={colors.colorPrimary} />
-          <Spacer height={26}/>
+          <Spacer height={26} />
         </View>
       </Modal>
     </View>

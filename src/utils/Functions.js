@@ -14,7 +14,7 @@ export const getHeaderConfig = async (token) => {
       "Authorization": "Bearer " + newToken
     }
   }
-  console.log("config  ", config)
+
   return config
 
 }

@@ -4,8 +4,6 @@ import { View, Text, StyleSheet, Button, Platform, TextInput, Image } from 'reac
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { BaseView } from '../layout/BaseView';
 import { Spacer } from '../layout/Spacer';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Feather from 'react-native-vector-icons/Feather';
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { RoundButton } from '../Buttons/RoundButton';
 import { colors } from '../utils/Colors';
@@ -120,7 +118,7 @@ const LoginScreen = ({ navigation, route }) => {
     // setInfoMessage({ info: message, success: true })
     // showCustomLayout()
     setIsLoading(false)
-    navigation.navigate(routes.MAIN_TAB_STACK, { screen: routes.SEARCH_ROUTE_SCREEN })
+    navigation.navigate(routes.HOMESTACK, { screen: routes.SEARCH_ROUTE_SCREEN })
   }
 
 

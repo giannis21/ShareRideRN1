@@ -7,5 +7,7 @@ export const routes = {
     CREATE_POST_SCREEN: 'createPostScreen',
     RESTORE_PASSWORD_SCREEN: 'RestorePassword',
     AUTHSTACK: 'AUTHSTACK',
+    HOMESTACK: 'HOMESTACK',
     MAIN_TAB_STACK: 'MAIN_TAB_STACK',
+    PROFILE_SCREEN: 'PROFILE_SCREEN',
 }

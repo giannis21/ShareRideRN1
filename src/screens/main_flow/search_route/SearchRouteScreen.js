@@ -1,6 +1,7 @@
 import * as React from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
+import { routes } from '../../../navigation/RouteNames';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
@@ -17,6 +18,8 @@ const SearchRouteScreen = ({ navigation, route }) => {
             <Loader isLoading={isLoading} />
             <MainHeader
                 title={"Αναζήτηση διαδρομής"}
+                onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: "giannisfragoulis21@gmail.com" }) }}
+                showX
             />
 
             <View style={{ flex: 1, flexDirection: 'column' }}>

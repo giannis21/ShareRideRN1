@@ -18,6 +18,7 @@ import { CheckBox } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
 import { OpenImageModal } from '../utils/OpenImageModal';
 import { constVar } from '../utils/constStr';
+import { PictureComponent } from '../components/PictureComponent';
 
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
@@ -192,30 +193,12 @@ const RegisterScreen = ({ navigation }) => {
 
                          <Spacer height={35} />
                          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                              <TouchableWithoutFeedback style={styles.circleContainer} onPress={() => { setIsModalVisible(true) }}>
-                                   <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
-
-                                        <Image
-                                             style={[{ width: imageWidth, height: imageWidth }, styles.circle]}
-                                             source={
-                                                  !_.isNull(singleFile)
-                                                       ? { uri: 'data:image/jpg;base64,' + singleFile.data }
-                                                       : require('../assets/images/profile.png')
-                                             }
-                                        />
-
-                                   </View>
-
-
-                                   <View style={{ justifyContent: 'flex-end', alignItems: 'flex-end', marginTop: 4 }}>
-                                        <View style={[{ borderRadius: 20, position: 'absolute', backgroundColor: 'white', width: 39, height: 39, justifyContent: 'center' }]}>
-                                             <Feather style={{ alignSelf: 'center' }} name="camera" size={27} color='black' />
-                                        </View>
-                                   </View>
-
-                              </TouchableWithoutFeedback>
-
+                              <PictureComponent
+                                   singleFile={singleFile}
+                                   openCamera={true}
+                                   onPress={() => { setIsModalVisible(true) }} />
                          </View>
+
 
                          <Spacer height={35} />
 
