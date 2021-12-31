@@ -282,6 +282,7 @@ const RegisterScreen = ({ navigation }) => {
                               <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.carBrandTitle}</Text>
                               <Spacer width={20} />
                               <RNPickerSelect
+
                                    onValueChange={(value) => setData({ ...data, carBrand: value })}
                                    items={carBrands}
                                    style={styles.maskInputContainer}

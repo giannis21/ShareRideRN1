@@ -31,5 +31,16 @@ export const constVar = {
     fullName: "ονοματεπώνυμο",
     passwordDifferent: "Οι κωδικοί είναι διαφορετικοί.",
     givePass: "δώσε έναν νέο κωδικό",
-    newPass: "Νέο password"
-};
+    newPass: "Νέο password",
+    personalInfo: "Προσωπικά στοιχεία",
+
+    email: "Email",
+    mobile: "Αριθμός τηλεφώνου",
+    age: "Ηλικία",
+    socialTitle: "Κοινωνικά δίκτυα",
+    carBrand: "Μάρκα αυτοκινήτου",
+    facebook: "Facebook",
+    instagram: "Instagram",
+    car: "Όχημα",
+    rateNow: "Αξιολόγησε τώρα"
+}

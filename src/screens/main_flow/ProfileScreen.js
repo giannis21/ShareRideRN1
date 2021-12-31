@@ -18,13 +18,18 @@ import { RatingDialog } from '../../utils/RatingDialog';
 import { rateUser, searchUser } from '../../services/MainServices';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { BASE_URL } from '../../constants/Constants';
+import { constVar } from '../../utils/constStr';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import RatingTabScreen from '../profile_tabs/RatingTabScreen';
+import MyPostsTabScreen from '../profile_tabs/MyPostsTabScreen';
+import { NavigationContainer } from '@react-navigation/native';
+
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '' }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
-    const [singleFile, setSingleFile] = useState(null);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [rating, setCurrentRating] = useState(null);
 
@@ -34,6 +39,9 @@ const ProfileScreen = ({ navigation, route }) => {
     const goBack = () => {
         navigation.goBack()
     }
+
+    const Tab = createMaterialTopTabNavigator();
+
     function userInfo(icon, title, subTitle) {
         return (
             <View style={{ flexDirection: 'row', marginStart: 16 }}>
@@ -49,8 +57,6 @@ const ProfileScreen = ({ navigation, route }) => {
         )
     }
 
-
-    let imageWidth = !_.isNull(singleFile) ? 92 : 70
     const setUserData = async (data) => {
 
         if (!_.isNull(data.average))
@@ -142,8 +148,9 @@ const ProfileScreen = ({ navigation, route }) => {
                 icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                 success={infoMessage.success}
             />
+
             {data.email !== '' &&
-                <KeyboardAwareScrollView>
+                <KeyboardAwareScrollView height={400}>
 
 
                     <Loader isLoading={isLoading} />
@@ -151,7 +158,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Spacer height={35} />
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
 
-                        <PictureComponent singleFile={singleFile} url={data.image} />
+                        <PictureComponent url={data.image} />
 
                         <Spacer height={10} />
                         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -167,58 +174,76 @@ const ProfileScreen = ({ navigation, route }) => {
 
                         {userViewRate &&
                             <TouchableWithoutFeedback onPress={() => setRatingDialogOpened(true)}>
-                                <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>Αξιολόγησε τώρα</Text>
+                                <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>{constVar.rateNow}</Text>
                             </TouchableWithoutFeedback>
                         }
 
                         <Spacer height={20} />
-                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>Προσωπικά στοιχεία</Text>
+                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{constVar.personalInfo}</Text>
                         <Spacer height={10} />
                         <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
 
 
+
                     </View>
                     <Spacer height={28} />
-                    {userInfo('email', 'Email', data.email)}
+                    {userInfo('email', constVar.email, data.email)}
                     <Spacer height={28} />
-                    {userInfo('phone', 'Αριθμός τηλεφώνου', data.phone)}
+                    {userInfo('phone', constVar.mobile, data.phone)}
                     <Spacer height={28} />
-                    {userInfo('phone', 'Ηλικία', data.age)}
+                    {userInfo('phone', constVar.age, data.age)}
                     <Spacer height={28} />
 
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>Κοινωνικά δίκτυα</Text>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.socialTitle}</Text>
                     <Spacer height={10} />
                     <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
 
                     <Spacer height={28} />
-                    {userInfo('facebook', 'Facebook', data.facebook)}
+
+                    {userInfo('facebook', constVar.facebook, data.facebook)}
                     <Spacer height={28} />
-                    {userInfo('instagram', 'Instagram', data.instagram)}
+                    {userInfo('instagram', constVar.instagram, data.instagram)}
                     <Spacer height={28} />
 
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>Όχημα</Text>
+                    <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.car}</Text>
                     <Spacer height={10} />
                     <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
                     <Spacer height={28} />
                     <View style={{ flexDirection: 'row' }}>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, color: '#595959', opacity: 0.6, textAlign: 'center', color: 'black' }}>Μάρκα αυτοκινήτου</Text>
+                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, color: '#595959', opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carBrand}</Text>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: 'black', alignSelf: 'center' }}>{data.carBrand}</Text>
 
                         </View>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, color: '#595959', opacity: 0.6, textAlign: 'center', color: 'black' }}>Χρονολογία</Text>
+                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, color: '#595959', opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carAgeTitle}</Text>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: 'black', alignSelf: 'center' }}>{data.carDate}</Text>
 
                         </View>
 
                     </View>
                     <Spacer height={28} />
-
+                    <View style={{ height: 400, marginHorizontal: 16 }}>
+                        <Tab.Navigator
+                            screenOptions={{
+                                tabBarLabelStyle: { textTransform: 'lowercase' },
+                                tabBarScrollEnabled: false,
+                                swipeEnabled: true
+                            }}
+                        >
+                            <Tab.Screen name="Αξιολογήσεις" component={RatingTabScreen} />
+                            <Tab.Screen name="τα Post μου" component={MyPostsTabScreen} />
+                            <Tab.Screen name="ενδιαφέρομαι" component={MyPostsTabScreen} />
+                        </Tab.Navigator>
+                    </View>
                 </KeyboardAwareScrollView>
+
             }
+
+
+
             <RatingDialog
                 onSubmit={(rating, text) => rate(rating, text)}
                 isVisible={isRatingDialogOpened}
@@ -226,7 +251,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     setRatingDialogOpened(false)
                 }} />
 
-        </BaseView>
+        </BaseView >
 
     );
 
