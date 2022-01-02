@@ -12,6 +12,7 @@ import { useTimer } from '../customHooks/useTimer';
 import { forgotPass } from '../services/AuthServices';
 import { routes } from '../navigation/RouteNames';
 import { constVar } from '../utils/constStr';
+import { verifyUser } from '../services/MainServices';
 
 const OtpScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = React.useState(false)
@@ -33,7 +34,7 @@ const OtpScreen = ({ navigation, route }) => {
   const modalInputChange = (value) => {
     setModalInput(value)
   }
-  console.log("otp ", otp)
+
 
 
   const onConfirm = (code) => {
@@ -44,10 +45,24 @@ const OtpScreen = ({ navigation, route }) => {
     }
 
     if (code === otp) {
-      if (goToRestore)
-        navigation.navigate(routes.RESTORE_PASSWORD_SCREEN)
-      else
-        navigation.navigate(routes.LOGIN_SCREEN, { message: constVar.emailApproved })
+      verifyUser({
+        email,
+        successCallback: ((message) => {
+          if (goToRestore)
+            navigation.navigate(routes.RESTORE_PASSWORD_SCREEN)
+          else
+            navigation.navigate(routes.LOGIN_SCREEN, { message: message ?? constVar.emailApproved })
+        }),
+
+        errorCallback: ((message) => {
+          setHasErrors(true)
+          setIsLoading(false)
+          setMessage(message)
+          showCustomLayout()
+
+        })
+      })
+
 
     } else {
       setTimeout(function () {

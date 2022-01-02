@@ -123,14 +123,20 @@ const LoginScreen = ({ navigation, route }) => {
 
 
   const forgotPassSuccessCallback = (_otp, _email) => {
+
     setIsLoading(false)
     navigation.navigate(routes.OTP_SCREEN, { _otp: _otp, _email: _email, goToRestore: true })
   }
 
-  const userErrorCallback = (message) => {
-
+  const userErrorCallback = (message, otp, email) => {
     setInfoMessage({ info: message, success: false })
     setIsLoading(false)
+    if (otp) {
+      showCustomLayout(() => {
+        navigation.navigate(routes.OTP_SCREEN, { _otp: otp, _email: email, goToRestore: false })
+      })
+    }
+
     showCustomLayout()
 
   }
@@ -143,10 +149,12 @@ const LoginScreen = ({ navigation, route }) => {
 
   }
 
-  const showCustomLayout = () => {
+  const showCustomLayout = (callback) => {
     setShowInfoModal(true)
     setTimeout(function () {
       setShowInfoModal(false)
+      if (callback)
+        callback()
     }, 3000);
   }
 

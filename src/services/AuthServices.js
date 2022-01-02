@@ -21,13 +21,17 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 
       let token = res.data.accessToken
 
-      setValue(keyNames.token, token)
+      if (res.data?.otp) {
+        errorCallback(res.data.message ?? constVar.sthWentWrong, res.data?.otp, res.data.email)
+        return
+      }
+
 
       login({ send: send, token: token, successCallBack: successCallBack, errorCallback: errorCallback })
 
 
     }).catch(function (error) {
-      console.log(error.response.data)
+      console.log("error.response.data ", error.response.data)
       errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
@@ -35,7 +39,9 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 
 
 const login = async ({ send, token, successCallBack, errorCallback }) => {
+  setValue(keyNames.token, token)
   let config = await getHeaderConfig(token)
+  console.log("dssdsd ", send)
   await instance.post(`/login`, send, config)
     .then(res => {
       console.log(res.data)
@@ -43,7 +49,7 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
       successCallBack(res.data.message)
 
     }).catch(function (error) {
-      console.log(error.response.data)
+      console.log("error.response.data ", error.response.data)
       errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 
@@ -86,8 +92,10 @@ export const restorePassword = async ({ password, successCallBack, errorCallback
 
   await instance.post(`/updateUserPass`, send, config)
     .then(res => {
+      console.log("user updated ", res.data)
       successCallBack(res.data.message)
     }).catch(function (error) {
+      console.log("user updated not", error.response.data)
       errorCallback(error.response.data.message ?? constVar.sthWentWrong)
     });
 

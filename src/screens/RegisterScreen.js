@@ -193,10 +193,11 @@ const RegisterScreen = ({ navigation }) => {
 
                          <Spacer height={35} />
                          <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+
                               <PictureComponent
                                    singleFile={singleFile}
                                    openCamera={true}
-                                   onPress={() => { setIsModalVisible(true) }} />
+                                   onPress={() => { setIsModalVisible(true) }} imageSize={"big"} />
                          </View>
 
 

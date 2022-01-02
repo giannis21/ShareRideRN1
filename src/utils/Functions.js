@@ -1,6 +1,55 @@
 import { setValue, getValue, keyNames } from "../utils/Storage";
 import ImagePicker from 'react-native-image-crop-picker';
-
+const months = [
+  {
+    index: "01",
+    month: "Ιαν"
+  },
+  {
+    index: "02",
+    month: "Φεβ"
+  },
+  {
+    index: "03",
+    month: "Μαρτ"
+  },
+  {
+    index: "04",
+    month: "Απρ"
+  },
+  {
+    index: "05",
+    month: "Μαι"
+  },
+  {
+    index: "06",
+    month: "Ιουν"
+  },
+  {
+    index: "07",
+    month: "Ιουλ"
+  },
+  {
+    index: "08",
+    month: "Αυγ"
+  },
+  {
+    index: "09",
+    month: "Σεπ"
+  },
+  {
+    index: "10",
+    month: "Οκτ"
+  },
+  {
+    index: "11",
+    month: "Νοε"
+  },
+  {
+    index: "12",
+    month: "Δεκ"
+  },
+]
 export const getHeaderConfig = async (token) => {
   let newToken = token
   if (!token) {
@@ -22,6 +71,12 @@ export const getHeaderConfig = async (token) => {
 const getToken = async () => {
   return await getValue(keyNames.token)
 }
+export const getDate = (timestamp) => {
+  let year = timestamp.split(" ")[0].split("-")
+  let month = months.find((item) => item.index === year[1]).month
+
+  return year[2] + " " + month + " " + year[0]
+}
 
 export const onLaunchGallery = (block) => {
   ImagePicker.openPicker({
@@ -37,8 +92,9 @@ export const onLaunchGallery = (block) => {
     avoidEmptySpaceAroundImage: false,
     cropperCircleOverlay: true
   }).then((image) => {
-    // console.log("image    ", image)
     block(image);
+  }).catch((err) => {
+    console.log(err)
   });
 };
 
@@ -58,6 +114,8 @@ export const onLaunchCamera = (block) => {
     mediaType: 'photo'
   }).then((image) => {
     block(image);
+  }).catch((err) => {
+    console.log(err)
   });
 };
 

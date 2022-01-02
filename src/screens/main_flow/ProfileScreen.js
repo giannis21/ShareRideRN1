@@ -26,7 +26,7 @@ import { NavigationContainer } from '@react-navigation/native';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
-    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '' }
+    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -35,6 +35,9 @@ const ProfileScreen = ({ navigation, route }) => {
 
     const [isRatingDialogOpened, setRatingDialogOpened] = useState(false);
     const [userViewRate, setUserViewRate] = useState(true);
+    const [headerVisible, setHeaderVisible] = useState(false);
+    const [initialReviews, setInitialReviews] = useState();
+    const scrollRef = useRef();
 
     const goBack = () => {
         navigation.goBack()
@@ -73,7 +76,10 @@ const ProfileScreen = ({ navigation, route }) => {
             carBrand: data.user.car ?? '-',
             carDate: data.user.cardate ?? '-',
             fullName: data.user.fullname ?? '-',
-            image: BASE_URL + data.image ?? '-'
+            image: BASE_URL + data.image ?? '-',
+            hasInterested: data.hasInterested,
+            hasReviews: data.count > 0,
+            hasPosts: data.hasPosts
         })
 
     }
@@ -135,7 +141,15 @@ const ProfileScreen = ({ navigation, route }) => {
                 callback()
         }, 2500);
     }
+    const handleScroll = (event) => {
+        if (event.nativeEvent.contentOffset.y === 0) {
+            setHeaderVisible(false)
+        } else {
+            if (headerVisible === false)
+                setHeaderVisible(true)
+        }
 
+    }
     let style1 = { flex: 1, backgroundColor: 'white' }
     let style2 = { flex: 1, backgroundColor: 'black', opacity: 0.5 }
 
@@ -150,15 +164,15 @@ const ProfileScreen = ({ navigation, route }) => {
             />
 
             {data.email !== '' &&
-                <KeyboardAwareScrollView height={400}>
+                <KeyboardAwareScrollView height={400} ref={scrollRef} onScroll={handleScroll}>
 
 
                     <Loader isLoading={isLoading} />
 
                     <Spacer height={35} />
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <PictureComponent url={data.image} imageSize={"big"} />
 
-                        <PictureComponent url={data.image} />
 
                         <Spacer height={10} />
                         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
@@ -172,7 +186,7 @@ const ProfileScreen = ({ navigation, route }) => {
                         </View>
                         <Spacer height={20} />
 
-                        {userViewRate &&
+                        {!userViewRate &&
                             <TouchableWithoutFeedback onPress={() => setRatingDialogOpened(true)}>
                                 <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>{constVar.rateNow}</Text>
                             </TouchableWithoutFeedback>
@@ -225,19 +239,45 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     </View>
                     <Spacer height={28} />
-                    <View style={{ height: 400, marginHorizontal: 16 }}>
-                        <Tab.Navigator
-                            screenOptions={{
-                                tabBarLabelStyle: { textTransform: 'lowercase' },
-                                tabBarScrollEnabled: false,
-                                swipeEnabled: true
-                            }}
-                        >
-                            <Tab.Screen name="Αξιολογήσεις" component={RatingTabScreen} />
-                            <Tab.Screen name="τα Post μου" component={MyPostsTabScreen} />
-                            <Tab.Screen name="ενδιαφέρομαι" component={MyPostsTabScreen} />
-                        </Tab.Navigator>
-                    </View>
+                    {
+                        (data.hasInterested || data.hasPosts || data.hasReviews) &&
+
+                        <View style={{ height: 400, marginHorizontal: 16 }}>
+                            <Tab.Navigator
+                                screenOptions={{
+                                    tabBarLabelStyle: { textTransform: 'lowercase' },
+                                    tabBarScrollEnabled: false,
+                                    swipeEnabled: true
+                                }}
+                            >
+
+                                {data.hasReviews &&
+                                    <Tab.Screen name={"Αξιολογήσεις"}>
+                                        {(props) => (
+                                            <RatingTabScreen
+                                                email={data.email}
+                                            />
+                                        )}
+                                    </Tab.Screen>
+                                }
+
+                                {data.hasPosts &&
+                                    <Tab.Screen name={"τα Post μου"}>
+                                        {(props) => (
+                                            <MyPostsTabScreen
+                                                email={data.email}
+                                            />
+                                        )}
+                                    </Tab.Screen>
+                                }
+
+                                {data.hasInterested &&
+                                    <Tab.Screen name="ενδιαφέρομαι" component={MyPostsTabScreen} />
+                                }
+
+                            </Tab.Navigator>
+                        </View>
+                    }
                 </KeyboardAwareScrollView>
 
             }
@@ -251,6 +291,20 @@ const ProfileScreen = ({ navigation, route }) => {
                     setRatingDialogOpened(false)
                 }} />
 
+            {data.image !== '' && headerVisible && <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
+                <Spacer height={5} />
+
+                <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+
+                    <PictureComponent url={data.image} imageSize={"medium"} />
+                    <Spacer width={5} />
+                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
+                </View>
+
+                <Spacer height={5} />
+                <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
+
+            </View>}
         </BaseView >
 
     );

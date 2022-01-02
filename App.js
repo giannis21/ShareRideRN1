@@ -19,7 +19,7 @@ function App() {
         <Stack.Screen name={routes.HOMESTACK} component={HomeStack} />
       </Stack.Navigator>
 
-      {/*   <HomeStack />*/}
+      {/*   <AuthStack />*/}
     </NavigationContainer >
   );
 }

@@ -9,13 +9,32 @@ export function PictureComponent({
     onPress,
     singleFile,
     openCamera,
-    url
+    url,
+    dimensions,
+    imageSize
 }) {
     var _ = require('lodash');
-    let imageWidth = !_.isNull(singleFile) || url ? 92 : 70
+    let imageWidth = 0
+
+
+    const getStyle = () => {
+        if (imageSize === 'big') {
+            imageWidth = !singleFile && !url ? 72 : 92
+            return styles.circleContainer
+        } else if (imageSize === 'medium') {
+            imageWidth = 46
+            return styles.circleContainer1
+        } else {
+            imageWidth = 34
+            return styles.circleContainer2
+        }
+
+
+    }
+    // console.log("asdasdsadsadsadas ", url)
     return (
 
-        <TouchableWithoutFeedback style={styles.circleContainer} onPress={onPress}>
+        <TouchableWithoutFeedback style={getStyle()} onPress={onPress}>
             <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
 
                 <Image
@@ -26,9 +45,9 @@ export function PictureComponent({
                             !_.isNull(singleFile)
                                 ? { uri: 'data:image/jpg;base64,' + singleFile.data }
                                 : require('../assets/images/profile.png')
-                        )
 
-                    }
+
+                        )}
                 />
 
             </View>
@@ -62,6 +81,18 @@ const styles = StyleSheet.create({
     circleContainer: {
         width: 100,
         height: 100,
+        borderRadius: 100 / 2,
+        backgroundColor: colors.Gray2,
+    },
+    circleContainer1: {
+        width: 50,
+        height: 50,
+        borderRadius: 100 / 2,
+        backgroundColor: colors.Gray2,
+    },
+    circleContainer2: {
+        width: 40,
+        height: 40,
         borderRadius: 100 / 2,
         backgroundColor: colors.Gray2,
     },

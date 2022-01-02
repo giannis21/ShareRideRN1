@@ -12,7 +12,7 @@ export function StarsRating(props) {
     // To set the max number of Stars
     const maxRating = [1, 2, 3, 4, 5]
 
-    console.log("defauitl rating ", defaultRating, props.rating)
+    const marginRight = props.size === "small" ? (2) : (22)
     return (
         <View style={styles.customRatingBarStyle}>
             {maxRating.map((item, key) => {
@@ -30,10 +30,10 @@ export function StarsRating(props) {
 
                     >
                         <FontAwesome
-                            style={key == 4 ? { marginRight: 0 } : { marginRight: 22 }}
+                            style={key == 4 ? { marginRight: 0 } : { marginRight: marginRight }}
                             name={item <= (props.rating ? props.rating : defaultRating) ? 'star' : 'star-o'}
                             color={item <= (props.rating ? props.rating : defaultRating) ? '#F0C30E' : colors.Gray2}
-                            size={32}
+                            size={props.size === "small" ? 18 : 32}
                         />
                     </TouchableOpacity>
                 );

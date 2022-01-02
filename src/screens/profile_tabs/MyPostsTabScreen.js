@@ -1,16 +1,37 @@
 
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
 import { BaseView } from '../../layout/BaseView';
 import { routes } from '../../navigation/RouteNames';
+import { getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 
 
 
-const MyPostsTabScreen = ({ navigation, route }) => {
+const MyPostsTabScreen = ({ navigation, route, email }) => {
 
 
+    const [loading, setLoading] = useState(true);
+    const [dataSource, setDataSource] = useState([]);
+    const [offset, setOffset] = useState(1);
+    useEffect(() => {
+        if (email)
+            getPostsUser({
+                email: email,
+                page: offset,
+                successCallback,
+                errorCallback
+            })
+    }, []);
 
+    const successCallback = (data) => {
+        setDataSource([...dataSource, ...data.reviews]);
+
+        setOffset(offset + 1)
+    }
+    const errorCallback = () => {
+
+    }
 
     return (
         <BaseView>

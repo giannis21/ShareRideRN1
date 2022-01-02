@@ -5,20 +5,26 @@ import { routes } from '../../../navigation/RouteNames';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
+import { getValue, keyNames } from '../../../utils/Storage';
 
 
 const SearchRouteScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = React.useState(false)
+    const [myEmail, setMyEmail] = React.useState('')
 
-
-
+    React.useEffect(async () => {
+        setMyEmail(await getValue(keyNames.email))
+    }, [])
+    const getMe = () => {
+        return getValue(keyNames.email)
+    }
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <Loader isLoading={isLoading} />
             <MainHeader
                 title={"Αναζήτηση διαδρομής"}
-                onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: "giannisfragoulis21@gmail.com" }) }}
+                onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: myEmail }) }}
                 showX
             />
 
