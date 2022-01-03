@@ -1,6 +1,7 @@
 
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
+import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { routes } from '../../navigation/RouteNames';
 import { getPostsUser } from '../../services/MainServices';
@@ -25,7 +26,7 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
     }, []);
 
     const successCallback = (data) => {
-        setDataSource([...dataSource, ...data.reviews]);
+        // setDataSource([...dataSource, ...data]);
 
         setOffset(offset + 1)
     }
@@ -35,7 +36,7 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
 
     return (
         <BaseView>
-            <Text>Rating Tab</Text>
+            <PostLayoutComponent />
         </BaseView>
 
     );

@@ -49,7 +49,7 @@ const OtpScreen = ({ navigation, route }) => {
         email,
         successCallback: ((message) => {
           if (goToRestore)
-            navigation.navigate(routes.RESTORE_PASSWORD_SCREEN)
+            navigation.navigate(routes.RESTORE_PASSWORD_SCREEN, { email: email })
           else
             navigation.navigate(routes.LOGIN_SCREEN, { message: message ?? constVar.emailApproved })
         }),

@@ -186,7 +186,7 @@ const ProfileScreen = ({ navigation, route }) => {
                         </View>
                         <Spacer height={20} />
 
-                        {!userViewRate &&
+                        {userViewRate &&
                             <TouchableWithoutFeedback onPress={() => setRatingDialogOpened(true)}>
                                 <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>{constVar.rateNow}</Text>
                             </TouchableWithoutFeedback>

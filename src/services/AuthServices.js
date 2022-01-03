@@ -77,11 +77,11 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
 
 
 };
-
-export const restorePassword = async ({ password, successCallBack, errorCallback }) => {
+//getPostsUser,getInterestedPerUser
+export const restorePassword = async ({ email, password, successCallBack, errorCallback }) => {
 
   let config = await getHeaderConfig()
-  let email = await getValue(keyNames.email)
+
 
   const send = {
     "data": {
@@ -89,7 +89,7 @@ export const restorePassword = async ({ password, successCallBack, errorCallback
       "pass": password
     }
   }
-
+  console.log()
   await instance.post(`/updateUserPass`, send, config)
     .then(res => {
       console.log("user updated ", res.data)

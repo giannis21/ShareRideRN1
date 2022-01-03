@@ -1,4 +1,4 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, Platform, TextInput, Keyboard } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { ceil } from 'react-native-reanimated';
@@ -19,13 +19,13 @@ import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { getValue, setValue } from '../utils/Storage';
 import { constVar } from '../utils/constStr'
 let hasErrors = false
-const RestorePasswordScreen = ({ navigation }) => {
+const RestorePasswordScreen = ({ navigation, route }) => {
   var _ = require('lodash');
   const [data, setData] = React.useState({ password: '', passwordConfirm: '', secureTextEntry: true, secureTextEntryConfirmed: true })
   const [isLoading, setIsLoading] = React.useState(false)
   const [showInfoModal, setShowInfoModal] = React.useState(false);
   const [infoMessage, setInfoMessage] = React.useState({ hasError: false, message: false });
-
+  const [email, setEmail] = useState(route.params.email)
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
       setData({ password: '', passwordConfirm: '', secureTextEntry: true, secureTextEntryConfirmed: true })
@@ -74,7 +74,7 @@ const RestorePasswordScreen = ({ navigation }) => {
 
     } else {
       let password = data.password
-      restorePassword({ password, successCallBack: successCallBack, errorCallback: errorCallback })
+      restorePassword({ email, password, successCallBack: successCallBack, errorCallback: errorCallback })
     }
 
 
