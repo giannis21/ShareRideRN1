@@ -29,7 +29,6 @@ const RatingTabScreen = ({ navigation, route, email }) => {
 
     const successCallback = (data) => {
         setDataSource([...dataSource, ...data.reviews]);
-        console.log("data length ", data.reviews.length, dataSource.length)
         setTotalPages(data.total_pages)
         setOffset(offset + 1)
     }
@@ -64,6 +63,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
     };
 
     const ItemView = ({ item }) => {
+        console.log("BASE_URL + item.imagePath ", item.imagepath)
         return (
 
             <View style={{ height: 'auto', backgroundColor: 'white', borderRadius: 5, marginHorizontal: 5 }}>

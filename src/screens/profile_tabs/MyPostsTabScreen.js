@@ -41,7 +41,12 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                     <TouchableOpacity
                         activeOpacity={0.9}
                         onPress={() => {
-
+                            getPostsUser({
+                                email: email,
+                                page: offset,
+                                successCallback,
+                                errorCallback
+                            })
                         }}
 
                         style={styles.loadMoreBtn}>
@@ -67,7 +72,6 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                     keyExtractor={(item, index) => index.toString()}
                     enableEmptySections={true}
                     renderItem={(item) => {
-                        console.log(item.item)
                         return <PostLayoutComponent item={item.item} />
                     }}
                     ListFooterComponent={renderFooter}

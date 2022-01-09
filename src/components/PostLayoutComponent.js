@@ -10,6 +10,8 @@ import { PictureComponent } from './PictureComponent';
 
 export function PostLayoutComponent({
     onPress,
+    onProfileClick,
+    onLikeClick,
     item,
 }) {
     var _ = require('lodash');
@@ -37,15 +39,16 @@ export function PostLayoutComponent({
 
     const { leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer } = styles
     let url = (BASE_URL + item.imagepath).toString()
+
     return (
 
-        <View style={container}>
+        <TouchableOpacity opacity={0.9} onPress={onPress} style={container}>
 
             <Spacer height={5} />
 
             <View style={{ flexDirection: 'row' }}>
                 <View style={leftContainer}>
-                    <PictureComponent imageSize="small" url={url} />
+                    <PictureComponent imageSize="small" url={BASE_URL + item.imagePath} />
                     <Spacer width={15} />
                 </View>
 
@@ -93,9 +96,9 @@ export function PostLayoutComponent({
                     </View>
 
                     <View style={bottomContainer}>
-                        <View style={heartContainer}>
+                        <TouchableOpacity style={heartContainer} onPress={onLikeClick}>
                             <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
-                        </View>
+                        </TouchableOpacity>
                         <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.costperseat}€/Θέση</Text>
 
                     </View>
@@ -105,7 +108,7 @@ export function PostLayoutComponent({
 
             </View>
 
-        </View >
+        </TouchableOpacity >
 
 
     );

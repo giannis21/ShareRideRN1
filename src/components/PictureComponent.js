@@ -31,7 +31,7 @@ export function PictureComponent({
 
 
     }
-    // console.log("asdasdsadsadsadas ", url)
+
     return (
 
         <TouchableWithoutFeedback style={getStyle()} onPress={onPress}>
@@ -47,7 +47,9 @@ export function PictureComponent({
                                 : require('../assets/images/profile.png')
 
 
-                        )}
+                        )
+
+                    }
                 />
 
             </View>
@@ -91,8 +93,8 @@ const styles = StyleSheet.create({
         backgroundColor: colors.Gray2,
     },
     circleContainer2: {
-        width: 40,
-        height: 40,
+        width: 37,
+        height: 37,
         borderRadius: 100 / 2,
         backgroundColor: colors.Gray2,
     },

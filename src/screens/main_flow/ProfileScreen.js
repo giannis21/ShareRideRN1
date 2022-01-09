@@ -65,6 +65,27 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
         )
     }
+    function renderTopContainer() {
+        return (
+            <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
+                <Spacer height={5} />
+                <View style={{ position: 'absolute', marginTop: 5 }}>
+                    <CloseIconComponent onPress={() => navigation.goBack()} />
+                </View>
+
+                <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+
+                    <PictureComponent url={data.image} imageSize={"medium"} />
+                    <Spacer width={5} />
+                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
+                </View>
+
+                <Spacer height={5} />
+                <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
+
+            </View>
+        )
+    }
 
     const setUserData = async (data) => {
 
@@ -319,24 +340,8 @@ const ProfileScreen = ({ navigation, route }) => {
                 }} />
 
             {data.image !== '' && headerVisible && !openTabs &&
-                <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
-                    <Spacer height={5} />
-                    <View style={{ position: 'absolute', marginTop: 5 }}>
-                        <CloseIconComponent onPress={() => navigation.goBack()} />
-                    </View>
-                    <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
-
-                        <PictureComponent url={data.image} imageSize={"medium"} />
-                        <Spacer width={5} />
-                        <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
-                    </View>
-
-                    <Spacer height={5} />
-                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
-
-                </View>}
-
-
+                renderTopContainer()
+            }
 
         </BaseView >
 
