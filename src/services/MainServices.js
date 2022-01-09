@@ -77,10 +77,10 @@ export const getReviews = async ({ email, page, successCallback, errorCallback }
             "page": page
         }
     }
-    console.log(send)
+    // console.log(send)
     await instance.post(`/getReviews`, send, config)
         .then(res => {
-            console.log(res.data.body.reviews)
+            //  console.log(res.data.body)
             successCallback(res.data.body)
         }).catch(function (error) {
             console.log(error.response.data)
@@ -100,11 +100,11 @@ export const getPostsUser = async ({ email, page, successCallback, errorCallback
     console.log(send)
     await instance.post(`/getPostsUser`, send, config)
         .then(res => {
-            console.log("res.data ", res.data)
-            // successCallback(res.data)
+            console.log("res.data12312321321 ", res.data)
+            successCallback(res.data)
         }).catch(function (error) {
             console.log(error)
-            //  errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
 

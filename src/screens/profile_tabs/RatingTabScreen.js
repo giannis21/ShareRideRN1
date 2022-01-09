@@ -16,6 +16,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
+    const [total_pages, setTotalPages] = useState(1);
     useEffect(() => {
 
         getReviews({
@@ -28,7 +29,8 @@ const RatingTabScreen = ({ navigation, route, email }) => {
 
     const successCallback = (data) => {
         setDataSource([...dataSource, ...data.reviews]);
-
+        console.log("data length ", data.reviews.length, dataSource.length)
+        setTotalPages(data.total_pages)
         setOffset(offset + 1)
     }
     const errorCallback = () => {
@@ -36,19 +38,28 @@ const RatingTabScreen = ({ navigation, route, email }) => {
     }
     const renderFooter = () => {
         return (
-            //Footer View with Load More button
-            <View style={styles.footer}>
-                <TouchableOpacity
-                    activeOpacity={0.9}
-                    onPress={getReviews}
+            (offset <= total_pages) ? (
+                <View style={styles.footer}>
+                    <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => {
+                            getReviews({
+                                email: email,
+                                page: offset,
+                                successCallback,
+                                errorCallback
+                            })
+                        }}
 
-                    style={styles.loadMoreBtn}>
-                    <Text style={styles.btnText}>Load More</Text>
-                    {loading ? (
-                        <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
-                    ) : null}
-                </TouchableOpacity>
-            </View>
+                        style={styles.loadMoreBtn}>
+                        <Text style={styles.btnText}>Load More</Text>
+                        {loading ? (
+                            <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
+                        ) : null}
+                    </TouchableOpacity>
+                </View>
+            ) : null
+
         );
     };
 
@@ -94,7 +105,6 @@ const RatingTabScreen = ({ navigation, route, email }) => {
         );
     };
 
-    // {"average": 2, "page_length": 1, "reviews": [{"createdAt": "2021-12-30 21:11:12", "email": "giannisfragoulis21@gmail.com", "emailreviewer": "giannisfragoulis21@gmail.com", "rating": 2, "text": "", "updatedAt": "2021-12-30 18:15:18"}], "total_pages": 1}  
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
             <View style={styles.container}>

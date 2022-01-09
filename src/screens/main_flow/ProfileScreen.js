@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions } from 'react-native';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { colors } from '../../utils/Colors';
@@ -23,6 +23,9 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import RatingTabScreen from '../profile_tabs/RatingTabScreen';
 import MyPostsTabScreen from '../profile_tabs/MyPostsTabScreen';
 import { NavigationContainer } from '@react-navigation/native';
+import PostsInterestedTabScreen from '../profile_tabs/PostsInterestedTabScreen';
+import { CloseIconComponent } from '../../components/CloseIconComponent';
+import { Animated, Easing } from "react-native";
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -37,6 +40,9 @@ const ProfileScreen = ({ navigation, route }) => {
     const [userViewRate, setUserViewRate] = useState(true);
     const [headerVisible, setHeaderVisible] = useState(false);
     const [initialReviews, setInitialReviews] = useState();
+    const [openTabs, setOpenTabs] = useState(false)
+    const { height, width } = Dimensions.get("window");
+
     const scrollRef = useRef();
 
     const goBack = () => {
@@ -162,8 +168,12 @@ const ProfileScreen = ({ navigation, route }) => {
                 icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                 success={infoMessage.success}
             />
+            <View style={{ position: 'absolute', marginTop: 5 }}>
+                <CloseIconComponent onPress={() => openTabs ? setOpenTabs(false) : navigation.goBack()} />
+            </View>
 
             {data.email !== '' &&
+
                 <KeyboardAwareScrollView height={400} ref={scrollRef} onScroll={handleScroll}>
 
 
@@ -238,51 +248,68 @@ const ProfileScreen = ({ navigation, route }) => {
                         </View>
 
                     </View>
-                    <Spacer height={28} />
-                    {
-                        (data.hasInterested || data.hasPosts || data.hasReviews) &&
-
-                        <View style={{ height: 400, marginHorizontal: 16 }}>
-                            <Tab.Navigator
-                                screenOptions={{
-                                    tabBarLabelStyle: { textTransform: 'lowercase' },
-                                    tabBarScrollEnabled: false,
-                                    swipeEnabled: true
-                                }}
-                            >
-
-                                {data.hasReviews &&
-                                    <Tab.Screen name={"Αξιολογήσεις"}>
-                                        {(props) => (
-                                            <RatingTabScreen
-                                                email={data.email}
-                                            />
-                                        )}
-                                    </Tab.Screen>
-                                }
-
-                                {data.hasPosts &&
-                                    <Tab.Screen name={"τα Post μου"}>
-                                        {(props) => (
-                                            <MyPostsTabScreen
-                                                email={data.email}
-                                            />
-                                        )}
-                                    </Tab.Screen>
-                                }
-
-                                {data.hasInterested &&
-                                    <Tab.Screen name="ενδιαφέρομαι" component={MyPostsTabScreen} />
-                                }
-
-                            </Tab.Navigator>
-                        </View>
+                    {(data.hasInterested || data.hasPosts || data.hasReviews) &&
+                        <TouchableOpacity onPress={() => setOpenTabs(true)}>
+                            <View style={styles.footerBtn}>
+                                <Text style={{ color: 'white', fontSize: 15 }}>Περισσότερα στοιχεία</Text>
+                            </View>
+                        </TouchableOpacity>
                     }
+
                 </KeyboardAwareScrollView>
 
             }
 
 
+            {openTabs &&
+                <View >
+
+                    <View style={{ top: 47, right: 0, left: 0, bottom: 0, marginHorizontal: 10, paddingBottom: 50, height: '100%' }}>
+
+                        <Tab.Navigator
+                            screenOptions={{
+                                tabBarLabelStyle: { textTransform: 'lowercase' },
+                                tabBarScrollEnabled: false,
+                                swipeEnabled: true
+                            }}
+                        >
+
+                            {data.hasReviews &&
+                                <Tab.Screen name={"Αξιολογήσεις"}>
+                                    {(props) => (
+                                        <RatingTabScreen
+                                            email={data.email}
+                                        />
+                                    )}
+                                </Tab.Screen>
+                            }
+
+                            {data.hasPosts &&
+                                <Tab.Screen name={"τα Post μου"}>
+                                    {(props) => (
+                                        <MyPostsTabScreen
+                                            email={data.email}
+                                        />
+                                    )}
+                                </Tab.Screen>
+                            }
+
+                            {data.hasInterested &&
+                                <Tab.Screen name={"ενδιαφέρομαι"}>
+                                    {(props) => (
+                                        <PostsInterestedTabScreen
+                                            email={data.email}
+                                        />
+                                    )}
+                                </Tab.Screen>
+                            }
+
+                        </Tab.Navigator>
+
+                    </View>
+
+                </View>
+            }
 
             <RatingDialog
                 onSubmit={(rating, text) => rate(rating, text)}
@@ -291,20 +318,26 @@ const ProfileScreen = ({ navigation, route }) => {
                     setRatingDialogOpened(false)
                 }} />
 
-            {data.image !== '' && headerVisible && <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
-                <Spacer height={5} />
+            {data.image !== '' && headerVisible && !openTabs &&
+                <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
+                    <Spacer height={5} />
+                    <View style={{ position: 'absolute', marginTop: 5 }}>
+                        <CloseIconComponent onPress={() => navigation.goBack()} />
+                    </View>
+                    <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
 
-                <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+                        <PictureComponent url={data.image} imageSize={"medium"} />
+                        <Spacer width={5} />
+                        <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
+                    </View>
 
-                    <PictureComponent url={data.image} imageSize={"medium"} />
-                    <Spacer width={5} />
-                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
-                </View>
+                    <Spacer height={5} />
+                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
 
-                <Spacer height={5} />
-                <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
+                </View>}
 
-            </View>}
+
+
         </BaseView >
 
     );
@@ -324,11 +357,16 @@ const styles = StyleSheet.create({
         borderRadius: 100 / 2,
         backgroundColor: colors.Gray2,
     },
-    maskInputContainer: {
-        marginVertical: Platform.OS === 'ios' ? 13 : 20,
-        paddingVertical: Platform.OS === 'ios' ? 0 : 20,
-        fontSize: 14,
-        backgroundColor: 'black',
+    footerBtn: {
+
+        marginTop: 20,
+        paddingVertical: 10,
+        paddingHorizontal: 8,
+        width: '100%',
+        justifyContent: 'center',
+        alignItems: 'center',
+        alignSelf: 'baseline',
+        backgroundColor: colors.colorPrimary,
 
     },
 });

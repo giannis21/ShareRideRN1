@@ -8,6 +8,7 @@ import { Spacer } from '../layout/Spacer';
 import Feather from 'react-native-vector-icons/Feather';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { CloseIconComponent } from '../components/CloseIconComponent';
 
 export function MainHeader({
     title,
@@ -22,11 +23,7 @@ export function MainHeader({
 
         <View style={{ flexDirection: 'row' }}>
             {showX &&
-                <TouchableWithoutFeedback
-                    onPress={onClose}
-                    style={{ flex: 1, alignItems: 'center', justifyContent: 'center' }}>
-                    <Icon name="close-circle-outline" color='black' size={40} style={{ marginStart: 16 }} />
-                </TouchableWithoutFeedback>
+                <CloseIconComponent onPress={onClose} />
             }
 
             <View style={[container, { flex: 1, marginStart: showX ? 8 : 30 }]}>
