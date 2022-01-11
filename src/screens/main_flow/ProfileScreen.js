@@ -29,7 +29,7 @@ import { Animated, Easing } from "react-native";
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
-    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false }
+    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -106,7 +106,9 @@ const ProfileScreen = ({ navigation, route }) => {
             image: BASE_URL + data.image ?? '-',
             hasInterested: data.hasInterested,
             hasReviews: data.count > 0,
-            hasPosts: data.hasPosts
+            hasPosts: data.hasPosts,
+            count: data.count,
+
         })
 
     }
@@ -206,18 +208,30 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
                         <Spacer height={10} />
+
+
                         <View style={{ alignItems: 'center', justifyContent: 'center' }}>
                             <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{data.fullName}</Text>
                             <Spacer height={20} />
 
-                            {rating && <StarsRating
-                                rating={rating}
-                                setRating={(rating) => setCurrentRating(rating)}
-                            />}
+                            {data.count > 0 &&
+                                <View>
+                                    <StarsRating
+                                        rating={rating}
+                                        setRating={(rating) => setCurrentRating(rating)}
+                                    />
+
+                                </View>
+
+                            }
                         </View>
+                        <Text style={{ fontSize: 13, backgroundColor: '#F0AD4E', fontWeight: 'bold', color: 'white', textAlign: 'center', marginTop: 5, width: 'auto', paddingHorizontal: 5, borderRadius: 6, paddingVertical: 1 }}>{data.count} Ψήφοι</Text>
+
+
+
                         <Spacer height={20} />
 
-                        {userViewRate &&
+                        {!userViewRate &&
                             <TouchableWithoutFeedback onPress={() => setRatingDialogOpened(true)}>
                                 <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>{constVar.rateNow}</Text>
                             </TouchableWithoutFeedback>
@@ -231,6 +245,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
                     </View>
+
                     <Spacer height={28} />
                     {userInfo('email', constVar.email, data.email)}
                     <Spacer height={28} />
@@ -269,6 +284,7 @@ const ProfileScreen = ({ navigation, route }) => {
                         </View>
 
                     </View>
+
                     {(data.hasInterested || data.hasPosts || data.hasReviews) &&
                         <TouchableOpacity onPress={() => setOpenTabs(true)}>
                             <View style={styles.footerBtn}>

@@ -18,8 +18,7 @@ function App() {
         <Stack.Screen name={routes.AUTHSTACK} component={AuthStack} />
         <Stack.Screen name={routes.HOMESTACK} component={HomeStack} />
       </Stack.Navigator>
-
-      {/*   <HomeStack />*/}
+      {/*  <HomeStack />*/}
     </NavigationContainer >
   );
 }

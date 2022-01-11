@@ -60,7 +60,7 @@ export const searchUser = async ({ email, successCallback, errorCallback }) => {
 
     await instance.post(`/searchuser`, send, config)
         .then(res => {
-
+            console.log("searchuser ", res.data)
             successCallback(res.data)
         }).catch(function (error) {
             console.log("error ", error.response.data)
@@ -100,7 +100,7 @@ export const getPostsUser = async ({ email, page, successCallback, errorCallback
     console.log(send)
     await instance.post(`/getPostsUser`, send, config)
         .then(res => {
-            console.log("res.data12312321321 ", res.data)
+            console.log("getPostsUser ", res.data)
             successCallback(res.data)
         }).catch(function (error) {
             console.log(error)
