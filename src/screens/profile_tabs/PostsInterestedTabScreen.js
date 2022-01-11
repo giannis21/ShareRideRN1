@@ -1,20 +1,85 @@
-import * as React from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
 import { BaseView } from '../../layout/BaseView';
+import { Spacer } from '../../layout/Spacer';
+
 import { routes } from '../../navigation/RouteNames';
+import { getInterested } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 
 
 
-const PostsInterestedTabScreen = ({ navigation, route }) => {
+const PostsInterestedTabScreen = ({ navigation, route, email }) => {
 
+    const [total_pages, setTotalPages] = useState(1);
+    const [loading, setLoading] = useState(true);
+    const [dataSource, setDataSource] = useState([]);
+    const [offset, setOffset] = useState(1);
 
+    useEffect(() => {
+        if (email)
+            getInterested({
+                email: email,
+                page: offset,
+                successCallback,
+                errorCallback
+            })
+    }, []);
 
+    const successCallback = (data) => {
+        setDataSource([...dataSource, ...data.postUser]);
+        setTotalPages(data.totalPages)
+        setOffset(offset + 1)
+    }
+    const errorCallback = () => {
 
+    }
+    const renderFooter = () => {
+        return (
+            (offset <= total_pages) ? (
+                <View style={styles.footer}>
+                    <TouchableOpacity
+                        activeOpacity={0.9}
+                        onPress={() => {
+                            getInterested({
+                                email: email,
+                                page: offset,
+                                successCallback,
+                                errorCallback
+                            })
+                        }}
+
+                        style={styles.loadMoreBtn}>
+                        <Text style={styles.btnText}>Load More</Text>
+                        {loading ? (
+                            <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
+                        ) : null}
+                    </TouchableOpacity>
+                </View>
+            ) : null
+
+        );
+    };
     return (
-        <BaseView>
-            <Text>Rating Tab</Text>
-        </BaseView>
+        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
+            <View style={styles.container}>
+                <Spacer height={15} />
+                <FlatList
+                    data={dataSource}
+                    ItemSeparatorComponent={() => (
+                        <View style={{ height: 10 }} />
+                    )}
+                    keyExtractor={(item, index) => 'item' + index}
+                    enableEmptySections={true}
+                    renderItem={(item) => {
+                        return <PostLayoutComponent item={item.item} />
+                    }}
+                    ListFooterComponent={renderFooter}
+                />
+
+
+            </View>
+        </BaseView >
 
     );
 
@@ -72,5 +137,27 @@ const styles = StyleSheet.create({
         borderRadius: 8,
         marginRight: 8,
         color: 'black'
-    }
+    },
+    container: {
+        flex: 1,
+    },
+    footer: {
+        padding: 10,
+        justifyContent: 'center',
+        alignItems: 'center',
+        flexDirection: 'row',
+    },
+    loadMoreBtn: {
+        padding: 10,
+        backgroundColor: colors.colorPrimary,
+        borderRadius: 4,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    btnText: {
+        color: 'white',
+        fontSize: 15,
+        textAlign: 'center',
+    },
 });

@@ -108,3 +108,22 @@ export const getPostsUser = async ({ email, page, successCallback, errorCallback
         });
 }
 
+export const getInterested = async ({ email, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "email": email,
+        }
+    }
+    console.log(send)
+    await instance.post(`/getInterested`, send, config)
+        .then(res => {
+            console.log("getInterested ", res.data)
+            //  successCallback(res.data)
+        }).catch(function (error) {
+            console.log(error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+

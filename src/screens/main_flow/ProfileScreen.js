@@ -231,7 +231,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
                         <Spacer height={20} />
 
-                        {!userViewRate &&
+                        {userViewRate &&
                             <TouchableWithoutFeedback onPress={() => setRatingDialogOpened(true)}>
                                 <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>{constVar.rateNow}</Text>
                             </TouchableWithoutFeedback>
@@ -325,6 +325,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 <Tab.Screen name={"τα Post μου"}>
                                     {(props) => (
                                         <MyPostsTabScreen
+                                            navigation={navigation}
                                             email={data.email}
                                         />
                                     )}

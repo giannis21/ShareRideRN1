@@ -7,7 +7,7 @@ import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
 import { getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
-
+import { useNavigation } from '@react-navigation/native';
 
 
 const MyPostsTabScreen = ({ navigation, route, email }) => {
@@ -16,6 +16,7 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
+
     useEffect(() => {
         if (email)
             getPostsUser({
@@ -34,6 +35,15 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
     const errorCallback = () => {
 
     }
+
+    const onMenuClicked = (item) => {
+        console.log(item.post.postid, item.user.fullname)
+    }
+    const onProfileClick = (email) => {
+
+        navigation.push(routes.PROFILE_SCREEN, { email: email })
+    }
+
     const renderFooter = () => {
         return (
             (offset <= total_pages) ? (
@@ -69,10 +79,14 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                     ItemSeparatorComponent={() => (
                         <View style={{ height: 10 }} />
                     )}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item, index) => item.postid}
                     enableEmptySections={true}
                     renderItem={(item) => {
-                        return <PostLayoutComponent item={item.item} />
+                        return <PostLayoutComponent
+                            item={item.item}
+                            onMenuClicked={onMenuClicked}
+                            onProfileClick={onProfileClick}
+                        />
                     }}
                     ListFooterComponent={renderFooter}
                 />

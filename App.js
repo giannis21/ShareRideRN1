@@ -14,11 +14,11 @@ let Stack = createNativeStackNavigator();
 function App() {
   return (
     <NavigationContainer>
-      <Stack.Navigator screenOptions={{ headerShown: false }} >
+      {/*    <Stack.Navigator screenOptions={{ headerShown: false }} >
         <Stack.Screen name={routes.AUTHSTACK} component={AuthStack} />
         <Stack.Screen name={routes.HOMESTACK} component={HomeStack} />
-      </Stack.Navigator>
-      {/*  <HomeStack />*/}
+      </Stack.Navigator>*/}
+      <HomeStack />
     </NavigationContainer >
   );
 }

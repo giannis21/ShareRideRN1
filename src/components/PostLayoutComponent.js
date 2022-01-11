@@ -13,6 +13,7 @@ export function PostLayoutComponent({
     onProfileClick,
     onLikeClick,
     item,
+    onMenuClicked,
 }) {
     var _ = require('lodash');
 
@@ -37,7 +38,7 @@ export function PostLayoutComponent({
         )
     }
 
-    const { leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer } = styles
+    const { leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
     let url = (BASE_URL + item.imagepath).toString()
 
     return (
@@ -48,15 +49,20 @@ export function PostLayoutComponent({
 
             <View style={{ flexDirection: 'row' }}>
                 <View style={leftContainer}>
-                    <PictureComponent imageSize="small" url={BASE_URL + item.imagePath} />
+                    <TouchableOpacity onPress={() => onProfileClick(item.user.email)}>
+                        <PictureComponent imageSize="small" url={BASE_URL + item.imagePath} />
+                    </TouchableOpacity>
+
                     <Spacer width={15} />
                 </View>
 
                 <View style={rightContainer}>
                     <View style={rightContainerView}>
                         <View style={{ width: '55%' }}>
+                            <TouchableOpacity onPress={() => onProfileClick(item.user.email)}>
+                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.user.fullname}</Text>
+                            </TouchableOpacity>
 
-                            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.user.fullname}</Text>
                             <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item.post.date}</Text>
 
 
@@ -84,21 +90,35 @@ export function PostLayoutComponent({
                             <Spacer height={15} />
 
                         </View>
-                        <View style={{ width: '45%', marginTop: 44 }}>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold' }}>Ημερομηνία αναχώρησης</Text>
-                            <Spacer height={10} />
-                            <Text style={styles.date}>{item.post.startdate}</Text>
-                            <Spacer height={3} />
-                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginStart: 30 }}>έως</Text>
-                            <Spacer height={3} />
-                            <Text style={styles.date}>{item.post.enddate}</Text>
+                        <View style={{ width: '45%' }}>
+                            <TouchableOpacity onPress={() => onMenuClicked(item)}>
+                                <Entypo name="dots-three-horizontal" size={20} color='black' style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
+
+                            </TouchableOpacity>
+                            <View style={{ marginTop: 44 }}>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.enddate ? 'Ημερομηνίες αναχώρησης' : 'Ημερομηνία αναχώρησης'} </Text>
+                                <Spacer height={10} />
+                                <Text style={styles.date}>{item.post.startdate}</Text>
+                                <Spacer height={3} />
+                                <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginStart: 30 }}>έως</Text>
+                                <Spacer height={3} />
+                                <Text style={styles.date}>{item.post.enddate}</Text>
+                            </View>
                         </View>
+
                     </View>
 
                     <View style={bottomContainer}>
-                        <TouchableOpacity style={heartContainer} onPress={onLikeClick}>
-                            <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
-                        </TouchableOpacity>
+                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                            <TouchableOpacity style={heartContainer} onPress={onLikeClick}>
+                                <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
+                            </TouchableOpacity>
+
+                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginStart: 10 }}>Θέσεις:
+                                <Text style={seats}> {item.post.numseats} </Text>
+                            </Text>
+
+                        </View>
                         <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.costperseat}€/Θέση</Text>
 
                     </View>
@@ -115,6 +135,10 @@ export function PostLayoutComponent({
 }
 
 const styles = StyleSheet.create({
+    seats: {
+        fontSize: 13,
+        fontWeight: 'bold', marginStart: 10
+    },
     leftContainer: {
         width: '16%',
         marginStart: 8

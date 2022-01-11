@@ -114,7 +114,8 @@ const RatingTabScreen = ({ navigation, route, email }) => {
                     ItemSeparatorComponent={() => (
                         <View style={{ height: 10 }} />
                     )}
-                    keyExtractor={(item, index) => index.toString()}
+                    keyExtractor={(item, index) => 'item' + index}
+
                     enableEmptySections={true}
                     renderItem={ItemView}
                     ListFooterComponent={renderFooter}
