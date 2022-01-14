@@ -12,8 +12,10 @@ export function PostLayoutComponent({
     onPress,
     onProfileClick,
     onLikeClick,
+    index,
     item,
     onMenuClicked,
+    showMenu
 }) {
     var _ = require('lodash');
 
@@ -91,11 +93,14 @@ export function PostLayoutComponent({
 
                         </View>
                         <View style={{ width: '45%' }}>
-                            <TouchableOpacity onPress={() => onMenuClicked(item)}>
-                                <Entypo name="dots-three-horizontal" size={20} color='black' style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
+                            {showMenu &&
+                                <TouchableOpacity onPress={() => onMenuClicked(item)}>
+                                    <Entypo name="dots-three-horizontal" size={20} color='black' style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
 
-                            </TouchableOpacity>
-                            <View style={{ marginTop: 44 }}>
+                                </TouchableOpacity>
+                            }
+
+                            <View style={{ marginTop: showMenu ? 25 : 44 }}>
                                 <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.enddate ? 'Ημερομηνίες αναχώρησης' : 'Ημερομηνία αναχώρησης'} </Text>
                                 <Spacer height={10} />
                                 <Text style={styles.date}>{item.post.startdate}</Text>
@@ -110,7 +115,7 @@ export function PostLayoutComponent({
 
                     <View style={bottomContainer}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <TouchableOpacity style={heartContainer} onPress={onLikeClick}>
+                            <TouchableOpacity style={heartContainer} onPress={() => onLikeClick(item.post.postid, index)}>
                                 <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
                             </TouchableOpacity>
 

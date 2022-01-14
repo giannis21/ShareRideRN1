@@ -63,7 +63,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
     };
 
     const ItemView = ({ item }) => {
-        console.log("BASE_URL + item.imagePath ", item.imagepath)
+
         return (
 
             <View style={{ height: 'auto', backgroundColor: 'white', borderRadius: 5, marginHorizontal: 5 }}>

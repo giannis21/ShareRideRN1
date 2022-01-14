@@ -127,3 +127,43 @@ export const getInterested = async ({ email, successCallback, errorCallback }) =
         });
 }
 
+export const getInterestedPerUser = async ({ email, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "email": email,
+        }
+    }
+    console.log(send)
+    await instance.post(`/getInterestedPerUser`, send, config)
+        .then(res => {
+            console.log("getInterested ", res.data)
+            successCallback(res.data)
+        }).catch(function (error) {
+            console.log(error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
+
+export const showInterest = async ({ email, postId, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "email": email,
+            "postid": postId
+        }
+    }
+    console.log(send)
+    await instance.post(`/interested`, send, config)
+        .then(res => {
+
+            console.log("interested ", res.data, res.status)
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            console.log(error, "dd")
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}

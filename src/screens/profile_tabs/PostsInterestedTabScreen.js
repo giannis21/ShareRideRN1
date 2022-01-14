@@ -1,11 +1,14 @@
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 
 import { routes } from '../../navigation/RouteNames';
-import { getInterested } from '../../services/MainServices';
+import { getInterested, getInterestedPerUser, showInterest } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
+import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
+import { OpenImageModal } from '../../utils/OpenImageModal';
 
 
 
@@ -15,69 +18,126 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
+    const [isRender, setIsRender] = useState(false)
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [deletedPost, setDeletedPost] = useState(null);
+
 
     useEffect(() => {
         if (email)
-            getInterested({
+            getInterestedPerUser({
                 email: email,
-                page: offset,
                 successCallback,
                 errorCallback
             })
     }, []);
 
+    const showCustomLayout = (callback) => {
+        setShowInfoModal(true)
+        setTimeout(function () {
+            setShowInfoModal(false)
+            if (callback)
+                callback()
+        }, 2000);
+    }
+
     const successCallback = (data) => {
-        setDataSource([...dataSource, ...data.postUser]);
+        setDataSource(data.postUser);
         setTotalPages(data.totalPages)
-        setOffset(offset + 1)
+
     }
     const errorCallback = () => {
 
     }
-    const renderFooter = () => {
-        return (
-            (offset <= total_pages) ? (
-                <View style={styles.footer}>
-                    <TouchableOpacity
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            getInterested({
-                                email: email,
-                                page: offset,
-                                successCallback,
-                                errorCallback
-                            })
-                        }}
 
-                        style={styles.loadMoreBtn}>
-                        <Text style={styles.btnText}>Load More</Text>
-                        {loading ? (
-                            <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
-                        ) : null}
-                    </TouchableOpacity>
-                </View>
-            ) : null
 
-        );
+    const onProfileClick = (email) => {
+
+        navigation.push(routes.PROFILE_SCREEN, { email: email })
+    }
+    const onLikeClick = (postId, index) => {
+        showInterest({
+            email: email,
+            postId,
+            successCallback: ((message) => {
+                let likedPost = dataSource.find((item) => item.post.postid === postId)
+
+
+                likedPost.interested = !likedPost.interested
+                dataSource[index] = likedPost
+                setDataSource(dataSource)
+                setIsRender(!isRender)
+                setInfoMessage({ info: message, success: true })
+                showCustomLayout()
+            }),
+            errorCallback: ((message) => {
+                setInfoMessage({ info: message, success: false })
+                showCustomLayout()
+            })
+        })
+    }
+    const onMenuClicked = (item1, index) => {
+        let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
+        setDeletedPost(postToBeDeleted)
+        setIsModalVisible(true)
+
+        //   console.log(item.post.postid, item.user.fullname)
+    }
+    const onActionSheet = (index) => {
+        let newData = dataSource.filter((obj) => obj !== deletedPost)
+        setDataSource(newData)
+        setIsRender(!isRender)
+        // likedPost.interested = !likedPost.interested
+        // dataSource[index] = likedPost
+        // setDataSource(dataSource)
+
     };
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
             <View style={styles.container}>
+                <CustomInfoLayout
+                    isVisible={showInfoModal}
+                    title={infoMessage.info}
+                    icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
+                    success={infoMessage.success}
+                />
                 <Spacer height={15} />
                 <FlatList
                     data={dataSource}
                     ItemSeparatorComponent={() => (
                         <View style={{ height: 10 }} />
                     )}
+                    extraData={isRender}
                     keyExtractor={(item, index) => 'item' + index}
                     enableEmptySections={true}
-                    renderItem={(item) => {
-                        return <PostLayoutComponent item={item.item} />
+                    renderItem={(item, index) => {
+                        return <PostLayoutComponent
+                            showMenu={false}
+                            item={item.item}
+                            index
+                            onMenuClicked={onMenuClicked}
+                            onProfileClick={onProfileClick}
+                            onLikeClick={onLikeClick}
+                        />
                     }}
-                    ListFooterComponent={renderFooter}
+
                 />
 
+                <OpenImageModal
+                    isVisible={isModalVisible}
+                    isPost={true}
+                    closeAction={() => {
+                        setIsModalVisible(false);
+                        setDeletedPost(null)
+                    }}
+                    buttonPress={(index) => {
+                        setIsModalVisible(false);
+                        onActionSheet(index)
+                    }}
 
+                />
             </View>
         </BaseView >
 

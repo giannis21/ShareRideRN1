@@ -8,6 +8,7 @@ import { routes } from '../../navigation/RouteNames';
 import { getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
+import { OpenImageModal } from '../../utils/OpenImageModal';
 
 
 const MyPostsTabScreen = ({ navigation, route, email }) => {
@@ -16,7 +17,8 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
-
+    const [isModalVisible, setIsModalVisible] = useState(false)
+    const [deletedPost, setDeletedPost] = useState(null);
     useEffect(() => {
         if (email)
             getPostsUser({
@@ -36,14 +38,27 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
 
     }
 
-    const onMenuClicked = (item) => {
-        console.log(item.post.postid, item.user.fullname)
-    }
+
     const onProfileClick = (email) => {
 
         navigation.push(routes.PROFILE_SCREEN, { email: email })
     }
+    const onMenuClicked = (item1, index) => {
+        let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
+        setDeletedPost(postToBeDeleted)
+        setIsModalVisible(true)
 
+        //   console.log(item.post.postid, item.user.fullname)
+    }
+    const onActionSheet = (index) => {
+        let newData = dataSource.filter((obj) => obj !== deletedPost)
+        setDataSource(newData)
+        setIsRender(!isRender)
+        // likedPost.interested = !likedPost.interested
+        // dataSource[index] = likedPost
+        // setDataSource(dataSource)
+
+    };
     const renderFooter = () => {
         return (
             (offset <= total_pages) ? (
@@ -83,6 +98,7 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                     enableEmptySections={true}
                     renderItem={(item) => {
                         return <PostLayoutComponent
+                            showMenu={true}
                             item={item.item}
                             onMenuClicked={onMenuClicked}
                             onProfileClick={onProfileClick}
@@ -92,6 +108,19 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                 />
 
 
+                <OpenImageModal
+                    isVisible={isModalVisible}
+                    isPost={true}
+                    closeAction={() => {
+                        setIsModalVisible(false);
+                        setDeletedPost(null)
+                    }}
+                    buttonPress={(index) => {
+                        setIsModalVisible(false);
+                        onActionSheet(index)
+                    }}
+
+                />
             </View>
         </BaseView >
 

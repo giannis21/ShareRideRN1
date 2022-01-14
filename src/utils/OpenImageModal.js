@@ -16,7 +16,7 @@ export function OpenImageModal({
   closeText,
   buttonPress,
   isVisible,
-
+  isPost
 }) {
   const { modal, container, textStyle } = styles;
 
@@ -30,7 +30,7 @@ export function OpenImageModal({
         swipeDirection="down"
         useNativeDriver={true}
       >
-        <View style={container}>
+        {!isPost && <View style={container}>
           <TouchableOpacity style={{ padding: 10 }} onPress={() => { buttonPress(0) }}>
             <Text style={textStyle}>Βγάλε φωτογραφία</Text>
           </TouchableOpacity>
@@ -43,6 +43,7 @@ export function OpenImageModal({
 
 
         </View>
+        }
         <Spacer height={10} />
         <TouchableOpacity activeOpacity={0.9} style={[{ padding: 10 }, container]} onPress={() => buttonPress(2)}>
           <Text style={[textStyle, { color: 'red' }]}>Διαγραφή</Text>
