@@ -8,22 +8,22 @@ import { routes } from '../../navigation/RouteNames';
 import { getInterested, getInterestedPerUser, showInterest } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
+import { Loader } from '../../utils/Loader';
 import { OpenImageModal } from '../../utils/OpenImageModal';
-
+import { useNavigation } from '@react-navigation/native';
 
 
 const PostsInterestedTabScreen = ({ navigation, route, email }) => {
 
     const [total_pages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [loading, setLoading] = useState(false);
     const [dataSource, setDataSource] = useState([]);
-    const [offset, setOffset] = useState(1);
     const [isRender, setIsRender] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [deletedPost, setDeletedPost] = useState(null);
-
+    const navigation1 = useNavigation();
 
     useEffect(() => {
         if (email)
@@ -55,13 +55,20 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
 
     const onProfileClick = (email) => {
 
-        navigation.push(routes.PROFILE_SCREEN, { email: email })
+        try {
+            navigation1.push(routes.PROFILE_SCREEN, { email: email })
+        } catch (err) {
+            console.log("dadsa", err)
+        }
+
     }
     const onLikeClick = (postId, index) => {
+        setLoading(true)
         showInterest({
             email: email,
             postId,
             successCallback: ((message) => {
+                setLoading(false)
                 let likedPost = dataSource.find((item) => item.post.postid === postId)
 
 
@@ -73,6 +80,7 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
                 showCustomLayout()
             }),
             errorCallback: ((message) => {
+                setLoading(false)
                 setInfoMessage({ info: message, success: false })
                 showCustomLayout()
             })
@@ -138,6 +146,7 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
                     }}
 
                 />
+                <Loader isLoading={loading} />
             </View>
         </BaseView >
 

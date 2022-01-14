@@ -10,15 +10,32 @@ import { getReviews } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { StarsRating } from '../../utils/StarsRating';
 import { getDate } from '../../utils/Functions'
+import { Loader } from '../../utils/Loader';
+import { useIsFocused } from '@react-navigation/native';
+import { useNavigation } from '@react-navigation/native';
+import { getValue, keyNames } from '../../utils/Storage';
 
 
 const RatingTabScreen = ({ navigation, route, email }) => {
+    var _ = require('lodash');
+
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [total_pages, setTotalPages] = useState(1);
-    useEffect(() => {
+    const [isLoading, setIsLoading] = useState(false)
+    const [isSafeClick, setSafeClick] = useState(true)
+    const [myEmail, setMyEmail] = React.useState('')
+    const navigation1 = useNavigation();
+    let isFocused = useIsFocused()
 
+    React.useEffect(async () => {
+        setMyEmail(await getValue(keyNames.email))
+    }, [])
+
+
+    useEffect(() => {
+        // setIsLoading(true)
         getReviews({
             email: email,
             page: offset,
@@ -28,20 +45,23 @@ const RatingTabScreen = ({ navigation, route, email }) => {
     }, []);
 
     const successCallback = (data) => {
+        setIsLoading(false)
         setDataSource([...dataSource, ...data.reviews]);
         setTotalPages(data.total_pages)
         setOffset(offset + 1)
+
     }
     const errorCallback = () => {
-
+        setIsLoading(false)
     }
     const renderFooter = () => {
         return (
-            (offset <= total_pages) ? (
+            (!_.isEmpty(dataSource) && offset <= total_pages) ? (
                 <View style={styles.footer}>
                     <TouchableOpacity
                         activeOpacity={0.9}
                         onPress={() => {
+                            setIsLoading(true)
                             getReviews({
                                 email: email,
                                 page: offset,
@@ -51,10 +71,8 @@ const RatingTabScreen = ({ navigation, route, email }) => {
                         }}
 
                         style={styles.loadMoreBtn}>
-                        <Text style={styles.btnText}>Load More</Text>
-                        {loading ? (
-                            <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
-                        ) : null}
+                        <Text style={styles.btnText}>Φόρτωσε Περισσότερα...</Text>
+
                     </TouchableOpacity>
                 </View>
             ) : null
@@ -62,6 +80,21 @@ const RatingTabScreen = ({ navigation, route, email }) => {
         );
     };
 
+    const safeClickListener = () => {
+        setSafeClick(false)
+        setTimeout(function () {
+            setSafeClick(true)
+        }, 1000);
+    }
+
+    const goToProfile = (email) => {
+
+        if (isSafeClick && (email !== myEmail)) {
+
+            navigation1.push(routes.PROFILE_SCREEN, { email: email })
+            safeClickListener()
+        }
+    }
     const ItemView = ({ item }) => {
 
         return (
@@ -71,15 +104,19 @@ const RatingTabScreen = ({ navigation, route, email }) => {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ width: '15%', marginStart: 6 }}>
+                        <TouchableOpacity onPress={() => goToProfile(item.emailreviewer)}>
+                            <PictureComponent imageSize="small" url={BASE_URL + item.imagepath} />
+                        </TouchableOpacity>
 
-                        <PictureComponent imageSize="small" url={BASE_URL + item.imagepath} />
                         <Spacer width={15} />
                     </View>
 
 
                     <View style={{ marginTop: 3, width: '85%' }}>
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.fullname}</Text>
+                            <TouchableOpacity onPress={() => goToProfile(item.emailreviewer)}>
+                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.fullname}</Text>
+                            </TouchableOpacity>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, marginEnd: 10 }}> {getDate(item.createdAt)}</Text>
                         </View>
 
@@ -88,8 +125,9 @@ const RatingTabScreen = ({ navigation, route, email }) => {
                             <StarsRating rating={item.rating} size="small" />
                         </View>
                         <Spacer height={5} />
-                        <Text>{item.text}</Text>
-
+                        {(!_.isNull(item.text) && item.text !== '') &&
+                            <Text>{item.text}</Text>
+                        }
                         <Spacer height={15} />
                         <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
 
@@ -121,7 +159,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
                     ListFooterComponent={renderFooter}
                 />
 
-
+                <Loader isLoading={isFocused ? isLoading : false} />
             </View>
         </BaseView >
 
@@ -199,6 +237,7 @@ const styles = StyleSheet.create({
     btnText: {
         color: 'white',
         fontSize: 15,
+        paddingHorizontal: 10,
         textAlign: 'center',
     },
 });

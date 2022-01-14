@@ -5,20 +5,29 @@ import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { getPostsUser } from '../../services/MainServices';
+import { deletePost, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
-
+import { Loader } from '../../utils/Loader';
+import { useIsFocused } from '@react-navigation/native';
+import { InfoPopupModal } from '../../utils/InfoPopupModal';
+import { constVar } from '../../utils/constStr';
+import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 
 const MyPostsTabScreen = ({ navigation, route, email }) => {
-
+    var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
-    const [loading, setLoading] = useState(true);
+    const [isLoading, setIsLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [deletedPost, setDeletedPost] = useState(null);
+    const [isRender, setIsRender] = useState(false)
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
+
+    let isFocused = useIsFocused()
     useEffect(() => {
         if (email)
             getPostsUser({
@@ -30,58 +39,82 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
     }, []);
 
     const successCallback = (data) => {
+        setIsLoading(false)
         setDataSource([...dataSource, ...data.postUser]);
         setTotalPages(data.totalPages)
         setOffset(offset + 1)
     }
     const errorCallback = () => {
-
+        setIsLoading(false)
     }
 
 
-    const onProfileClick = (email) => {
+    const showCustomLayout = (callback) => {
+        setShowInfoModal(true)
+        setTimeout(function () {
+            setShowInfoModal(false)
+            if (callback)
+                callback()
+        }, 2000);
+    }
 
+    const onProfileClick = (email) => {
         navigation.push(routes.PROFILE_SCREEN, { email: email })
     }
     const onMenuClicked = (item1, index) => {
         let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
         setDeletedPost(postToBeDeleted)
         setIsModalVisible(true)
-
-        //   console.log(item.post.postid, item.user.fullname)
     }
+
     const onActionSheet = (index) => {
-        let newData = dataSource.filter((obj) => obj !== deletedPost)
-        setDataSource(newData)
-        setIsRender(!isRender)
-        // likedPost.interested = !likedPost.interested
-        // dataSource[index] = likedPost
-        // setDataSource(dataSource)
+        setIsLoading(true)
+
+        deletePost({
+            postID: deletedPost.post.postid,
+            successCallback: ((message) => {
+
+                let newData = dataSource.filter((obj) => obj !== deletedPost)
+                setDataSource(newData)
+                setIsRender(!isRender)
+
+                setInfoMessage({ info: message, success: true })
+                setIsLoading(false)
+                showCustomLayout()
+            }),
+            errorCallback: ((message) => {
+                setInfoMessage({ info: message, success: false })
+                setIsLoading(false)
+                showCustomLayout()
+
+            })
+        })
+
 
     };
+
     const renderFooter = () => {
         return (
-            (offset <= total_pages) ? (
-                <View style={styles.footer}>
-                    <TouchableOpacity
-                        activeOpacity={0.9}
-                        onPress={() => {
-                            getPostsUser({
-                                email: email,
-                                page: offset,
-                                successCallback,
-                                errorCallback
-                            })
-                        }}
+            !_.isEmpty(dataSource) && (offset <= total_pages) ?
+                (
+                    <View style={styles.footer}>
+                        <TouchableOpacity
+                            activeOpacity={0.9}
+                            onPress={() => {
+                                setIsLoading(true)
+                                getPostsUser({
+                                    email: email,
+                                    page: offset,
+                                    successCallback,
+                                    errorCallback
+                                })
+                            }}
 
-                        style={styles.loadMoreBtn}>
-                        <Text style={styles.btnText}>Load More</Text>
-                        {loading ? (
-                            <ActivityIndicator color="white" style={{ marginLeft: 8 }} />
-                        ) : null}
-                    </TouchableOpacity>
-                </View>
-            ) : null
+                            style={styles.loadMoreBtn}>
+                            <Text style={styles.btnText}>Φόρτωσε Περισσότερα...</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : null
 
         );
     };
@@ -97,11 +130,13 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                     keyExtractor={(item, index) => item.postid}
                     enableEmptySections={true}
                     renderItem={(item) => {
+
                         return <PostLayoutComponent
-                            showMenu={true}
+                            showMenu={email === item.item.post.email}
                             item={item.item}
                             onMenuClicked={onMenuClicked}
                             onProfileClick={onProfileClick}
+
                         />
                     }}
                     ListFooterComponent={renderFooter}
@@ -121,7 +156,14 @@ const MyPostsTabScreen = ({ navigation, route, email }) => {
                     }}
 
                 />
+                <Loader isLoading={isFocused ? isLoading : false} />
             </View>
+            <CustomInfoLayout
+                isVisible={showInfoModal}
+                title={infoMessage.info}
+                icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
+                success={infoMessage.success}
+            />
         </BaseView >
 
     );

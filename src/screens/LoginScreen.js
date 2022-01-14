@@ -155,7 +155,7 @@ const LoginScreen = ({ navigation, route }) => {
       setShowInfoModal(false)
       if (callback)
         callback()
-    }, 3000);
+    }, 2000);
   }
 
   return (

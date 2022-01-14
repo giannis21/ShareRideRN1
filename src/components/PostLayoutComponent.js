@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -18,7 +18,7 @@ export function PostLayoutComponent({
     showMenu
 }) {
     var _ = require('lodash');
-
+    const [isSafeClick, setSafeClick] = useState(true)
     function getMiddle() {
 
 
@@ -39,7 +39,23 @@ export function PostLayoutComponent({
 
         )
     }
+    const safeClickListener = (callback) => {
+        setSafeClick(false)
+        setTimeout(function () {
+            setSafeClick(true)
+        }, 1000);
+    }
 
+    const goToProfile = () => {
+
+        if (isSafeClick) {
+            if (!showMenu) {
+                console.log(item.user.email)
+                onProfileClick(item.user.email)
+                safeClickListener()
+            }
+        }
+    }
     const { leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
     let url = (BASE_URL + item.imagepath).toString()
 
@@ -51,7 +67,7 @@ export function PostLayoutComponent({
 
             <View style={{ flexDirection: 'row' }}>
                 <View style={leftContainer}>
-                    <TouchableOpacity onPress={() => onProfileClick(item.user.email)}>
+                    <TouchableOpacity onPress={goToProfile}>
                         <PictureComponent imageSize="small" url={BASE_URL + item.imagePath} />
                     </TouchableOpacity>
 
@@ -61,7 +77,7 @@ export function PostLayoutComponent({
                 <View style={rightContainer}>
                     <View style={rightContainerView}>
                         <View style={{ width: '55%' }}>
-                            <TouchableOpacity onPress={() => onProfileClick(item.user.email)}>
+                            <TouchableOpacity onPress={goToProfile}>
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.user.fullname}</Text>
                             </TouchableOpacity>
 
@@ -115,10 +131,17 @@ export function PostLayoutComponent({
 
                     <View style={bottomContainer}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            <TouchableOpacity style={heartContainer} onPress={() => onLikeClick(item.post.postid, index)}>
-                                <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
-                            </TouchableOpacity>
+                            {!showMenu &&
+                                <TouchableOpacity style={heartContainer} onPress={() => {
+                                    if (isSafeClick) {
+                                        onLikeClick(item.post.postid, index)
+                                        safeClickListener()
+                                    }
 
+                                }} >
+                                    <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
+                                </TouchableOpacity>
+                            }
                             <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginStart: 10 }}>Θέσεις:
                                 <Text style={seats}> {item.post.numseats} </Text>
                             </Text>

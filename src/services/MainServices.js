@@ -167,3 +167,23 @@ export const showInterest = async ({ email, postId, successCallback, errorCallba
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+
+export const deletePost = async ({ postID, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "postid": postID
+        }
+    }
+    console.log(send)
+    await instance.post(`/deletePost`, send, config)
+        .then(res => {
+
+            console.log("deletePost ", res.data, res.status)
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            console.log(error.response.data, "dd")
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}

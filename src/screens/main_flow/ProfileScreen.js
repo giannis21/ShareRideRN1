@@ -42,6 +42,10 @@ const ProfileScreen = ({ navigation, route }) => {
     const [initialReviews, setInitialReviews] = useState();
     const [openTabs, setOpenTabs] = useState(false)
     const { height, width } = Dimensions.get("window");
+    const [myEmail, setMyEmail] = useState('')
+    useEffect(async () => {
+        setMyEmail(await getValue(keyNames.email))
+    }, [])
 
     const scrollRef = useRef();
 
@@ -132,8 +136,8 @@ const ProfileScreen = ({ navigation, route }) => {
 
     }
 
-    const rate = async (rating, text) => {
-        let myEmail = await getValue(keyNames.email)
+    const rate = (rating, text) => {
+
 
         rateUser({
             email: data.email,
@@ -225,7 +229,9 @@ const ProfileScreen = ({ navigation, route }) => {
 
                             }
                         </View>
-                        <Text style={{ fontSize: 13, backgroundColor: '#F0AD4E', fontWeight: 'bold', color: 'white', textAlign: 'center', marginTop: 5, width: 'auto', paddingHorizontal: 5, borderRadius: 6, paddingVertical: 1 }}>{data.count} Ψήφοι</Text>
+                        {data.count > 0 &&
+                            <Text style={{ fontSize: 13, backgroundColor: '#F0AD4E', fontWeight: 'bold', color: 'white', textAlign: 'center', marginTop: 5, width: 'auto', paddingHorizontal: 5, borderRadius: 6, paddingVertical: 1 }}>{data.count === 1 ? data.count + ` Ψήφος` : data.count + ` Ψήφοι`} </Text>
+                        }
 
 
 
@@ -285,8 +291,10 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     </View>
 
-                    {(data.hasInterested || data.hasPosts || data.hasReviews) &&
-                        <TouchableOpacity onPress={() => setOpenTabs(true)}>
+                    {(((data.hasInterested || data.hasPosts || data.hasReviews)
+                        && (myEmail === data.email && data.hasReviews))
+                        || (myEmail !== data.email && data.hasReviews))
+                        && <TouchableOpacity onPress={() => setOpenTabs(true)}>
                             <View style={styles.footerBtn}>
                                 <Text style={{ color: 'white', fontSize: 15 }}>Περισσότερα στοιχεία</Text>
                             </View>
@@ -298,11 +306,9 @@ const ProfileScreen = ({ navigation, route }) => {
             }
 
 
-            {openTabs &&
-                <View >
-
+            {(openTabs || ((myEmail !== data.email && data.hasReviews) && openTabs)) &&
+                <View>
                     <View style={{ top: 47, right: 0, left: 0, bottom: 0, marginHorizontal: 10, paddingBottom: 50, height: '100%' }}>
-
                         <Tab.Navigator
                             screenOptions={{
                                 tabBarLabelStyle: { textTransform: 'lowercase' },
@@ -321,7 +327,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.hasPosts &&
+                            {data.hasPosts && myEmail === data.email &&
                                 <Tab.Screen name={"τα Post μου"}>
                                     {(props) => (
                                         <MyPostsTabScreen
@@ -332,7 +338,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.hasInterested &&
+                            {data.hasInterested && myEmail === data.email &&
                                 <Tab.Screen name={"ενδιαφέρομαι"}>
                                     {(props) => (
                                         <PostsInterestedTabScreen
@@ -356,7 +362,8 @@ const ProfileScreen = ({ navigation, route }) => {
                     setRatingDialogOpened(false)
                 }} />
 
-            {data.image !== '' && headerVisible && !openTabs &&
+            {
+                data.image !== '' && headerVisible && !openTabs &&
                 renderTopContainer()
             }
 
