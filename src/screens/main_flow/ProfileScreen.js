@@ -15,7 +15,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { PictureComponent } from '../../components/PictureComponent';
 import { getValue, keyNames } from '../../utils/Storage';
 import { RatingDialog } from '../../utils/RatingDialog';
-import { rateUser, searchUser } from '../../services/MainServices';
+import { getInterestedInMe, rateUser, searchUser } from '../../services/MainServices';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { BASE_URL } from '../../constants/Constants';
 import { constVar } from '../../utils/constStr';
@@ -24,12 +24,13 @@ import RatingTabScreen from '../profile_tabs/RatingTabScreen';
 import MyPostsTabScreen from '../profile_tabs/MyPostsTabScreen';
 import { NavigationContainer } from '@react-navigation/native';
 import PostsInterestedTabScreen from '../profile_tabs/PostsInterestedTabScreen';
+import InterestedInMeScreen from '../profile_tabs/InterestedInMeScreen';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { Animated, Easing } from "react-native";
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
-    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null }
+    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -43,8 +44,10 @@ const ProfileScreen = ({ navigation, route }) => {
     const [openTabs, setOpenTabs] = useState(false)
     const { height, width } = Dimensions.get("window");
     const [myEmail, setMyEmail] = useState('')
+    const [myFullName, setMyFullname] = useState('')
     useEffect(async () => {
         setMyEmail(await getValue(keyNames.email))
+        setMyFullname(await getValue(keyNames.fullName))
     }, [])
 
     const scrollRef = useRef();
@@ -98,6 +101,7 @@ const ProfileScreen = ({ navigation, route }) => {
         else
             setCurrentRating("0")
 
+        console.log("data.interestedForYourPosts ", data.interestedForYourPosts)
         setData({
             email: data.user.email,
             phone: data.user.mobile,
@@ -112,7 +116,7 @@ const ProfileScreen = ({ navigation, route }) => {
             hasReviews: data.count > 0,
             hasPosts: data.hasPosts,
             count: data.count,
-
+            interestedForYourPosts: data.interestedForYourPosts
         })
 
     }
@@ -291,8 +295,8 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     </View>
 
-                    {(((data.hasInterested || data.hasPosts || data.hasReviews)
-                        && (myEmail === data.email && data.hasReviews))
+                    {(((data.hasInterested || data.hasPosts || data.hasReviews || data.interestedForYourPosts)
+                        && (myEmail === data.email))
                         || (myEmail !== data.email && data.hasReviews))
                         && <TouchableOpacity onPress={() => setOpenTabs(true)}>
                             <View style={styles.footerBtn}>
@@ -312,7 +316,7 @@ const ProfileScreen = ({ navigation, route }) => {
                         <Tab.Navigator
                             screenOptions={{
                                 tabBarLabelStyle: { textTransform: 'lowercase' },
-                                tabBarScrollEnabled: false,
+                                tabBarScrollEnabled: true,
                                 swipeEnabled: true
                             }}
                         >
@@ -343,6 +347,18 @@ const ProfileScreen = ({ navigation, route }) => {
                                     {(props) => (
                                         <PostsInterestedTabScreen
                                             email={data.email}
+                                        />
+                                    )}
+                                </Tab.Screen>
+                            }
+
+                            {data.interestedForYourPosts && myEmail === data.email &&
+                                <Tab.Screen name={"ενδιαφερόμενοι"}>
+                                    {(props) => (
+                                        <InterestedInMeScreen
+                                            email={data.email}
+                                            myFullName={myFullName}
+                                            myEmail={myEmail}
                                         />
                                     )}
                                 </Tab.Screen>
