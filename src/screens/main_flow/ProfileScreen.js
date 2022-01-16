@@ -103,7 +103,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
         console.log("data.interestedForYourPosts ", data.interestedForYourPosts)
         setData({
-            email: data.user.email,
+            email: data?.user?.email,
             phone: data.user.mobile,
             age: data.user.age,
             facebook: data.user.facebook ?? '-',
@@ -321,7 +321,7 @@ const ProfileScreen = ({ navigation, route }) => {
                             }}
                         >
 
-                            {data.hasReviews &&
+                            {data.hasReviews && false &&
                                 <Tab.Screen name={"Αξιολογήσεις"}>
                                     {(props) => (
                                         <RatingTabScreen
@@ -331,7 +331,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.hasPosts && myEmail === data.email &&
+                            {data.hasPosts && myEmail === data.email && false &&
                                 <Tab.Screen name={"τα Post μου"}>
                                     {(props) => (
                                         <MyPostsTabScreen
@@ -342,7 +342,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.hasInterested && myEmail === data.email &&
+                            {data.hasInterested && myEmail === data.email && false &&
                                 <Tab.Screen name={"ενδιαφέρομαι"}>
                                     {(props) => (
                                         <PostsInterestedTabScreen

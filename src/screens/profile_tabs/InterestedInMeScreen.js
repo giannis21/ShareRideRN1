@@ -30,13 +30,14 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
     let navigation1 = useNavigation()
     let isFocused = useIsFocused()
     useEffect(() => {
-        if (email)
-            getInterestedInMe({
-                email: email,
-                page: offset,
-                successCallback,
-                errorCallback
-            })
+        setIsLoading(false)
+        // if (email)
+        // getInterestedInMe({
+        //     email: email,
+        //     page: offset,
+        //     successCallback,
+        //     errorCallback
+        // })
     }, []);
 
     const successCallback = (data) => {
@@ -44,6 +45,7 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
         setDataSource([...dataSource, ...data.postUser]);
         setTotalPages(data.totalPages)
         setOffset(offset + 1)
+        setIsLoading(false)
     }
     const errorCallback = () => {
         setIsLoading(false)
@@ -60,7 +62,7 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
     }
 
     const onProfileClick = (email) => {
-        navigation.push(routes.PROFILE_SCREEN, { email: email })
+        navigation1.push(routes.PROFILE_SCREEN, { email: email })
     }
     const onMenuClicked = (item1, index) => {
         let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
@@ -68,6 +70,30 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
         setIsModalVisible(true)
     }
 
+    const deleteInterested = (fullname, postid) => {
+        try {
+            console.log(fullname, postid)
+            let postToBeDeleted = dataSource.find((item) => item?.post?.postid === postid)
+
+            let deletedUser = postToBeDeleted?.users.find((user) => user.fullname === fullname)
+
+            let updatedPostList = postToBeDeleted.users.filter((obj) => obj !== deletedUser)
+            let index = dataSource.indexOf(postToBeDeleted);
+            let tempData = dataSource
+            if (index > 0) {
+                tempData[index] = updatedPostList
+                setDataSource(tempData)
+                setIsRender(!isRender)
+            }
+
+        } catch (err) {
+
+        }
+
+
+
+
+    }
     const onActionSheet = (index) => {
         setIsLoading(true)
 
@@ -96,14 +122,14 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
 
     const renderFooter = () => {
         return (
-            !_.isEmpty(dataSource) && (offset <= total_pages) ?
+            (offset <= total_pages) ?
                 (
                     <View style={styles.footer}>
                         <TouchableOpacity
                             activeOpacity={0.9}
                             onPress={() => {
                                 setIsLoading(true)
-                                getPostsUser({
+                                getInterestedInMe({
                                     email: email,
                                     page: offset,
                                     successCallback,
@@ -128,11 +154,12 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
                     ItemSeparatorComponent={() => (
                         <View style={{ height: 10 }} />
                     )}
-                    keyExtractor={(item, index) => item.post.postid}
+                    keyExtractor={(item, index) => item.post.postid + new Date().getTime()}
                     enableEmptySections={true}
-                    renderItem={(item) => {
-
+                    renderItem={(item, index) => {
+                        console.log(index)
                         return <PostLayoutComponent
+
                             showMenu={email === item.item.post.email}
                             item={item.item}
                             onMenuClicked={onMenuClicked}
@@ -140,6 +167,7 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
                             myEmail={myEmail}
                             myFullName={myFullName}
                             showInterested={true}
+                            deleteInterested={deleteInterested}
                         />
                     }}
                     ListFooterComponent={renderFooter}

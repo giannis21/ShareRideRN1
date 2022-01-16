@@ -19,7 +19,8 @@ export function PostLayoutComponent({
     showMenu,
     myEmail,
     myFullName,
-    showInterested
+    showInterested,
+    deleteInterested
 }) {
     var _ = require('lodash');
     const [isSafeClick, setSafeClick] = useState(true)
@@ -42,48 +43,48 @@ export function PostLayoutComponent({
             </View>
         )
     }
-    const renderUsers = (user) => {
-        {
-            showInterested &&
-                <View>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>Ενδιαφερόμενοι</Text>
-                    <ScrollView
-                        horizontal={true}>
+    // const renderUsers = (user) => {
+    //     {
+    //         showInterested &&
+    //             <View>
+    //                 <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>Ενδιαφερόμενοι</Text>
+    //                 <ScrollView
+    //                     horizontal={true}>
 
 
-                        <View style={{ flexDirection: 'row' }}>
+    //                     <View style={{ flexDirection: 'row' }}>
 
 
-                            {
-                                item?.users.map((user) => {
-                                    return (
+    //                         {
+    //                             item?.users.map((user) => {
+    //                                 return (
 
-                                        <TouchableOpacity onPress={goToUsersProfile} style={{ marginTop: 10 }}>
+    //                                     <TouchableOpacity onPress={goToUsersProfile} style={{ marginTop: 10 }}>
 
-                                            <View style={userStyle}>
-                                                <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
-                                                <Spacer width={14} />
-                                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
-                                                <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
-                                                <FontAwesome name="bookmark" size={24} color={colors.colorPrimary} style={{ marginHorizontal: 10 }} />
+    //                                         <View style={userStyle}>
+    //                                             <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
+    //                                             <Spacer width={14} />
+    //                                             <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
+    //                                             <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
+    //                                             <FontAwesome name="bookmark" size={24} color={colors.colorPrimary} style={{ marginHorizontal: 10 }} />
 
-                                            </View>
-                                            <Spacer height={10} />
+    //                                         </View>
+    //                                         <Spacer height={10} />
 
-                                        </TouchableOpacity>
-                                    )
-                                })
-                            }
+    //                                     </TouchableOpacity>
+    //                                 )
+    //                             })
+    //                         }
 
-                        </View>
-                    </ScrollView>
-                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
+    //                     </View>
+    //                 </ScrollView>
+    //                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
 
 
-                </View>
-        }
+    //             </View>
+    //     }
 
-    }
+    // }
     const safeClickListener = (callback) => {
         setSafeClick(false)
         setTimeout(function () {
@@ -100,16 +101,15 @@ export function PostLayoutComponent({
             }
         }
     }
-    const goToUsersProfile = () => {
+    const goToUsersProfile = (email) => {
 
         if (isSafeClick) {
-
-            onProfileClick(item?.user?.email ?? myEmail)
+            onProfileClick(email)
             safeClickListener()
 
         }
     }
-    const { userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
+    const { userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
     let url = (BASE_URL + item.imagepath).toString()
 
     return (
@@ -210,8 +210,58 @@ export function PostLayoutComponent({
             </View>
 
             {item?.users &&
-                renderUsers(item.users)
+
+                showInterested &&
+                <View>
+                    <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>Ενδιαφερόμενοι</Text>
+                    <ScrollView
+                        horizontal={true}>
+
+
+                        <View style={{ flexDirection: 'row' }}>
+
+
+                            {
+                                item?.users.map((user) => {
+                                    return (
+
+                                        <TouchableOpacity onPress={() => {
+
+                                            goToUsersProfile(user.email)
+
+                                        }} style={{ marginTop: 10 }}>
+
+                                            <View style={userStyleAdded}>
+                                                <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
+                                                <Spacer width={14} />
+                                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
+                                                <TouchableOpacity onPress={() => {
+                                                    deleteInterested(user.fullname, item.post.postid)
+                                                }}>
+
+
+
+                                                    <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
+                                                </TouchableOpacity>
+
+                                                <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+
+                                            </View>
+                                            <Spacer height={10} />
+
+                                        </TouchableOpacity>
+                                    )
+                                })
+                            }
+
+                        </View>
+                    </ScrollView>
+                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4 }} />
+
+
+                </View >
             }
+
 
         </TouchableOpacity >
 
@@ -227,6 +277,17 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
         backgroundColor: colors.CoolGray2,
+        alignSelf: 'baseline',
+        width: 'auto',
+        borderRadius: 13,
+        marginEnd: 10,
+    },
+    userStyleAdded: {
+        paddingHorizontal: 10,
+        paddingVertical: 3,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: "#c5dde3",
         alignSelf: 'baseline',
         width: 'auto',
         borderRadius: 13,
