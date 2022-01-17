@@ -85,6 +85,41 @@ export function PostLayoutComponent({
     //     }
 
     // }
+
+    const RenderUser = ({ user }) => {
+
+        return (
+
+            <TouchableOpacity onPress={() => {
+
+                goToUsersProfile(user.email)
+
+            }} style={{ marginTop: 10 }}>
+
+                <View style={userStyleAdded}>
+                    <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
+                    <Spacer width={14} />
+                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
+                    <TouchableOpacity onPress={() => {
+                        deleteInterested(user.fullname, item.post.postid)
+                    }}>
+
+
+
+                        <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
+                    </TouchableOpacity>
+
+                    <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+
+                </View>
+
+
+
+                <Spacer height={10} />
+
+            </TouchableOpacity>
+        )
+    }
     const safeClickListener = (callback) => {
         setSafeClick(false)
         setTimeout(function () {
@@ -223,35 +258,23 @@ export function PostLayoutComponent({
 
                             {
                                 item?.users.map((user) => {
-                                    return (
 
-                                        <TouchableOpacity onPress={() => {
-
-                                            goToUsersProfile(user.email)
-
-                                        }} style={{ marginTop: 10 }}>
-
-                                            <View style={userStyleAdded}>
-                                                <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
-                                                <Spacer width={14} />
-                                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
-                                                <TouchableOpacity onPress={() => {
-                                                    deleteInterested(user.fullname, item.post.postid)
-                                                }}>
-
-
-
-                                                    <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
-                                                </TouchableOpacity>
-
-                                                <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
-
-                                            </View>
-                                            <Spacer height={10} />
-
-                                        </TouchableOpacity>
-                                    )
+                                    return <RenderUser user={user} />
                                 })
+
+                            }
+                            {
+                                item.hasMoreUsers &&
+                                <TouchableOpacity
+                                    activeOpacity={0.9}
+                                    onPress={() => {
+
+
+                                    }}
+
+                                    style={styles.loadMoreBtn}>
+                                    <Text style={styles.btnText}>Φόρτωσε Περισσότερα...</Text>
+                                </TouchableOpacity>
                             }
 
                         </View>
@@ -270,7 +293,19 @@ export function PostLayoutComponent({
 }
 
 const styles = StyleSheet.create({
-
+    loadMoreBtn: {
+        padding: 10,
+        backgroundColor: colors.colorPrimary,
+        borderRadius: 4,
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    btnText: {
+        color: 'white',
+        fontSize: 15,
+        textAlign: 'center',
+    },
     userStyle: {
         paddingHorizontal: 10,
         paddingVertical: 3,
@@ -353,4 +388,5 @@ const styles = StyleSheet.create({
         justifyContent: 'center',
         alignItems: 'center'
     }
+
 });
