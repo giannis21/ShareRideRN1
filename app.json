@@ -1,11 +1,12 @@
 {
   "expo": {
-    "name": "ShareRide",
-    "slug": "ShareRide",
+    "name": "shareride",
+    "slug": "shareride",
     "version": "1.0.0",
     "assetBundlePatterns": [
       "**/*"
     ]
   },
-  "name": "ShareRide"
+  "name": "shareride",
+  "displayName": "shareride"
 }

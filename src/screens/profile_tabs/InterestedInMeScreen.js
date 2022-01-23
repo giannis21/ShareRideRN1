@@ -18,7 +18,7 @@ import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false)
@@ -31,13 +31,13 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
     let isFocused = useIsFocused()
     useEffect(() => {
         setIsLoading(false)
-        // if (email)
-        // getInterestedInMe({
-        //     email: email,
-        //     page: offset,
-        //     successCallback,
-        //     errorCallback
-        // })
+        if (email)
+            getInterestedInMe({
+                email: email,
+                page: offset,
+                successCallback,
+                errorCallback
+            })
     }, []);
 
     const successCallback = (data) => {
@@ -150,6 +150,7 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
             <View style={styles.container}>
                 <Spacer height={15} />
                 <FlatList
+                    removeClippedSubviews={true}
                     data={dataSource}
                     ItemSeparatorComponent={() => (
                         <View style={{ height: 10 }} />
@@ -168,6 +169,9 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
                             myFullName={myFullName}
                             showInterested={true}
                             deleteInterested={deleteInterested}
+                            showMoreUsers={(post) => {
+                                console.log(post)
+                            }}
                         />
                     }}
                     ListFooterComponent={renderFooter}

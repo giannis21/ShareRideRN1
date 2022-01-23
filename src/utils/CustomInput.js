@@ -4,18 +4,27 @@ import { Spacer } from "../layout/Spacer";
 import { colors } from '../utils/Colors';
 import Feather from 'react-native-vector-icons/Feather';
 
-export function CustomInput({ text, hasIcon, keyboardType, secureTextEntry, onChangeText, onIconPressed, value, maxLenth, extraStyle }) {
+export function CustomInput({ text, hasIcon, keyboardType, secureTextEntry, onChangeText, onIconPressed, value, maxLenth, extraStyle, labelNot, placeHolder, disabled }) {
 
     return (
         <View style={[styles.SectionStyle, { extraStyle }]}>
 
-            <Text style={{ color: '#8b9cb5' }}>{text}</Text>
+            {!labelNot &&
+                <View>
+                    <Text style={{ color: '#8b9cb5' }}>{text}</Text>
+                    <Spacer height={10} />
+                </View>
+            }
 
-            <Spacer height={10} />
+
+
             <View style={{ flexDirection: 'row' }}>
                 <TextInput
+                    editable={disabled ? false : true}
+
                     style={styles.inputStyle}
                     placeholderTextColor="#8b9cb5"
+                    placeholder={placeHolder ? placeHolder : null}
                     autoCapitalize="none"
                     keyboardType={keyboardType}
                     secureTextEntry={secureTextEntry ? true : false}

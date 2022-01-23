@@ -117,7 +117,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
                             <TouchableOpacity onPress={() => goToProfile(item.emailreviewer)}>
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.fullname}</Text>
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, marginEnd: 10 }}> {getDate(item.createdAt)}</Text>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, marginEnd: 10 }}> {item.createdAt}</Text>
                         </View>
 
                         <Spacer height={10} />

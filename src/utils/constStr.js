@@ -42,5 +42,9 @@ export const constVar = {
     facebook: "Facebook",
     instagram: "Instagram",
     car: "Όχημα",
-    rateNow: "Αξιολόγησε τώρα"
+    rateNow: "Αξιολόγησε τώρα",
+
+    submit: "Υποβολή",
+    initialDate: 'Αρχική',
+    endDate: 'Τελική'
 }

@@ -101,7 +101,6 @@ const ProfileScreen = ({ navigation, route }) => {
         else
             setCurrentRating("0")
 
-        console.log("data.interestedForYourPosts ", data.interestedForYourPosts)
         setData({
             email: data?.user?.email,
             phone: data.user.mobile,
@@ -320,7 +319,6 @@ const ProfileScreen = ({ navigation, route }) => {
                                 swipeEnabled: true
                             }}
                         >
-
                             {data.hasReviews && false &&
                                 <Tab.Screen name={"Αξιολογήσεις"}>
                                     {(props) => (

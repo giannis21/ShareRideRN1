@@ -4,7 +4,7 @@ import { Spacer } from "../layout/Spacer";
 import { colors } from '../utils/Colors';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
-export function CommentInputComponent({ text, onChangeText, value, maxLenth, extraStyle }) {
+export function CommentInputComponent({ text, onChangeText, value, maxLenth, extraStyle, removeNote }) {
 
     return (
         <View>
@@ -32,8 +32,12 @@ export function CommentInputComponent({ text, onChangeText, value, maxLenth, ext
 
                 </View>
             </View>
-            <Spacer height={4} />
-            <Text style={{ fontSize: 13, color: '#8b9cb5', marginStart: 12 }}>*Είναι σημαντικό να γίνεται όσο τον δυνατόν αντικειμενική αξιολόγηση. Ευχαριστούμε!</Text>
+            {!removeNote &&
+                <View>
+                    <Spacer height={4} />
+                    <Text style={{ fontSize: 13, color: '#8b9cb5', marginStart: 12 }}>*Είναι σημαντικό να γίνεται όσο τον δυνατόν αντικειμενική αξιολόγηση. Ευχαριστούμε!</Text>
+
+                </View>}
 
         </View>
     )

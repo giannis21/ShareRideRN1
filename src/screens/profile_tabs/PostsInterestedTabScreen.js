@@ -46,15 +46,15 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
     const successCallback = (data) => {
         setDataSource(data.postUser);
         setTotalPages(data.totalPages)
-
+        setLoading(false)
     }
     const errorCallback = () => {
-
+        setLoading(false)
     }
 
 
     const onProfileClick = (email) => {
-
+        console.log("adasdasdsdsa ", email)
         try {
             navigation1.push(routes.PROFILE_SCREEN, { email: email })
         } catch (err) {
@@ -93,6 +93,10 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
 
         //   console.log(item.post.postid, item.user.fullname)
     }
+    const showMoreUsers = (post) => {
+
+        console.log(post)
+    }
     const onActionSheet = (index) => {
         let newData = dataSource.filter((obj) => obj !== deletedPost)
         setDataSource(newData)
@@ -128,6 +132,7 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
                             onMenuClicked={onMenuClicked}
                             onProfileClick={onProfileClick}
                             onLikeClick={onLikeClick}
+
                         />
                     }}
 

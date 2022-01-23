@@ -3,6 +3,7 @@ import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { ScrollView, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import AntDesign from 'react-native-vector-icons/AntDesign';
 import { BASE_URL } from '../constants/Constants';
 import { Spacer } from '../layout/Spacer';
 import { colors } from '../utils/Colors';
@@ -20,7 +21,8 @@ export function PostLayoutComponent({
     myEmail,
     myFullName,
     showInterested,
-    deleteInterested
+    deleteInterested,
+    showMoreUsers
 }) {
     var _ = require('lodash');
     const [isSafeClick, setSafeClick] = useState(true)
@@ -144,7 +146,7 @@ export function PostLayoutComponent({
 
         }
     }
-    const { userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
+    const { addMoreUsers, userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
     let url = (BASE_URL + item.imagepath).toString()
 
     return (
@@ -265,16 +267,18 @@ export function PostLayoutComponent({
                             }
                             {
                                 item.hasMoreUsers &&
-                                <TouchableOpacity
-                                    activeOpacity={0.9}
-                                    onPress={() => {
+                                <View style={{ marginTop: 10 }}>
+                                    <TouchableOpacity style={addMoreUsers} onPress={() => { showMoreUsers(item.post) }}>
+                                        <AntDesign name="loading1" size={22} color='white' style={{ marginHorizontal: 5 }} />
+
+                                        <Text style={{ fontSize: 14, fontWeight: 'bold', color: 'white' }}> Φόρτωσε περισσότερους χρήστες</Text>
+                                    </TouchableOpacity>
 
 
-                                    }}
 
-                                    style={styles.loadMoreBtn}>
-                                    <Text style={styles.btnText}>Φόρτωσε Περισσότερα...</Text>
-                                </TouchableOpacity>
+                                    <Spacer height={10} />
+
+                                </View>
                             }
 
                         </View>
@@ -316,6 +320,18 @@ const styles = StyleSheet.create({
         width: 'auto',
         borderRadius: 13,
         marginEnd: 10,
+    },
+    addMoreUsers: {
+        paddingHorizontal: 13,
+        paddingVertical: 10,
+        flexDirection: 'row',
+        alignItems: 'center',
+        backgroundColor: colors.colorPrimary,
+        alignSelf: 'baseline',
+        width: 'auto',
+        borderRadius: 13,
+        marginEnd: 10,
+
     },
     userStyleAdded: {
         paddingHorizontal: 10,
