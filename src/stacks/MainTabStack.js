@@ -8,7 +8,9 @@ import SearchRouteScreen from '../screens/main_flow/search_route/SearchRouteScre
 import Icon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/Colors';
 import ProfileScreen from '../screens/main_flow/ProfileScreen';
-const Tab = createMaterialBottomTabNavigator();
+import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+
+const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => (
@@ -24,7 +26,7 @@ const HomeStack = () => (
     </Stack.Navigator>
 );
 const MainTabStack = () => (
-    <Tab.Navigator>
+    <Tab.Navigator screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}>
         <Tab.Screen
 
             name={routes.SEARCH_ROUTE_SCREEN}
@@ -33,8 +35,8 @@ const MainTabStack = () => (
                 options: { headerShown: false },
                 tabBarLabel: 'Αναζήτηση',
                 tabBarColor: colors.colorPrimary,
-                tabBarIcon: ({ color }) => (
-                    <Icon name="ios-home" color={color} size={26} />
+                tabBarIcon: ({ focused, color }) => (
+                    <Icon name="ios-home" color={focused ? colors.colorPrimary : color} size={26} />
                 ),
             }} />
         <Tab.Screen
@@ -45,8 +47,8 @@ const MainTabStack = () => (
                 options: { headerShown: false },
                 tabBarLabel: 'Δημιουργία Post',
                 tabBarColor: colors.colorPrimary,
-                tabBarIcon: ({ color }) => (
-                    <Icon name="ios-home" color={color} size={26} />
+                tabBarIcon: ({ focused, color }) => (
+                    <Icon name="ios-home" color={focused ? colors.colorPrimary : color} size={26} />
                 ),
             }} />
     </Tab.Navigator >

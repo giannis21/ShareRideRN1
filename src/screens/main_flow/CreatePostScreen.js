@@ -25,6 +25,7 @@ import { constVar } from '../../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
 import { CalendarPickerModal } from '../../utils/CalendarPickerModal';
 import { ADD_START_DATE, SET_RADIO_SELECTED } from '../../actions/types';
+import { SearchFragment } from '../../components/SearchFragment';
 
 const CreatePostScreen = ({ navigation, route }) => {
 
@@ -38,13 +39,14 @@ const CreatePostScreen = ({ navigation, route }) => {
     const [initialDate, setInitialDate] = useState(constVar.initialDate)
     const [endDate, setEndDate] = useState(constVar.endDate)
     const [isPickerVisible, setIsPickerVisible] = useState(false)
+    const [openSearch, setOpenSearch] = useState({ from: true, open: false })
     const renderThumb = useCallback(() => <Thumb />, []);
     const renderRail = useCallback(() => <Rail />, []);
     const renderRailSelected = useCallback(() => <RailSelected />, []);
     const renderLabel = useCallback(value => <Label text={value} />, []);
     const renderNotch = useCallback(() => <Notch />, []);
     const handleValueChange = useCallback((low, high) => {
-        console.log(low, high)
+
         setCost(low);
         setHigh(high);
     }, []);
@@ -89,7 +91,7 @@ const CreatePostScreen = ({ navigation, route }) => {
                         setSeats(seats - 1)}>
                         <Ionicons name="remove" size={24} color='black' />
                     </TouchableOpacity>
-                    <Text style={{ marginHorizontal: 10, fontSize: 17 }}>{seats}</Text>
+                    <Text style={{ marginHorizontal: 10, fontSize: 20 }}>{seats}</Text>
                     <TouchableOpacity style={rightAddSeat} onPress={() =>
                         (seats < 7) &&
                         setSeats(seats + 1)}>
@@ -172,13 +174,17 @@ const CreatePostScreen = ({ navigation, route }) => {
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <MainHeader
-                title={"Δημιουργία Post"}
+                onClose={() => { setOpenSearch({ from: true, open: false }) }}
+                showX={openSearch.open === true}
+                title={openSearch.open === true ? "Αναζήτηση" : "Δημιουργία Post"}
             />
             <KeyboardAwareScrollView>
                 <View>
                     <Spacer height={15} />
                     <View style={{ paddingHorizontal: 16 }}>
-                        <SelectLocationComponent title={'Αφετηρία προορισμού'} />
+                        <SelectLocationComponent title={'Αφετηρία προορισμού'}
+                            startingPointPress={() => { setOpenSearch({ from: true, open: true }) }}
+                            endPointPress={() => { setOpenSearch({ from: false, open: true }) }} />
                         <Spacer height={20} />
 
 
@@ -216,6 +222,11 @@ const CreatePostScreen = ({ navigation, route }) => {
                 />
 
             </KeyboardAwareScrollView>
+
+            {openSearch.open &&
+                <SearchFragment from={openSearch.from} />
+            }
+
             <CalendarPickerModal
 
                 isVisible={isPickerVisible}

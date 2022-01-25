@@ -57,13 +57,13 @@ export const searchUser = async ({ email, successCallback, errorCallback }) => {
             "email": email,
         }
     }
-
+    console.log("send ", send)
     await instance.post(`/searchuser`, send, config)
         .then(res => {
             console.log("searchuser ", res.data)
             successCallback(res.data)
         }).catch(function (error) {
-            console.log("error ", error.response.data)
+            console.log("error ", error.response.status, error.response.data)
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }

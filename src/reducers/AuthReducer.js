@@ -13,27 +13,27 @@ export const CONTRACT_TYPE = {
 
 const intialState = {
   user: {
-      lastLoginDate: '',
-      age : '',
-      car : '',
-      carDate : '',
-      email : '',
-      facebook : '',
-      fullName: '',
-      gender : '',
-      instagram : '',
-      phone : '',
-      password: '',
-      token : ''
+    lastLoginDate: '',
+    age: '',
+    car: '',
+    carDate: '',
+    email: '',
+    facebook: '',
+    fullName: '',
+    gender: '',
+    instagram: '',
+    phone: '',
+    password: '',
+    token: ''
   },
-  
+
 };
 
 export function AuthReducer(state = intialState, { payload, type }) {
+  console.log("reducer called", payload)
   switch (type) {
     case LOGIN_USER:
       return {
-        ...state,
         user: { ...payload }
       };
     case SIGNUP_CHECK:

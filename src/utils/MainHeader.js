@@ -15,6 +15,7 @@ export function MainHeader({
     onSettingsPress,
     onClose,
     showX
+
 }) {
     const { modal, container } = styles;
     const selectedColor = colors.colorPrimary

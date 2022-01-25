@@ -7,6 +7,7 @@ import * as types from '../actions/types'
 import { getHeaderConfig } from "../utils/Functions";
 import { getValue, setValue, keyNames } from '../utils/Storage'
 import { constVar } from "../utils/constStr";
+import configureStore from "../configureStore";
 export const createToken = async ({ email, password, successCallBack, errorCallback }) => {
 
   const send = {
@@ -45,7 +46,7 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
   await instance.post(`/login`, send, config)
     .then(res => {
       console.log(res.data)
-      storeInfoLocally(res.data)
+      storeInfoLocally(res.data, send.data.pass)
       successCallBack(res.data.message)
 
     }).catch(function (error) {
@@ -150,9 +151,23 @@ export const registerUser = async (data, successCallBack, errorCallback) => {
     });
 }
 
-const storeInfoLocally = (res) => {
+const storeInfoLocally = (res, password) => {
   try {
     const d = new Date();
+    let user = {
+      lastLoginDate: d.getTime().toString(),
+      age: res.user.age,
+      car: res.user.car,
+      carDate: res.user.cardate,
+      email: res.user.email,
+      facebook: res.user.facebook ?? "-",
+      fullName: res.user.fullname,
+      gender: res.user.gender ?? "-",
+      instagram: res.user.instagram ?? "-",
+      phone: res.user.mobile.toString(),
+      password: password,
+      token: ''
+    }
 
 
     setValue(keyNames.lastLoginDate, d.getTime().toString())
@@ -165,10 +180,11 @@ const storeInfoLocally = (res) => {
     setValue(keyNames.gender, res.user.gender ?? "-")
     setValue(keyNames.instagram, res.user.instagram ?? "-")
     setValue(keyNames.phone, res.user.mobile.toString())
-    setValue(keyNames.password, res.user.password.toString())
+    setValue(keyNames.password, password)
+    configureStore.dispatch({ type: types.LOGIN_USER, payload: user }).then();
 
   } catch (err) {
-
+    console.log(err)
   }
 
 

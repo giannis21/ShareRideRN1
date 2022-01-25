@@ -7,20 +7,23 @@ import { createSwitchNavigator, createAppContainer } from "react-navigation";
 import { routes } from './src/navigation/RouteNames';
 //import MainTabStack from './src/stacks/MainTabStack';
 import HomeStack from './src/stacks/MainTabStack';
-
-
+import configureStore from './src/configureStore'
+import { Provider } from 'react-redux';
 let Stack = createNativeStackNavigator();
 
 function App() {
   return (
-    <NavigationContainer>
-      {/* <Stack.Navigator screenOptions={{ headerShown: false }} >
-        <Stack.Screen name={routes.AUTHSTACK} component={AuthStack} />
-        <Stack.Screen name={routes.HOMESTACK} component={HomeStack} />
-      </Stack.Navigator>*/}
+    <Provider store={configureStore} >
+      <NavigationContainer>
+        <Stack.Navigator screenOptions={{ headerShown: false }} >
+          <Stack.Screen name={routes.AUTHSTACK} component={AuthStack} />
+          <Stack.Screen name={routes.HOMESTACK} component={HomeStack} />
+        </Stack.Navigator>
 
-      <HomeStack />
-    </NavigationContainer >
+        {/*    <HomeStack />*/}
+      </NavigationContainer >
+    </Provider>
+
   );
 }
 

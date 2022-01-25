@@ -16,6 +16,11 @@ export function CloseIconComponent({
             onPress={onPress}
             style={styles.container}>
             <View style={styles.circleContainer}>
+                {/* <Image
+                    style={{ width: 12, height: 12 }}
+                    source={require('../assets/images/close.png')}
+                /> */}
+
                 <Icon name="close" color='black' size={18} style={{ color: colors.colorPrimary }} />
             </View>
 

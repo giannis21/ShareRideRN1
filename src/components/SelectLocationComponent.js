@@ -7,7 +7,8 @@ import { colors } from '../utils/Colors';
 
 export function SelectLocationComponent({
     title,
-
+    startingPointPress,
+    endPointPress
 }) {
 
     return (
@@ -15,19 +16,19 @@ export function SelectLocationComponent({
         <View>
             <Text style={{ color: 'black', fontWeight: 'bold' }}>Από</Text>
 
-            <TouchableOpacity onPress={() => { console.log("pressed") }} >
+            <TouchableOpacity onPress={startingPointPress} >
                 <Spacer height={20} />
                 <Text style={{ color: '#8b9cb5' }}>{title}</Text>
-                <Spacer height={10} />
+                <Spacer height={15} />
                 <View style={{ width: '100%', backgroundColor: colors.colorPrimary, height: 1 }} />
             </TouchableOpacity>
 
             <Spacer height={35} />
             <Text style={{ color: 'black', fontWeight: 'bold' }}>Μέχρι</Text>
-            <TouchableOpacity onPress={() => { console.log("pressed") }} >
+            <TouchableOpacity onPress={endPointPress} >
                 <Spacer height={20} />
                 <Text style={{ color: '#8b9cb5' }}>Τελικός προορισμός</Text>
-                <Spacer height={10} />
+                <Spacer height={15} />
                 <View style={{ width: '100%', backgroundColor: colors.colorPrimary, height: 1 }} />
             </TouchableOpacity>
         </View>

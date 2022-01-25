@@ -27,6 +27,7 @@ import PostsInterestedTabScreen from '../profile_tabs/PostsInterestedTabScreen';
 import InterestedInMeScreen from '../profile_tabs/InterestedInMeScreen';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { Animated, Easing } from "react-native";
+import { useSelector, useDispatch } from 'react-redux';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -45,7 +46,13 @@ const ProfileScreen = ({ navigation, route }) => {
     const { height, width } = Dimensions.get("window");
     const [myEmail, setMyEmail] = useState('')
     const [myFullName, setMyFullname] = useState('')
+
+
+
+    const user = useSelector(state => state.authReducer)
+
     useEffect(async () => {
+        console.log("user", user)
         setMyEmail(await getValue(keyNames.email))
         setMyFullname(await getValue(keyNames.fullName))
     }, [])
