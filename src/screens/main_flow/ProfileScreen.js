@@ -49,12 +49,12 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
 
-    const user = useSelector(state => state.authReducer)
+    const user = useSelector(state => state.authReducer.user)
 
     useEffect(async () => {
         console.log("user", user)
-        setMyEmail(await getValue(keyNames.email))
-        setMyFullname(await getValue(keyNames.fullName))
+        setMyEmail(user.email)
+        setMyFullname(user.fullname)
     }, [])
 
     const scrollRef = useRef();
@@ -362,7 +362,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                     {(props) => (
                                         <InterestedInMeScreen
                                             email={data.email}
-                                            myFullName={myFullName}
+
                                             myEmail={myEmail}
                                         />
                                     )}

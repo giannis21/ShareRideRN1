@@ -8,7 +8,7 @@ import { BASE_URL } from '../constants/Constants';
 import { Spacer } from '../layout/Spacer';
 import { colors } from '../utils/Colors';
 import { PictureComponent } from './PictureComponent';
-
+import { useSelector, useDispatch } from 'react-redux';
 
 export function PostLayoutComponent({
     onPress,
@@ -18,8 +18,6 @@ export function PostLayoutComponent({
     item,
     onMenuClicked,
     showMenu,
-    myEmail,
-    myFullName,
     showInterested,
     deleteInterested,
     showMoreUsers
@@ -27,6 +25,7 @@ export function PostLayoutComponent({
     var _ = require('lodash');
     const [isSafeClick, setSafeClick] = useState(true)
 
+    const myUser = useSelector(state => state.authReducer.user)
     function getMiddle() {
 
 
@@ -133,7 +132,7 @@ export function PostLayoutComponent({
 
         if (isSafeClick) {
             if (!showMenu) {
-                onProfileClick(item?.user?.email ?? myEmail)
+                onProfileClick(item?.user?.email ?? myUser.email)
                 safeClickListener()
             }
         }
@@ -168,7 +167,7 @@ export function PostLayoutComponent({
                     <View style={rightContainerView}>
                         <View style={{ width: '55%' }}>
                             <TouchableOpacity onPress={goToProfile}>
-                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myFullName}</Text>
+                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
                             </TouchableOpacity>
 
                             <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item.post.date}</Text>

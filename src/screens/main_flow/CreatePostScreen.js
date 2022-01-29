@@ -53,13 +53,11 @@ const CreatePostScreen = ({ navigation, route }) => {
 
     const dispatch = useDispatch();
 
-    const updateStartDate = (key) => dispatch({
-        type: ADD_START_DATE,
-        payload: key
-    })
+
 
     const post = useSelector(state => state.postReducer)
-
+    const user = useSelector(state => state.authReducer)
+    console.log(user)
     const onStartPointChanged = (value) => {
         setData({ ...data, startPoint: value })
     }
@@ -215,7 +213,7 @@ const CreatePostScreen = ({ navigation, route }) => {
 
 
                 <RoundButton
-                    containerStyle={{ width: '100%' }}
+                    containerStyle={{ marginHorizontal: 16 }}
                     text={constVar.submit}
                     backgroundColor={colors.colorPrimary}
                     onPress={() => { }}

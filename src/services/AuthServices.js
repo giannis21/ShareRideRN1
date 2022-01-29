@@ -7,13 +7,13 @@ import * as types from '../actions/types'
 import { getHeaderConfig } from "../utils/Functions";
 import { getValue, setValue, keyNames } from '../utils/Storage'
 import { constVar } from "../utils/constStr";
-import configureStore from "../configureStore";
+import { configureStore } from "../configureStore";
 export const createToken = async ({ email, password, successCallBack, errorCallback }) => {
 
   const send = {
     "data": {
-      "email": email,
-      "pass": password
+      "email": "giannisfragoulis21@gmail.com",
+      "pass": "11111"
     }
   }
 
@@ -47,7 +47,7 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
     .then(res => {
       console.log(res.data)
       storeInfoLocally(res.data, send.data.pass)
-      successCallBack(res.data.message)
+      successCallBack(res.data.message, getUser(res.data, send.data.pass))
 
     }).catch(function (error) {
       console.log("error.response.data ", error.response.data)
@@ -154,7 +154,29 @@ export const registerUser = async (data, successCallBack, errorCallback) => {
 const storeInfoLocally = (res, password) => {
   try {
     const d = new Date();
-    let user = {
+    setValue(keyNames.lastLoginDate, d.getTime().toString())
+    setValue(keyNames.age, res.user.age)
+    setValue(keyNames.car, res.user.car)
+    setValue(keyNames.carDate, res.user.cardate)
+    setValue(keyNames.email, res.user.email)
+    setValue(keyNames.facebook, res.user.facebook ?? "-")
+    setValue(keyNames.fullName, res.user.fullname)
+    setValue(keyNames.gender, res.user.gender ?? "-")
+    setValue(keyNames.instagram, res.user.instagram ?? "-")
+    setValue(keyNames.phone, res.user.mobile.toString())
+    setValue(keyNames.password, password)
+  } catch (err) {
+    console.log(err)
+  }
+
+}
+
+
+const getUser = (res, password) => {
+  let user;
+  try {
+    const d = new Date();
+    user = {
       lastLoginDate: d.getTime().toString(),
       age: res.user.age,
       car: res.user.car,
@@ -168,24 +190,9 @@ const storeInfoLocally = (res, password) => {
       password: password,
       token: ''
     }
-
-
-    setValue(keyNames.lastLoginDate, d.getTime().toString())
-    setValue(keyNames.age, res.user.age)
-    setValue(keyNames.car, res.user.car)
-    setValue(keyNames.carDate, res.user.cardate)
-    setValue(keyNames.email, res.user.email)
-    setValue(keyNames.facebook, res.user.facebook ?? "-")
-    setValue(keyNames.fullName, res.user.fullname)
-    setValue(keyNames.gender, res.user.gender ?? "-")
-    setValue(keyNames.instagram, res.user.instagram ?? "-")
-    setValue(keyNames.phone, res.user.mobile.toString())
-    setValue(keyNames.password, password)
-    configureStore.dispatch({ type: types.LOGIN_USER, payload: user }).then();
-
+    //  configureStore.dispatch({ type: types.LOGIN_USER, payload: user })
   } catch (err) {
-    console.log(err)
+    console.log("err", err)
   }
-
-
+  return user
 }

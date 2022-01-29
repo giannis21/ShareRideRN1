@@ -1,5 +1,6 @@
 export const routes = {
     LOGIN_SCREEN: 'Login',
+    SPLASH_SCREEN: 'SPLASH_SCREEN',
     REGISTER_SCREEN: 'Register',
     OTP_SCREEN: 'Otp',
     RESTORE_PASSWORD_SCREEN: 'RestorePassword',

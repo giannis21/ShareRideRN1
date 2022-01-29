@@ -1,18 +1,31 @@
-import * as React from 'react';
+import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
+import { resetValues } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
 import { getValue, keyNames } from '../../../utils/Storage';
-
+import { BackHandler } from 'react-native';
+import { useIsFocused } from '@react-navigation/native';
 
 const SearchRouteScreen = ({ navigation, route }) => {
-    const [isLoading, setIsLoading] = React.useState(false)
-    const [myEmail, setMyEmail] = React.useState('')
+    const [isLoading, setIsLoading] = useState(false)
+    const [myEmail, setMyEmail] = useState('')
+    let onLogout = false
+    const isFocused = useIsFocused()
+    useEffect(() => {
 
-    React.useEffect(async () => {
+        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+            e.preventDefault();
+            BackHandler.exitApp()
+        });
+
+        return unsubscribe;
+    }, [navigation]);
+
+    useEffect(async () => {
         setMyEmail(await getValue(keyNames.email))
     }, [])
     const getMe = () => {
@@ -25,6 +38,15 @@ const SearchRouteScreen = ({ navigation, route }) => {
             <MainHeader
                 title={"Αναζήτηση διαδρομής"}
                 onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: myEmail }) }}
+                onLogout={() => {
+                    navigation.removeListener('beforeRemove')
+                    resetValues(() => {
+
+                        navigation.popToTop();
+                        navigation.goBack();
+                    })
+
+                }}
                 showX
             />
 

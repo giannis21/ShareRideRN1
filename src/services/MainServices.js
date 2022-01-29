@@ -187,3 +187,25 @@ export const deletePost = async ({ postID, successCallback, errorCallback }) => 
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+
+
+export const resetValues = (callback) => {
+    try {
+
+        setValue(keyNames.lastLoginDate, '')
+        setValue(keyNames.age, '')
+        setValue(keyNames.car, '')
+        setValue(keyNames.carDate, '')
+        setValue(keyNames.email, '')
+        setValue(keyNames.facebook, "-")
+        setValue(keyNames.fullName, '')
+        setValue(keyNames.gender, "")
+        setValue(keyNames.instagram, "-")
+        setValue(keyNames.phone, '')
+        setValue(keyNames.password, '')
+        callback()
+    } catch (err) {
+        console.log(err)
+    }
+
+}

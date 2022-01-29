@@ -18,7 +18,7 @@ export function RoundButton({
   const { container, iconStyle } = styles;
 
   return (
-    <View style={{ marginHorizontal: 16, }} >
+    <View style={{}} >
       <TouchableOpacity
         activeOpacity={0.8}
         style={[

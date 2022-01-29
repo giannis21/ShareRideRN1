@@ -15,7 +15,9 @@ import { useIsFocused } from '@react-navigation/native';
 import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
-const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName }) => {
+import { useSelector, useDispatch } from 'react-redux';
+
+const InterestedInMeScreen = ({ navigation, route, email }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
@@ -29,7 +31,10 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
 
     let navigation1 = useNavigation()
     let isFocused = useIsFocused()
+
+    const myUser = useSelector(state => state.authReducer.user)
     useEffect(() => {
+        console.log(myUser)
         setIsLoading(false)
         if (email)
             getInterestedInMe({
@@ -165,8 +170,6 @@ const InterestedInMeScreen = ({ navigation, route, email, myEmail, myFullName })
                             item={item.item}
                             onMenuClicked={onMenuClicked}
                             onProfileClick={onProfileClick}
-                            myEmail={myEmail}
-                            myFullName={myFullName}
                             showInterested={true}
                             deleteInterested={deleteInterested}
                             showMoreUsers={(post) => {

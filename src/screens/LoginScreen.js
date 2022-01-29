@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, Platform, TextInput, Image } from 'react-native';
+import { View, Text, StyleSheet, Button, Platform, TextInput, Image, BackHandler } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { BaseView } from '../layout/BaseView';
 import { Spacer } from '../layout/Spacer';
@@ -15,6 +15,9 @@ import { InfoPopupModal } from '../utils/InfoPopupModal';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { useIsFocused } from '@react-navigation/native';
 import { constVar } from '../utils/constStr';
+import { useSelector, useDispatch } from 'react-redux';
+import { ADD_END_DATE, LOGIN_USER } from '../actions/types';
+import { getValue, keyNames } from '../utils/Storage';
 const LoginScreen = ({ navigation, route }) => {
   var _ = require('lodash');
 
@@ -24,7 +27,20 @@ const LoginScreen = ({ navigation, route }) => {
   const [modalInput, setModalInput] = useState(false)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
+  const [isUserLoggedIn, setUserIsLoggedIn] = useState(null)
+
   const isFocused = useIsFocused()
+  let dispatch = useDispatch()
+
+  useEffect(() => {
+    const unsubscribe = navigation.addListener('beforeRemove', (e) => {
+      e.preventDefault();
+      BackHandler.exitApp()
+    });
+
+    return unsubscribe;
+  }, [navigation]);
+
 
 
   useEffect(() => {
@@ -67,15 +83,17 @@ const LoginScreen = ({ navigation, route }) => {
     setModalInput(value)
   }
 
-  const onLogin = () => {
+  const onLogin = (email, password) => {
 
     if (!valid())
       return
 
+
+
     setIsLoading(true)
     createToken({
-      email: data.email,
-      password: data.password,
+      email: email,
+      password: password,
       successCallBack: userSuccessCallback,
       errorCallback: userErrorCallback
     })
@@ -114,10 +132,13 @@ const LoginScreen = ({ navigation, route }) => {
       errorCallback: forgotPassErrorCallback
     })
   }
-  const userSuccessCallback = (message) => {
-    // setInfoMessage({ info: message, success: true })
-    // showCustomLayout()
+  const userSuccessCallback = (message, user) => {
+
     setIsLoading(false)
+
+    dispatch({ type: LOGIN_USER, payload: user })
+
+
     navigation.navigate(routes.HOMESTACK, { screen: routes.SEARCH_ROUTE_SCREEN })
   }
 
@@ -129,6 +150,7 @@ const LoginScreen = ({ navigation, route }) => {
   }
 
   const userErrorCallback = (message, otp, email) => {
+    setUserIsLoggedIn(false)
     setInfoMessage({ info: message, success: false })
     setIsLoading(false)
     if (otp) {
@@ -162,6 +184,8 @@ const LoginScreen = ({ navigation, route }) => {
 
 
     <BaseView statusBarColor={colors.colorPrimary}>
+
+
       <Loader isLoading={isLoading} />
       <CustomInfoLayout
         isVisible={showInfoModal}
@@ -210,7 +234,7 @@ const LoginScreen = ({ navigation, route }) => {
           <Spacer height={26} />
           <RoundButton
             text={constVar.login}
-            onPress={onLogin}
+            onPress={() => { onLogin(data.email, data.password) }}
             backgroundColor={colors.colorPrimary} />
           <Spacer height={16} />
 
@@ -238,6 +262,9 @@ const LoginScreen = ({ navigation, route }) => {
           onChangeText={modalInputChange}
         />
       </KeyboardAwareScrollView>
+
+
+
 
     </BaseView>
 

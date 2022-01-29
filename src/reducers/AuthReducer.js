@@ -29,17 +29,17 @@ const intialState = {
 
 };
 
-export function AuthReducer(state = intialState, { payload, type }) {
-  console.log("reducer called", payload)
-  switch (type) {
+export function AuthReducer(state = intialState, action) {
+  console.log("reducer calledn\n\n\n\n\n\n", action.payload)
+  switch (action.type) {
     case LOGIN_USER:
       return {
-        user: { ...payload }
+        user: action.payload
       };
     case SIGNUP_CHECK:
       return {
         ...state,
-        check: { ...payload }
+        check: action.payload
       };
     case LOGOUT:
       return {
