@@ -102,7 +102,7 @@ export function PostLayoutComponent({
                     <Spacer width={14} />
                     <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
                     <TouchableOpacity onPress={() => {
-                        deleteInterested(user.fullname, item.post.postid)
+                        deleteInterested(user.fullname, item?.post?.postid)
                     }}>
 
 
@@ -110,7 +110,12 @@ export function PostLayoutComponent({
                         <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
                     </TouchableOpacity>
 
-                    <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+                    <TouchableOpacity onPress={() => {
+                        deleteInterested(user.fullname, item?.post?.postid)
+                    }}>
+                        <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+                    </TouchableOpacity>
+
 
                 </View>
 
@@ -170,7 +175,7 @@ export function PostLayoutComponent({
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
                             </TouchableOpacity>
 
-                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item.post.date}</Text>
+                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item.post.date} - {item?.post?.postid}</Text>
 
 
                             <Spacer height={10} />
@@ -245,9 +250,7 @@ export function PostLayoutComponent({
 
             </View>
 
-            {item?.users &&
-
-                showInterested &&
+            {item?.users && showInterested &&
                 <View>
                     <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>Ενδιαφερόμενοι</Text>
                     <ScrollView
@@ -267,7 +270,7 @@ export function PostLayoutComponent({
                             {
                                 item.hasMoreUsers &&
                                 <View style={{ marginTop: 10 }}>
-                                    <TouchableOpacity style={addMoreUsers} onPress={() => { showMoreUsers(item.post) }}>
+                                    <TouchableOpacity style={addMoreUsers} onPress={() => { showMoreUsers(item) }}>
                                         <AntDesign name="loading1" size={22} color='white' style={{ marginHorizontal: 5 }} />
 
                                         <Text style={{ fontSize: 14, fontWeight: 'bold', color: 'white' }}> Φόρτωσε περισσότερους χρήστες</Text>

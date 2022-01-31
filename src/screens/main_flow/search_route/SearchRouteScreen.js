@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
 import { resetValues } from '../../../services/MainServices';
@@ -9,12 +9,20 @@ import { MainHeader } from '../../../utils/MainHeader';
 import { getValue, keyNames } from '../../../utils/Storage';
 import { BackHandler } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
+import { useSelector, useDispatch } from 'react-redux';
+import { TouchableOpacity } from 'react-native-gesture-handler';
 
 const SearchRouteScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
-    const [myEmail, setMyEmail] = useState('')
-    let onLogout = false
+
+    let scaleValue = new Animated.Value(0); // declare an animated value
     const isFocused = useIsFocused()
+    const cardScale = scaleValue.interpolate({
+        inputRange: [0, 0.5, 1],
+        outputRange: [4, 1.1, 1.2]
+    });
+
+    const myUser = useSelector(state => state.authReducer.user)
     useEffect(() => {
 
         const unsubscribe = navigation.addListener('beforeRemove', (e) => {
@@ -25,19 +33,39 @@ const SearchRouteScreen = ({ navigation, route }) => {
         return unsubscribe;
     }, [navigation]);
 
-    useEffect(async () => {
-        setMyEmail(await getValue(keyNames.email))
-    }, [])
-    const getMe = () => {
-        return getValue(keyNames.email)
+    const value = useState(new Animated.ValueXY({ x: 0, y: 0 }))[0] //παιρνω μονο την get method του usestate
+    const leftvalue = useState(new Animated.Value(11))[0] //παιρνω μονο την get method του usestate
+    const moveBall = () => {
+        // scaleValue.setValue(0);
+        Animated.timing(scaleValue, {
+            toValue: 1,
+            duration: 450,
+            easing: Easing.linear,
+            useNativeDriver: true
+        }).start();
+
+        // Animated.spring(leftvalue, {
+        //     toValue: 500,
+        //     //   duration: 1000,
+        //     useNativeDriver: false
+        // }).start()
+        // Animated.timing(leftvalue, {
+        //     toValue: { x: 100, y: 100 },
+        //     duration: 1000,
+        //     useNativeDriver: false
+        // }).start()
     }
+
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <Loader isLoading={isLoading} />
             <MainHeader
                 title={"Αναζήτηση διαδρομής"}
-                onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: myEmail }) }}
+                onSettingsPress={() => {
+                    //  moveBall()
+                    navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email })
+                }}
                 onLogout={() => {
                     navigation.removeListener('beforeRemove')
                     resetValues(() => {
@@ -50,7 +78,10 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 showX
             />
 
-            <View style={{ flex: 1, flexDirection: 'column' }}>
+            <View style={{ flex: 1, flexDirection: 'column' }} >
+
+
+
 
             </View>
         </BaseView>

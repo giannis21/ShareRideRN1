@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
@@ -11,9 +11,10 @@ import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { Loader } from '../../utils/Loader';
 import { OpenImageModal } from '../../utils/OpenImageModal';
 import { useNavigation } from '@react-navigation/native';
+import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 
 
-const PostsInterestedTabScreen = ({ navigation, route, email }) => {
+const PostsInterestedTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
     const [total_pages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
@@ -23,6 +24,8 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [deletedPost, setDeletedPost] = useState(null);
+    const [showPlaceholder, setShowPlaceholder] = React.useState(true)
+    const { height, width } = Dimensions.get("window");
     const navigation1 = useNavigation();
 
     useEffect(() => {
@@ -47,9 +50,11 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
         setDataSource(data.postUser);
         setTotalPages(data.totalPages)
         setLoading(false)
+        setShowPlaceholder(false)
     }
     const errorCallback = () => {
         setLoading(false)
+        setShowPlaceholder(false)
     }
 
 
@@ -109,35 +114,49 @@ const PostsInterestedTabScreen = ({ navigation, route, email }) => {
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
             <View style={styles.container}>
+                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Post που ενδιαφέρομαι'} />
+
+                {showPlaceholder ? (
+                    <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
+                        <Text>Περιμένετε..</Text>
+                    </View>
+                ) : (
+                    <View style={styles.container}>
+                        <Spacer height={15} />
+                        <FlatList
+                            data={dataSource}
+                            ItemSeparatorComponent={() => (
+                                <View style={{ height: 10 }} />
+                            )}
+                            extraData={isRender}
+                            keyExtractor={(item, index) => 'item' + index}
+                            //   enableEmptySections={true}
+                            renderItem={(item, index) => {
+                                return <PostLayoutComponent
+                                    showMenu={false}
+                                    item={item.item}
+                                    index
+                                    onMenuClicked={onMenuClicked}
+                                    onProfileClick={onProfileClick}
+                                    onLikeClick={onLikeClick}
+
+                                />
+                            }}
+
+                        />
+                    </View>
+                )
+
+
+
+                }
+
                 <CustomInfoLayout
                     isVisible={showInfoModal}
                     title={infoMessage.info}
                     icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                     success={infoMessage.success}
                 />
-                <Spacer height={15} />
-                <FlatList
-                    data={dataSource}
-                    ItemSeparatorComponent={() => (
-                        <View style={{ height: 10 }} />
-                    )}
-                    extraData={isRender}
-                    keyExtractor={(item, index) => 'item' + index}
-                    enableEmptySections={true}
-                    renderItem={(item, index) => {
-                        return <PostLayoutComponent
-                            showMenu={false}
-                            item={item.item}
-                            index
-                            onMenuClicked={onMenuClicked}
-                            onProfileClick={onProfileClick}
-                            onLikeClick={onLikeClick}
-
-                        />
-                    }}
-
-                />
-
                 <OpenImageModal
                     isVisible={isModalVisible}
                     isPost={true}

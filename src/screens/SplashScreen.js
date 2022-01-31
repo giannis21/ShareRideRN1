@@ -8,7 +8,7 @@ import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture
 import { RoundButton } from '../Buttons/RoundButton';
 import { colors } from '../utils/Colors';
 import { routes } from '../navigation/RouteNames';
-import { createToken, forgotPass } from '../services/AuthServices';
+import { createToken, forgotPass, getUserFromStorage } from '../services/AuthServices';
 import { Loader } from '../utils/Loader';
 import { CustomInput } from '../utils/CustomInput';
 import { InfoPopupModal } from '../utils/InfoPopupModal';
@@ -29,14 +29,12 @@ const SplashScreen = ({ navigation, route }) => {
         if (!isFocused)
             return
 
-
-
         let email = await getValue(keyNames.email)
         let password = await getValue(keyNames.password)
         if (email === '' || _.isUndefined(email)) {
             goToLogin()
         } else {
-            console.log("dsakdkasdkaskdaskdkasdks", email, password)
+
             let lastloginDate = await getValue(keyNames.lastLoginDate)
             const nowDate = new Date();
             const milli = nowDate.getTime().toString()
@@ -48,13 +46,21 @@ const SplashScreen = ({ navigation, route }) => {
             if (days > 55) {
                 onLogin(email, password)
             } else {
-                goToHome()
+                getUserFromStorage().then((user) => {
+                    dispatchValues(user)
+                    goToHome()
+                })
+
 
             }
         }
 
     }, [isFocused])
 
+    const dispatchValues = (user) => {
+        dispatch({ type: LOGIN_USER, payload: user })
+
+    }
     const onLogin = (email, password) => {
 
         createToken({

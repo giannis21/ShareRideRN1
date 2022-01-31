@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { FlatList } from 'react-native-gesture-handler';
 import { PictureComponent } from '../../components/PictureComponent';
 import { BASE_URL } from '../../constants/Constants';
@@ -14,21 +14,24 @@ import { Loader } from '../../utils/Loader';
 import { useIsFocused } from '@react-navigation/native';
 import { useNavigation } from '@react-navigation/native';
 import { getValue, keyNames } from '../../utils/Storage';
+import { CloseIconComponent } from '../../components/CloseIconComponent';
+import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 
 
-const RatingTabScreen = ({ navigation, route, email }) => {
+const RatingTabScreen = ({ navigation, route, email, onCloseContainer }) => {
     var _ = require('lodash');
 
     const [loading, setLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [total_pages, setTotalPages] = useState(1);
-    const [isLoading, setIsLoading] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
     const [isSafeClick, setSafeClick] = useState(true)
     const [myEmail, setMyEmail] = React.useState('')
+    const [showContent, setShowContent] = React.useState(true)
     const navigation1 = useNavigation();
     let isFocused = useIsFocused()
-
+    const { height, width } = Dimensions.get("window");
     React.useEffect(async () => {
         setMyEmail(await getValue(keyNames.email))
     }, [])
@@ -45,6 +48,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
     }, []);
 
     const successCallback = (data) => {
+        setShowContent(false)
         setIsLoading(false)
         setDataSource([...dataSource, ...data.reviews]);
         setTotalPages(data.total_pages)
@@ -52,6 +56,7 @@ const RatingTabScreen = ({ navigation, route, email }) => {
 
     }
     const errorCallback = () => {
+        setShowContent(false)
         setIsLoading(false)
     }
     const renderFooter = () => {
@@ -100,6 +105,8 @@ const RatingTabScreen = ({ navigation, route, email }) => {
         return (
 
             <View style={{ height: 'auto', backgroundColor: 'white', borderRadius: 5, marginHorizontal: 5 }}>
+
+
                 <Spacer height={5} />
 
                 <View style={{ flexDirection: 'row' }}>
@@ -145,21 +152,33 @@ const RatingTabScreen = ({ navigation, route, email }) => {
 
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
+
             <View style={styles.container}>
-                <Spacer height={15} />
-                <FlatList
-                    data={dataSource}
-                    ItemSeparatorComponent={() => (
-                        <View style={{ height: 10 }} />
-                    )}
-                    keyExtractor={(item, index) => 'item' + index}
+                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Αξιολογήσεις'} />
+                <Spacer height={5} />
+                {showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
 
-                    enableEmptySections={true}
-                    renderItem={ItemView}
-                    ListFooterComponent={renderFooter}
-                />
+                    <Text>Περιμένετε..</Text>
+                </View> : (
+                    <View style={styles.container}>
+                        <FlatList
+                            data={dataSource}
+                            ItemSeparatorComponent={() => (
+                                <View style={{ height: 10 }} />
+                            )}
+                            keyExtractor={(item, index) => 'item' + index}
 
-                <Loader isLoading={isFocused ? isLoading : false} />
+
+                            renderItem={ItemView}
+                            ListFooterComponent={renderFooter}
+                        />
+
+                        <Loader isLoading={isFocused ? isLoading : false} />
+                    </View>
+
+                )
+                }
+
             </View>
         </BaseView >
 

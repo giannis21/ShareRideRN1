@@ -56,8 +56,8 @@ const CreatePostScreen = ({ navigation, route }) => {
 
 
     const post = useSelector(state => state.postReducer)
-    const user = useSelector(state => state.authReducer)
-    console.log(user)
+    const myUser = useSelector(state => state.authReducer.user)
+
     const onStartPointChanged = (value) => {
         setData({ ...data, startPoint: value })
     }
@@ -171,12 +171,23 @@ const CreatePostScreen = ({ navigation, route }) => {
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
+
             <MainHeader
+                onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email }) }}
                 onClose={() => { setOpenSearch({ from: true, open: false }) }}
                 showX={openSearch.open === true}
                 title={openSearch.open === true ? "Αναζήτηση" : "Δημιουργία Post"}
+                onLogout={() => {
+                    //  navigation.removeListener('beforeRemove')
+                    resetValues(() => {
+
+                        navigation.popToTop();
+                        navigation.goBack();
+                    })
+
+                }}
             />
-            <KeyboardAwareScrollView>
+            <KeyboardAwareScrollView style={{}}>
                 <View>
                     <Spacer height={15} />
                     <View style={{ paddingHorizontal: 16 }}>
@@ -218,7 +229,7 @@ const CreatePostScreen = ({ navigation, route }) => {
                     backgroundColor={colors.colorPrimary}
                     onPress={() => { }}
                 />
-
+                <Spacer height={70} />
             </KeyboardAwareScrollView>
 
             {openSearch.open &&

@@ -1,5 +1,5 @@
 import * as React from 'react';
-import { View, Text } from 'react-native';
+import { View, Text, LogBox } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createNativeStackNavigator } from '@react-navigation/native-stack';
 import AuthStack from './src/stacks/AuthStack';
@@ -10,6 +10,7 @@ import HomeStack from './src/stacks/MainTabStack';
 import { Provider } from 'react-redux';
 import configureStore from './src/configureStore'
 let Stack = createNativeStackNavigator();
+LogBox.ignoreAllLogs();
 
 function App() {
   return (
@@ -19,8 +20,6 @@ function App() {
           <Stack.Screen name={routes.AUTHSTACK} component={AuthStack} />
           <Stack.Screen name={routes.HOMESTACK} component={HomeStack} />
         </Stack.Navigator>
-
-        {/*    <HomeStack />*/}
       </NavigationContainer >
     </Provider>
 

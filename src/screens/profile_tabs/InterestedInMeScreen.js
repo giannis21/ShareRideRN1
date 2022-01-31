@@ -1,7 +1,7 @@
 
 
 import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
@@ -16,8 +16,9 @@ import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { useSelector, useDispatch } from 'react-redux';
+import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 
-const InterestedInMeScreen = ({ navigation, route, email }) => {
+const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
@@ -28,13 +29,14 @@ const InterestedInMeScreen = ({ navigation, route, email }) => {
     const [isRender, setIsRender] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-
+    const [showPlaceholder, setShowPlaceholder] = React.useState(true)
+    const { height, width } = Dimensions.get("window");
     let navigation1 = useNavigation()
     let isFocused = useIsFocused()
 
     const myUser = useSelector(state => state.authReducer.user)
     useEffect(() => {
-        console.log(myUser)
+
         setIsLoading(false)
         if (email)
             getInterestedInMe({
@@ -51,9 +53,11 @@ const InterestedInMeScreen = ({ navigation, route, email }) => {
         setTotalPages(data.totalPages)
         setOffset(offset + 1)
         setIsLoading(false)
+        setShowPlaceholder(false)
     }
     const errorCallback = () => {
         setIsLoading(false)
+        setShowPlaceholder(false)
     }
 
 
@@ -78,18 +82,18 @@ const InterestedInMeScreen = ({ navigation, route, email }) => {
     const deleteInterested = (fullname, postid) => {
         try {
             console.log(fullname, postid)
-            let postToBeDeleted = dataSource.find((item) => item?.post?.postid === postid)
+            // let postToBeDeleted = dataSource.find((item) => item?.post?.postid === postid)
 
-            let deletedUser = postToBeDeleted?.users.find((user) => user.fullname === fullname)
+            // let deletedUser = postToBeDeleted?.users.find((user) => user.fullname === fullname)
 
-            let updatedPostList = postToBeDeleted.users.filter((obj) => obj !== deletedUser)
-            let index = dataSource.indexOf(postToBeDeleted);
-            let tempData = dataSource
-            if (index > 0) {
-                tempData[index] = updatedPostList
-                setDataSource(tempData)
-                setIsRender(!isRender)
-            }
+            // let updatedPostList = postToBeDeleted.users.filter((obj) => obj !== deletedUser)
+            // let index = dataSource.indexOf(postToBeDeleted);
+            // let tempData = dataSource
+            // if (index > 0) {
+            //     tempData[index] = updatedPostList
+            //     setDataSource(tempData)
+            //     setIsRender(!isRender)
+            // }
 
         } catch (err) {
 
@@ -127,7 +131,7 @@ const InterestedInMeScreen = ({ navigation, route, email }) => {
 
     const renderFooter = () => {
         return (
-            (offset <= total_pages) ?
+            (offset <= total_pages) && !_.isEmpty(dataSource) ?
                 (
                     <View style={styles.footer}>
                         <TouchableOpacity
@@ -153,48 +157,70 @@ const InterestedInMeScreen = ({ navigation, route, email }) => {
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
             <View style={styles.container}>
-                <Spacer height={15} />
-                <FlatList
-                    removeClippedSubviews={true}
-                    data={dataSource}
-                    ItemSeparatorComponent={() => (
-                        <View style={{ height: 10 }} />
-                    )}
-                    keyExtractor={(item, index) => item.post.postid + new Date().getTime()}
-                    enableEmptySections={true}
-                    renderItem={(item, index) => {
-                        console.log(index)
-                        return <PostLayoutComponent
 
-                            showMenu={email === item.item.post.email}
-                            item={item.item}
-                            onMenuClicked={onMenuClicked}
-                            onProfileClick={onProfileClick}
-                            showInterested={true}
-                            deleteInterested={deleteInterested}
-                            showMoreUsers={(post) => {
-                                console.log(post)
+                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Ενδιαφερόμενοι'} />
+
+
+                {showPlaceholder ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
+
+                    <Text>Περιμένετε..</Text>
+                </View> : (
+                    <View style={styles.container}>
+                        <Spacer height={15} />
+                        <FlatList
+                            initialNumToRender={5}
+                            removeClippedSubviews={true}
+                            data={dataSource}
+                            ItemSeparatorComponent={() => (
+                                <View style={{ height: 10 }} />
+                            )}
+                            keyExtractor={(item, index) => index}
+                            enableEmptySections={true}
+                            renderItem={(item, index) => {
+
+                                return <PostLayoutComponent
+
+                                    showMenu={true}
+                                    item={item.item}
+                                    onMenuClicked={onMenuClicked}
+                                    onProfileClick={onProfileClick}
+                                    showInterested={true}
+                                    deleteInterested={deleteInterested}
+                                    showMoreUsers={(post) => {
+                                        navigation1.navigate(routes.PREVIEW_INTERESTED_IN_ME_SCREEN, { post: post })
+                                        console.log(post)
+                                    }}
+                                />
                             }}
+                            ListFooterComponent={renderFooter}
                         />
-                    }}
-                    ListFooterComponent={renderFooter}
-                />
 
 
-                <OpenImageModal
-                    isVisible={isModalVisible}
-                    isPost={true}
-                    closeAction={() => {
-                        setIsModalVisible(false);
-                        setDeletedPost(null)
-                    }}
-                    buttonPress={(index) => {
-                        setIsModalVisible(false);
-                        onActionSheet(index)
-                    }}
+                        <OpenImageModal
+                            isVisible={isModalVisible}
+                            isPost={true}
+                            closeAction={() => {
+                                setIsModalVisible(false);
+                                setDeletedPost(null)
+                            }}
+                            buttonPress={(index) => {
+                                setIsModalVisible(false);
+                                onActionSheet(index)
+                            }}
 
-                />
-                <Loader isLoading={isFocused ? isLoading : false} />
+                        />
+                        <Loader isLoading={isFocused ? isLoading : false} />
+                    </View>
+
+                )
+                }
+
+
+
+
+
+
+
             </View>
             <CustomInfoLayout
                 isVisible={showInfoModal}

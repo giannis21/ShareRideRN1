@@ -9,6 +9,9 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { colors } from '../utils/Colors';
 import ProfileScreen from '../screens/main_flow/ProfileScreen';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
+import TabBar from '../components/TabBar';
+import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
+import PreviewInterestedInMeScreen from '../screens/profile_tabs/PreviewInterestedInMeScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -23,35 +26,39 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.PROFILE_SCREEN}
             component={ProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.PREVIEW_INTERESTED_IN_ME_SCREEN}
+            component={PreviewInterestedInMeScreen} />
+
     </Stack.Navigator>
 );
 const MainTabStack = () => (
-    <Tab.Navigator screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}>
+    <Tab.Navigator tabBar={(props) => <TabBar  {...props} />}
+        screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}>
         <Tab.Screen
 
-            name={routes.SEARCH_ROUTE_SCREEN}
+            initialParams={{ icon: 'ios-home' }}
+            name={"Αναζήτηση"}
             component={SearchRouteScreen}
-            options={{
-                options: { headerShown: false },
-                tabBarLabel: 'Αναζήτηση',
-                tabBarColor: colors.colorPrimary,
-                tabBarIcon: ({ focused, color }) => (
-                    <Icon name="ios-home" color={focused ? colors.colorPrimary : color} size={26} />
-                ),
-            }} />
+        />
         <Tab.Screen
 
-            name={routes.CREATE_POST_SCREEN}
+            initialParams={{ icon: 'ios-home' }}
+            name={"Δημιουργία post"}
             component={CreatePostScreen}
-            options={{
-                options: { headerShown: false },
-                tabBarLabel: 'Δημιουργία Post',
-                tabBarColor: colors.colorPrimary,
-                tabBarIcon: ({ focused, color }) => (
-                    <Icon name="ios-home" color={focused ? colors.colorPrimary : color} size={26} />
-                ),
-            }} />
+        />
     </Tab.Navigator >
 );
+const getTabBarVisibility = (route) => {
+    const routeName = route.state
+        ? route.state.routes[route.state.index].name
+        : '';
 
+    // if (routeName === 'CameraView') {
+    //return false;
+    //}
+
+    return true;
+}
 export default HomeStack;

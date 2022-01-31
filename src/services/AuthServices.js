@@ -12,8 +12,8 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 
   const send = {
     "data": {
-      "email": "giannisfragoulis21@gmail.com",
-      "pass": "11111"
+      "email": email,
+      "pass": password
     }
   }
 
@@ -194,5 +194,26 @@ const getUser = (res, password) => {
   } catch (err) {
     console.log("err", err)
   }
+  return user
+}
+
+export const getUserFromStorage = async () => {
+
+
+  let user = {
+    lastLoginDate: await getValue(keyNames.lastLoginDate),
+    age: await getValue(keyNames.age),
+    car: await getValue(keyNames.car),
+    carDate: await getValue(keyNames.carDate),
+    email: await getValue(keyNames.email),
+    facebook: await getValue(keyNames.facebook),
+    fullName: await getValue(keyNames.fullName),
+    gender: await getValue(keyNames.gender),
+    instagram: await getValue(keyNames.instagram),
+    phone: await getValue(keyNames.phone),
+    password: await getValue(keyNames.password),
+    token: ''
+  }
+
   return user
 }

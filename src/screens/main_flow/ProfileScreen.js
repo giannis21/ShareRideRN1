@@ -44,17 +44,18 @@ const ProfileScreen = ({ navigation, route }) => {
     const [initialReviews, setInitialReviews] = useState();
     const [openTabs, setOpenTabs] = useState(false)
     const { height, width } = Dimensions.get("window");
-    const [myEmail, setMyEmail] = useState('')
-    const [myFullName, setMyFullname] = useState('')
+    const [openRatings, setOpenRatings] = useState(false)
+    const [openMyPosts, setOpenMyPosts] = useState(false)
+    const [openPostsInterested, setOpenPostsInterested] = useState(false)
+    const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
 
 
-
-    const user = useSelector(state => state.authReducer.user)
+    let heightValue = useState(new Animated.Value(height))[0]
+    let heightValue1 = useState(new Animated.Value(height))[0]
+    const myUser = useSelector(state => state.authReducer.user)
 
     useEffect(async () => {
-        console.log("user", user)
-        setMyEmail(user.email)
-        setMyFullname(user.fullname)
+
     }, [])
 
     const scrollRef = useRef();
@@ -110,7 +111,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
         setData({
             email: data?.user?.email,
-            phone: data.user.mobile,
+            phone: data.user.mobile ?? '-',
             age: data.user.age,
             facebook: data.user.facebook ?? '-',
             instagram: data.user.instagram ?? '-',
@@ -137,7 +138,7 @@ const ProfileScreen = ({ navigation, route }) => {
     }, [])
 
     const searchUserSuccessCallback = async (data) => {
-        if (route.params?.email === await getValue(keyNames.email) || data.reviewAble === false) //this is my profile
+        if (route.params?.email === myUser.email || data.reviewAble === false) //this is my profile
             setUserViewRate(false)
 
         setUserData(data)
@@ -151,7 +152,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
         rateUser({
             email: data.email,
-            emailreviewer: myEmail,
+            emailreviewer: myUser.email,
             rating: rating,
             text: text,
             successCallback: ratingSuccessCallback,
@@ -193,9 +194,33 @@ const ProfileScreen = ({ navigation, route }) => {
         }
 
     }
+
+    const handlerAnimation = (open) => {
+        if (!open) {
+
+            heightValue.setValue(0)
+            Animated.timing(heightValue, {
+                toValue: height,
+                duration: 350,
+                easing: Easing.linear,
+                useNativeDriver: true
+            }).start();
+        } else {
+
+
+            heightValue.setValue(height)
+            Animated.timing(heightValue, {
+                toValue: 0,
+                duration: 350,
+                easing: Easing.linear,
+                useNativeDriver: true
+            }).start();
+        }
+    }
     let style1 = { flex: 1, backgroundColor: 'white' }
     let style2 = { flex: 1, backgroundColor: 'black', opacity: 0.5 }
 
+    const { tabsStyle } = styles
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} containerStyle={isRatingDialogOpened ? style2 : style1} >
@@ -288,13 +313,13 @@ const ProfileScreen = ({ navigation, route }) => {
                     <View style={{ flexDirection: 'row' }}>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, color: '#595959', opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carBrand}</Text>
+                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carBrand}</Text>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: 'black', alignSelf: 'center' }}>{data.carBrand}</Text>
 
                         </View>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, color: '#595959', opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carAgeTitle}</Text>
+                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carAgeTitle}</Text>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: 'black', alignSelf: 'center' }}>{data.carDate}</Text>
 
                         </View>
@@ -302,21 +327,84 @@ const ProfileScreen = ({ navigation, route }) => {
                     </View>
 
                     {(((data.hasInterested || data.hasPosts || data.hasReviews || data.interestedForYourPosts)
-                        && (myEmail === data.email))
-                        || (myEmail !== data.email && data.hasReviews))
-                        && <TouchableOpacity onPress={() => setOpenTabs(true)}>
-                            <View style={styles.footerBtn}>
-                                <Text style={{ color: 'white', fontSize: 15 }}>Περισσότερα στοιχεία</Text>
+                        && (myUser.email === data.email))
+                        || (myUser.email !== data.email && data.hasReviews))
+                        && <View style={{ marginTop: 20, marginHorizontal: 16, padding: 3 }}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>Δείτε επίσης:</Text>
+                            <View style={{ backgroundColor: colors.CoolGray2, marginTop: 8, borderRadius: 10, padding: 10 }}>
+                                {data.hasReviews &&
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setHeaderVisible(false);
+                                            setOpenRatings(true)
+                                            handlerAnimation(true)
+
+                                        }
+                                        }
+                                        style={{ flexDirection: 'row', alignItems: 'center', }}>
+                                        <View style={styles.dot} />
+                                        <Text style={styles.rates} >Αξιολογήσεις</Text>
+                                    </TouchableOpacity>
+                                }
+
+                                {data.hasPosts && myUser.email === data.email &&
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setHeaderVisible(false);
+                                            setOpenMyPosts(true)
+                                            handlerAnimation(true)
+                                        }
+                                        }
+                                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                                        <View style={styles.dot} />
+                                        <Text style={styles.rates} >τα Post μου</Text>
+                                    </TouchableOpacity>
+                                }
+                                {data.hasInterested && myUser.email === data.email &&
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setHeaderVisible(false);
+                                            setOpenPostsInterested(true)
+                                            handlerAnimation(true)
+                                        }
+                                        }
+                                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
+                                        <View style={styles.dot} />
+                                        <Text style={styles.rates} >Post που ενδιαφέρομαι</Text>
+                                    </TouchableOpacity>
+                                }
+
+                                {data.interestedForYourPosts && myUser.email === data.email &&
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setHeaderVisible(false);
+                                            setOpenPostsInterestedInMe(true)
+                                            handlerAnimation(true)
+                                        }
+                                        }
+                                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, }}>
+                                        <View style={styles.dot} />
+                                        <Text style={styles.rates} >Ενδιαφερόμενοι</Text>
+                                    </TouchableOpacity>
+                                }
+
+
                             </View>
-                        </TouchableOpacity>
+
+                            {/* <View style={styles.footerBtn}>
+                                <Text style={{ color: 'white', fontSize: 15 }}>Περισσότερα στοιχεία</Text>
+                            </View> */}
+                        </View>
                     }
+
+                    <Spacer height={20} />
 
                 </KeyboardAwareScrollView>
 
             }
 
 
-            {(openTabs || ((myEmail !== data.email && data.hasReviews) && openTabs)) &&
+            {(openTabs || ((myUser.email !== data.email && data.hasReviews) && openTabs)) &&
                 <View>
                     <View style={{ top: 47, right: 0, left: 0, bottom: 0, marginHorizontal: 10, paddingBottom: 50, height: '100%' }}>
                         <Tab.Navigator
@@ -336,7 +424,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.hasPosts && myEmail === data.email && false &&
+                            {data.hasPosts && myUser.email === data.email && false &&
                                 <Tab.Screen name={"τα Post μου"}>
                                     {(props) => (
                                         <MyPostsTabScreen
@@ -347,7 +435,7 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.hasInterested && myEmail === data.email && false &&
+                            {data.hasInterested && myUser.email === data.email && false &&
                                 <Tab.Screen name={"ενδιαφέρομαι"}>
                                     {(props) => (
                                         <PostsInterestedTabScreen
@@ -357,13 +445,11 @@ const ProfileScreen = ({ navigation, route }) => {
                                 </Tab.Screen>
                             }
 
-                            {data.interestedForYourPosts && myEmail === data.email &&
+                            {data.interestedForYourPosts && myUser.email === data.email &&
                                 <Tab.Screen name={"ενδιαφερόμενοι"}>
                                     {(props) => (
                                         <InterestedInMeScreen
                                             email={data.email}
-
-                                            myEmail={myEmail}
                                         />
                                     )}
                                 </Tab.Screen>
@@ -376,6 +462,59 @@ const ProfileScreen = ({ navigation, route }) => {
                 </View>
             }
 
+            {openRatings &&
+
+                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
+                    <RatingTabScreen
+                        email={data.email}
+                        onCloseContainer={() => {
+                            handlerAnimation(false)
+                            setHeaderVisible(true);
+                            setOpenRatings(false)
+                        }}
+                    />
+                </Animated.View>
+            }
+
+            {openMyPosts &&
+                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
+                    <MyPostsTabScreen
+                        navigation={navigation}
+                        email={data.email}
+                        onCloseContainer={() => {
+                            handlerAnimation(false)
+                            setHeaderVisible(true);
+                            setOpenMyPosts(false)
+                        }}
+                    />
+                </Animated.View>
+            }
+            {openPostsInterested &&
+                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
+                    <PostsInterestedTabScreen
+                        email={data.email}
+                        onCloseContainer={() => {
+                            handlerAnimation(false)
+                            setHeaderVisible(true);
+                            setOpenPostsInterested(false)
+                        }}
+                    />
+                </Animated.View>
+            }
+
+            {openPostsInterestedInMe &&
+                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
+                    <InterestedInMeScreen
+                        email={data.email}
+                        onCloseContainer={() => {
+                            handlerAnimation(false)
+                            setHeaderVisible(true);
+                            setOpenPostsInterestedInMe(false)
+                        }}
+                    />
+                </Animated.View>
+
+            }
             <RatingDialog
                 onSubmit={(rating, text) => rate(rating, text)}
                 isVisible={isRatingDialogOpened}
@@ -407,6 +546,13 @@ const styles = StyleSheet.create({
         borderRadius: 100 / 2,
         backgroundColor: colors.Gray2,
     },
+    tabsStyle: {
+        right: 0,
+        left: 0,
+        bottom: 0,
+        marginHorizontal: 10,
+        height: '100%'
+    },
     footerBtn: {
 
         marginTop: 20,
@@ -419,4 +565,20 @@ const styles = StyleSheet.create({
         backgroundColor: colors.colorPrimary,
 
     },
+    dot: {
+        marginLeft: 10,
+        width: 6,
+        height: 6,
+        borderRadius: 100 / 2,
+        backgroundColor: 'black',
+    },
+    rates: {
+        fontSize: 17,
+        marginLeft: 10,
+        textDecorationLine: "underline",
+        color: "#7398F4",
+        fontWeight: 'bold',
+        textDecorationStyle: "solid",
+        textDecorationColor: "#7398F4",
+    }
 });

@@ -1,4 +1,5 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
@@ -15,8 +16,11 @@ import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
+import { PictureComponent } from '../../components/PictureComponent';
+import FontAwesome from 'react-native-vector-icons/FontAwesome';
+import Entypo from 'react-native-vector-icons/Entypo';
 
-const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
+const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -29,39 +33,11 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [showContent, setShowContent] = React.useState(true)
     const { height, width } = Dimensions.get("window");
+
+    const { post } = route.params
     let isFocused = useIsFocused()
-    useEffect(() => {
-        if (email)
-            getPostsUser({
-                email: email,
-                page: offset,
-                successCallback,
-                errorCallback
-            })
-    }, []);
 
-    const successCallback = (data) => {
-        setIsLoading(false)
-        setDataSource([...dataSource, ...data.postUser]);
-        setTotalPages(data.totalPages)
-        setOffset(offset + 1)
-        setShowContent(false)
-    }
-    const errorCallback = () => {
-        setIsLoading(false)
-        setShowContent(false)
-    }
-
-
-    const showCustomLayout = (callback) => {
-        setShowInfoModal(true)
-        setTimeout(function () {
-            setShowInfoModal(false)
-            if (callback)
-                callback()
-        }, 2000);
-    }
-
+    console.log(post)
     const onProfileClick = (email) => {
         navigation.push(routes.PROFILE_SCREEN, { email: email })
     }
@@ -97,6 +73,42 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
     };
 
+    const RenderUser = ({ user }) => {
+
+        return (
+
+            <TouchableOpacity onPress={() => {
+
+                //  goToUsersProfile(user.email)
+
+            }} style={{ marginTop: 10 }}>
+
+                <View style={userStyleAdded}>
+                    <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
+                    <Spacer width={14} />
+                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
+                    <TouchableOpacity onPress={() => {
+                        // deleteInterested(user.fullname, item.post.postid)
+                    }}>
+
+
+
+                        <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
+                    </TouchableOpacity>
+
+                    <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+
+                </View>
+
+
+
+                <Spacer height={10} />
+
+            </TouchableOpacity>
+        )
+    }
+
+
     const renderFooter = () => {
         return (
             !_.isEmpty(dataSource) && (offset <= total_pages) ?
@@ -123,54 +135,21 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
         );
     };
     return (
-        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
+        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 16, backgroundColor: 'white' }}>
             <View style={styles.container}>
-                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Τα post μου'} />
+                <TopContainerExtraFields onCloseContainer={() => { navigation.goBack() }} title={'Ενδιαφερόμενοι του post'} />
+                <PostLayoutComponent
+                    showMenu={true}
+                    item={post}
+                    onMenuClicked={onMenuClicked}
+                    onProfileClick={onProfileClick}
+                    showInterested={true}
+                />
 
-                {showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
-
-                    <Text>Περιμένετε..</Text>
-                </View> : (
-                    <View style={styles.container}>
-                        <FlatList
-                            data={dataSource}
-                            ItemSeparatorComponent={() => (
-                                <View style={{ height: 10 }} />
-                            )}
-                            keyExtractor={(item, index) => index}
-                            enableEmptySections={true}
-                            renderItem={(item) => {
-
-                                return <PostLayoutComponent
-                                    showMenu={email === item.item.post.email}
-                                    item={item.item}
-                                    onMenuClicked={onMenuClicked}
-                                    onProfileClick={onProfileClick}
-
-                                />
-                            }}
-                            ListFooterComponent={renderFooter}
-                        />
+                <Loader isLoading={isFocused ? isLoading : false} />
 
 
-                        <OpenImageModal
-                            isVisible={isModalVisible}
-                            isPost={true}
-                            closeAction={() => {
-                                setIsModalVisible(false);
-                                setDeletedPost(null)
-                            }}
-                            buttonPress={(index) => {
-                                setIsModalVisible(false);
-                                onActionSheet(index)
-                            }}
 
-                        />
-                        <Loader isLoading={isFocused ? isLoading : false} />
-                    </View>
-
-                )
-                }
 
             </View>
             <CustomInfoLayout
@@ -185,7 +164,7 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
 }
 
-export default MyPostsTabScreen
+export default PreviewInterestedInMeScreen
 
 const styles = StyleSheet.create({
     timer: {

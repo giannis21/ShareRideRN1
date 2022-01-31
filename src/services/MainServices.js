@@ -80,7 +80,7 @@ export const getReviews = async ({ email, page, successCallback, errorCallback }
     // console.log(send)
     await instance.post(`/getReviews`, send, config)
         .then(res => {
-            //  console.log(res.data.body)
+            console.log(res.data.body)
             successCallback(res.data.body)
         }).catch(function (error) {
             console.log(error.response.data)
@@ -207,5 +207,4 @@ export const resetValues = (callback) => {
     } catch (err) {
         console.log(err)
     }
-
 }
