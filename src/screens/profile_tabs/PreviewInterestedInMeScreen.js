@@ -200,7 +200,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                     <FlatList
 
                         data={dataSource}
-
+                        // extraData={isRender}
                         keyExtractor={(item, index) => index}
                         enableEmptySections={true}
                         renderItem={(item) => {
