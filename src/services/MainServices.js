@@ -108,12 +108,13 @@ export const getPostsUser = async ({ email, page, successCallback, errorCallback
         });
 }
 
-export const getInterestedInMe = async ({ email, successCallback, errorCallback }) => {
+export const getInterestedInMe = async ({ email, page, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
 
     const send = {
         "data": {
             "email": email,
+            "page": page
         }
     }
     console.log(send)
@@ -188,6 +189,46 @@ export const deletePost = async ({ postID, successCallback, errorCallback }) => 
         });
 }
 
+export const getInterestedPerPost = async ({ postId, page, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "postid": postId,
+            "page": page
+        }
+    }
+    console.log(send)
+    await instance.post(`/getIntPost`, send, config)
+        .then(res => {
+            //  console.log("getIntPost ", res.data)
+            successCallback(res.data)
+        }).catch(function (error) {
+            console.log(error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
+export const deleteInterested = async ({ piid, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "piid": piid
+        }
+    }
+    console.log(send)
+    await instance.post(`/deleteInterested`, send, config)
+        .then(res => {
+
+            console.log("deleteInterested ", res.data, res.status)
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            console.log(error.response.data, "dd")
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
 
 export const resetValues = (callback) => {
     try {
@@ -208,3 +249,12 @@ export const resetValues = (callback) => {
         console.log(err)
     }
 }
+
+export const addActivePost = ({ post }) => {
+    return async dispatch => {
+        dispatch({
+            type: types.ADD_ACTIVE_POST,
+            payload: post
+        })
+    };
+};

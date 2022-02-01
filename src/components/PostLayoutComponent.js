@@ -20,7 +20,8 @@ export function PostLayoutComponent({
     showMenu,
     showInterested,
     deleteInterested,
-    showMoreUsers
+    showMoreUsers,
+    showFavoriteIcon
 }) {
     var _ = require('lodash');
     const [isSafeClick, setSafeClick] = useState(true)
@@ -225,7 +226,7 @@ export function PostLayoutComponent({
 
                     <View style={bottomContainer}>
                         <View style={{ flexDirection: 'row', alignItems: 'center' }}>
-                            {!showMenu &&
+                            {showFavoriteIcon &&
                                 <TouchableOpacity style={heartContainer} onPress={() => {
                                     if (isSafeClick) {
                                         onLikeClick(item.post.postid, index)

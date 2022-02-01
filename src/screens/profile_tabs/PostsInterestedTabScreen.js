@@ -133,6 +133,7 @@ const PostsInterestedTabScreen = ({ navigation, route, email, onCloseContainer }
                             //   enableEmptySections={true}
                             renderItem={(item, index) => {
                                 return <PostLayoutComponent
+                                    showFavoriteIcon={true}
                                     showMenu={false}
                                     item={item.item}
                                     index

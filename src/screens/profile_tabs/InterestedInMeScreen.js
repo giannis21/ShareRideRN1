@@ -6,7 +6,7 @@ import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { deletePost, getInterestedInMe, getPostsUser } from '../../services/MainServices';
+import { addActivePost, deletePost, getInterestedInMe, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -17,6 +17,7 @@ import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { useSelector, useDispatch } from 'react-redux';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
+import { ADD_ACTIVE_POST } from '../../actions/types';
 
 const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     var _ = require('lodash');
@@ -33,7 +34,7 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     const { height, width } = Dimensions.get("window");
     let navigation1 = useNavigation()
     let isFocused = useIsFocused()
-
+    const dispatch = useDispatch()
     const myUser = useSelector(state => state.authReducer.user)
     useEffect(() => {
 
@@ -154,6 +155,10 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
 
         );
     };
+
+
+
+
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
             <View style={styles.container}>
@@ -187,8 +192,15 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
                                     showInterested={true}
                                     deleteInterested={deleteInterested}
                                     showMoreUsers={(post) => {
-                                        navigation1.navigate(routes.PREVIEW_INTERESTED_IN_ME_SCREEN, { post: post })
-                                        console.log(post)
+                                        //console.log("post", post)
+                                        navigation1.navigate(routes.PREVIEW_INTERESTED_IN_ME_SCREEN)
+                                        dispatch({
+                                            type: ADD_ACTIVE_POST,
+                                            payload: post
+                                        })
+                                        //  dispatch(addActivePost(post))
+
+                                        // console.log("post", post)
                                     }}
                                 />
                             }}
