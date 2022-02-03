@@ -23,7 +23,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import { useSelector, useDispatch } from 'react-redux';
 import { BASE_URL } from '../../constants/Constants';
 import { UserComponent } from '../../components/UserComponent';
-import { DELETE_ACTIVE_USER } from '../../actions/types';
+import { ADD_ACTIVE_POST, DELETE_ACTIVE_USER } from '../../actions/types';
 const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(2);
@@ -39,7 +39,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     const { height, width } = Dimensions.get("window");
 
     const post = useSelector(state => state.postReducer.activePost)
-    const users = useSelector(state => state.postReducer.activePost.users)
     let dispatch = useDispatch()
     let isFocused = useIsFocused()
 
@@ -54,7 +53,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                 payload: {}
             })
         }
-    }, [users.length, isFocused])
+    }, [isFocused])
 
     const onProfileClick = (email) => {
         navigation.push(routes.PROFILE_SCREEN, { email: email })
@@ -171,7 +170,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
                 let updatedIndex = dataSource.findIndex((obj) => obj.piid === piid)
                 let updated = dataSource.find((obj) => obj.piid === piid)
-                updated.isVerified = true
+                updated.isVerified = !updated.isVerified
                 tempList[updatedIndex] = updated
 
 
@@ -233,7 +232,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                         keyExtractor={(item, index) => index}
                         enableEmptySections={true}
                         renderItem={(item, index) => {
-
+                            console.log(item.item.isVerified)
                             return <UserComponent
                                 user={item.item}
                                 index={index}

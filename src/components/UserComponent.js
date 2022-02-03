@@ -21,7 +21,7 @@ export function UserComponent({
     const { userStyleAdded, stretch, noStretch, container } = styles
 
     let color = user.isVerified ? colors.verifiedUser : colors.CoolGray2
-    // console.log(user)
+    console.log(user.isVerified)
     return (
 
         <TouchableOpacity onPress={() => {

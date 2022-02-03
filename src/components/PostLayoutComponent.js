@@ -96,7 +96,7 @@ export function PostLayoutComponent({
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
                             </TouchableOpacity>
 
-                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item.post.date} - {item?.post?.postid}</Text>
+                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item?.post?.date} - {item?.post?.postid}</Text>
 
 
                             <Spacer height={10} />

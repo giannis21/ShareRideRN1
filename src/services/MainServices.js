@@ -60,7 +60,7 @@ export const searchUser = async ({ email, successCallback, errorCallback }) => {
     console.log("send ", send)
     await instance.post(`/searchuser`, send, config)
         .then(res => {
-            console.log("searchuser ", res.data)
+
             successCallback(res.data)
         }).catch(function (error) {
             console.log("error ", error.response.status, error.response.data)
@@ -117,10 +117,10 @@ export const getInterestedInMe = async ({ email, page, successCallback, errorCal
             "page": page
         }
     }
-    console.log(send)
+
     await instance.post(`/getInterested`, send, config)
         .then(res => {
-            console.log("getInterestedInMe ", res.data)
+
             successCallback(res.data)
         }).catch(function (error) {
             console.log(error)
@@ -201,7 +201,8 @@ export const getInterestedPerPost = async ({ postId, page, successCallback, erro
     console.log(send)
     await instance.post(`/getIntPost`, send, config)
         .then(res => {
-            console.log("getIntPost ", res.data)
+
+            // console.log("getIntPost ", res.data )
             successCallback(res.data)
         }).catch(function (error) {
             console.log("getIntPost", error)

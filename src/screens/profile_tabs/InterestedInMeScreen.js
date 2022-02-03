@@ -39,7 +39,7 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     const myUser = useSelector(state => state.authReducer.user)
     //const users = useSelector(state => state.postReducer.activePost.users)
     useEffect(() => {
-        console.log("asdsadsadsdsa", email)
+
         setIsLoading(false)
 
         getInterestedInMe({
