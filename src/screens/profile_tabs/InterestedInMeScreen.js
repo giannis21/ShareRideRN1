@@ -22,6 +22,7 @@ import { ADD_ACTIVE_POST } from '../../actions/types';
 const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
+    const [email1, setEmail] = useState(email);
     const [isLoading, setIsLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
@@ -36,17 +37,22 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     let isFocused = useIsFocused()
     const dispatch = useDispatch()
     const myUser = useSelector(state => state.authReducer.user)
+    //const users = useSelector(state => state.postReducer.activePost.users)
     useEffect(() => {
-
+        console.log("asdsadsadsdsa", email)
         setIsLoading(false)
-        if (email)
-            getInterestedInMe({
-                email: email,
-                page: offset,
-                successCallback,
-                errorCallback
-            })
-    }, []);
+
+        getInterestedInMe({
+            email: email1,
+            page: offset,
+            successCallback,
+            errorCallback
+        })
+
+        if (!isFocused) {
+            setOffset(1)
+        }
+    }, [isFocused]);
 
     const successCallback = (data) => {
         setIsLoading(false)
@@ -198,9 +204,7 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
                                             type: ADD_ACTIVE_POST,
                                             payload: post
                                         })
-                                        //  dispatch(addActivePost(post))
 
-                                        // console.log("post", post)
                                     }}
                                 />
                             }}

@@ -201,10 +201,10 @@ export const getInterestedPerPost = async ({ postId, page, successCallback, erro
     console.log(send)
     await instance.post(`/getIntPost`, send, config)
         .then(res => {
-            //  console.log("getIntPost ", res.data)
+            console.log("getIntPost ", res.data)
             successCallback(res.data)
         }).catch(function (error) {
-            console.log(error)
+            console.log("getIntPost", error)
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
@@ -217,14 +217,35 @@ export const deleteInterested = async ({ piid, successCallback, errorCallback })
             "piid": piid
         }
     }
-    console.log(send)
+    console.log("deleteInterested ", send)
     await instance.post(`/deleteInterested`, send, config)
         .then(res => {
 
             console.log("deleteInterested ", res.data, res.status)
             successCallback(res.data.message)
         }).catch(function (error) {
-            console.log(error.response.data, "dd")
+            console.log(error.response.data, error.response.status)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
+export const verInterested = async ({ postid, piid, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "postid": postid,
+            "piid": piid
+        }
+    }
+    console.log("verInterested ", send)
+    await instance.post(`/verInterested`, send, config)
+        .then(res => {
+
+            console.log("verInterested ", res.data, res.status)
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            console.log(error.response.data, error.response.status)
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }

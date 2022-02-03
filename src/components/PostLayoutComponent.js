@@ -45,88 +45,8 @@ export function PostLayoutComponent({
             </View>
         )
     }
-    // const renderUsers = (user) => {
-    //     {
-    //         showInterested &&
-    //             <View>
-    //                 <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>Ενδιαφερόμενοι</Text>
-    //                 <ScrollView
-    //                     horizontal={true}>
 
 
-    //                     <View style={{ flexDirection: 'row' }}>
-
-
-    //                         {
-    //                             item?.users.map((user) => {
-    //                                 return (
-
-    //                                     <TouchableOpacity onPress={goToUsersProfile} style={{ marginTop: 10 }}>
-
-    //                                         <View style={userStyle}>
-    //                                             <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
-    //                                             <Spacer width={14} />
-    //                                             <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
-    //                                             <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
-    //                                             <FontAwesome name="bookmark" size={24} color={colors.colorPrimary} style={{ marginHorizontal: 10 }} />
-
-    //                                         </View>
-    //                                         <Spacer height={10} />
-
-    //                                     </TouchableOpacity>
-    //                                 )
-    //                             })
-    //                         }
-
-    //                     </View>
-    //                 </ScrollView>
-    //                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
-
-
-    //             </View>
-    //     }
-
-    // }
-
-    const RenderUser = ({ user }) => {
-
-        return (
-
-            <TouchableOpacity onPress={() => {
-
-                goToUsersProfile(user.email)
-
-            }} style={{ marginTop: 10 }}>
-
-                <View style={userStyleAdded}>
-                    <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
-                    <Spacer width={14} />
-                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
-                    <TouchableOpacity onPress={() => {
-                        deleteInterested(user.fullname, item?.post?.postid)
-                    }}>
-
-
-
-                        <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
-                    </TouchableOpacity>
-
-                    <TouchableOpacity onPress={() => {
-                        deleteInterested(user.fullname, item?.post?.postid)
-                    }}>
-                        <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
-                    </TouchableOpacity>
-
-
-                </View>
-
-
-
-                <Spacer height={10} />
-
-            </TouchableOpacity>
-        )
-    }
     const safeClickListener = (callback) => {
         setSafeClick(false)
         setTimeout(function () {
@@ -251,41 +171,28 @@ export function PostLayoutComponent({
 
             </View>
 
-            {item?.users && showInterested &&
+            {showInterested &&
                 <View>
-                    <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center', marginTop: 20 }}>Ενδιαφερόμενοι</Text>
-                    <ScrollView
-                        horizontal={true}>
 
+                    {
+                        item.hasMoreUsers &&
+                        <View style={{ marginTop: 14 }}>
+                            <View style={addMoreUsers} >
+                                <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'black' }}> Δείτε περισσότερους χρήστες</Text>
+                                <TouchableOpacity
+                                    onPress={() => { showMoreUsers(item) }}
+                                    style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: 'turquoise', borderRadius: 50 }}>
+                                    <AntDesign name="arrowright" size={15} color='white' />
 
-                        <View style={{ flexDirection: 'row' }}>
-
-
-                            {
-                                item?.users.map((user) => {
-
-                                    return <RenderUser user={user} />
-                                })
-
-                            }
-                            {
-                                item.hasMoreUsers &&
-                                <View style={{ marginTop: 10 }}>
-                                    <TouchableOpacity style={addMoreUsers} onPress={() => { showMoreUsers(item) }}>
-                                        <AntDesign name="loading1" size={22} color='white' style={{ marginHorizontal: 5 }} />
-
-                                        <Text style={{ fontSize: 14, fontWeight: 'bold', color: 'white' }}> Φόρτωσε περισσότερους χρήστες</Text>
-                                    </TouchableOpacity>
+                                </TouchableOpacity>
+                            </View>
 
 
 
-                                    <Spacer height={10} />
-
-                                </View>
-                            }
+                            <Spacer height={10} />
 
                         </View>
-                    </ScrollView>
+                    }
                     <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4 }} />
 
 
@@ -326,12 +233,12 @@ const styles = StyleSheet.create({
     },
     addMoreUsers: {
         paddingHorizontal: 13,
-        paddingVertical: 10,
+        justifyContent: 'space-between',
         flexDirection: 'row',
         alignItems: 'center',
-        backgroundColor: colors.colorPrimary,
+        width: '100%',
         alignSelf: 'baseline',
-        width: 'auto',
+
         borderRadius: 13,
         marginEnd: 10,
 

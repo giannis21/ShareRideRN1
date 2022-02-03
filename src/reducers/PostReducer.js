@@ -1,4 +1,4 @@
-import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_START_DATE, LOGIN_USER, LOGOUT, SET_RADIO_SELECTED, SIGNUP_CHECK } from '../actions/types';
+import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_START_DATE, DELETE_ACTIVE_USER, LOGIN_USER, LOGOUT, SET_RADIO_SELECTED, SIGNUP_CHECK } from '../actions/types';
 import { constVar } from '../utils/constStr';
 
 
@@ -22,7 +22,7 @@ const intialState = {
 };
 
 export function PostReducer(state = intialState, action) {
-    console.log("reducer active post ", action.payload)
+
     switch (action.type) {
 
         case ADD_START_DATE:
@@ -46,7 +46,18 @@ export function PostReducer(state = intialState, action) {
                 ...state,
                 activePost: state.activePost = action.payload
             };
+        case DELETE_ACTIVE_USER: {
+            const { activePost } = state
+            let users = activePost.users.filter((obj) => obj.piid !== action.payload)
+            activePost.users = users
+            return {
+                ...state,
+                activePost: state.activePost = activePost
+            };
+        }
         default:
-            return state;
     }
+
+    return state;
+
 }

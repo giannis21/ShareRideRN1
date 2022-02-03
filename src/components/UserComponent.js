@@ -14,11 +14,14 @@ export function UserComponent({
     user,
     onProfileClick,
     deleteInterested,
-    fillWidth
+    giveApproval,
+    fillWidth,
+
 }) {
     const { userStyleAdded, stretch, noStretch, container } = styles
 
     let color = user.isVerified ? colors.verifiedUser : colors.CoolGray2
+    // console.log(user)
     return (
 
         <TouchableOpacity onPress={() => {
@@ -31,7 +34,7 @@ export function UserComponent({
                 <View style={container}>
                     <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
                     <Spacer width={14} />
-                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
+                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.piid}</Text>
                 </View>
 
 
@@ -43,8 +46,12 @@ export function UserComponent({
 
                         <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
                     </TouchableOpacity>
+                    <TouchableOpacity onPress={() => {
+                        giveApproval(user.piid)
+                    }}>
+                        <Entypo name={user.isVerified ? "check" : "add-user"} size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
 
-                    <Entypo name="add-user" size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+                    </TouchableOpacity>
                 </View>
 
             </View>

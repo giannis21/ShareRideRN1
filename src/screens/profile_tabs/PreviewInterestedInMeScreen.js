@@ -6,7 +6,7 @@ import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { deletePost, getInterestedPerPost, getPostsUser } from '../../services/MainServices';
+import { deleteInterested, deletePost, getInterestedPerPost, getPostsUser, verInterested } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -23,6 +23,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import { useSelector, useDispatch } from 'react-redux';
 import { BASE_URL } from '../../constants/Constants';
 import { UserComponent } from '../../components/UserComponent';
+import { DELETE_ACTIVE_USER } from '../../actions/types';
 const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(2);
@@ -38,15 +39,26 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     const { height, width } = Dimensions.get("window");
 
     const post = useSelector(state => state.postReducer.activePost)
-
+    const users = useSelector(state => state.postReducer.activePost.users)
+    let dispatch = useDispatch()
     let isFocused = useIsFocused()
 
-    console.log("post.activePost", post)
+    // console.log("post.activePost", post)
     useEffect(() => {
-        setDataSource(post.users)
-    }, [])
+        setOffset(1)
+        if (isFocused)
+            getUsers()
+        else {
+            dispatch({
+                type: ADD_ACTIVE_POST,
+                payload: {}
+            })
+        }
+    }, [users.length, isFocused])
 
-
+    const onProfileClick = (email) => {
+        navigation.push(routes.PROFILE_SCREEN, { email: email })
+    }
     const getUsers = () => {
         // console.log(post.post.postid, offset)
 
@@ -59,7 +71,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     }
     const successCallback = (data) => {
         setIsLoading(false)
-        let newArray = post.users.concat(data.users)
+
         setDataSource([...dataSource, ...data.users]);
         setTotalPages(data.totalPages)
         setOffset(offset + 1)
@@ -71,12 +83,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
     }
 
-
-
-
-    const onProfileClick = (email) => {
-        navigation.push(routes.PROFILE_SCREEN, { email: email })
-    }
     const onMenuClicked = (item1, index) => {
         let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
         setDeletedPost(postToBeDeleted)
@@ -108,59 +114,82 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
 
     };
-    const deleteInterested = (piid) => {
+
+
+
+    const showCustomLayout = (callback) => {
+        setShowInfoModal(true)
+        setTimeout(function () {
+            setShowInfoModal(false)
+            if (callback)
+                callback()
+        }, 2000);
+    }
+
+
+
+    const deleteInterested1 = (piid) => {
         try {
             //  verInterested
             console.log(piid)
 
-            let newData = dataSource.filter((obj) => obj.piid !== piid)
-            setDataSource(newData)
-            // deleteInterested({
-            //     piid: deletedPost.post.postid,
-            //     successCallback: ((message) => {
 
-            //         let newData = dataSource.filter((obj) => obj !== deletedPost)
-            //         setDataSource(newData)
-            //         setIsRender(!isRender)
+            deleteInterested({
+                piid: piid,
+                successCallback: ((message) => {
 
-            //         setInfoMessage({ info: message, success: true })
-            //         setIsLoading(false)
-            //         showCustomLayout()
-            //     }),
-            //     errorCallback: ((message) => {
-            //         setInfoMessage({ info: message, success: false })
-            //         setIsLoading(false)
-            //         showCustomLayout()
+                    let newData = dataSource.filter((obj) => obj.piid !== piid)
+                    setDataSource(newData)
+                    setIsRender(!isRender)
 
-            //     })
-            // })
+                    setInfoMessage({ info: message, success: true })
+                    setIsLoading(false)
+                    showCustomLayout()
+                }),
+                errorCallback: ((message) => {
+                    setInfoMessage({ info: message, success: false })
+                    setIsLoading(false)
+                    showCustomLayout()
 
-
-
-
-
-            // let postToBeDeleted = dataSource.find((item) => item?.post?.postid === postid)
-
-            // let deletedUser = postToBeDeleted?.users.find((user) => user.fullname === fullname)
-
-            // let updatedPostList = postToBeDeleted.users.filter((obj) => obj !== deletedUser)
-            // let index = dataSource.indexOf(postToBeDeleted);
-            // let tempData = dataSource
-            // if (index > 0) {
-            //     tempData[index] = updatedPostList
-            //     setDataSource(tempData)
-            //     setIsRender(!isRender)
-            // }
+                })
+            })
 
         } catch (err) {
 
         }
 
-
-
-
     }
 
+    const giveApproval = (piid) => {
+
+
+        verInterested({
+            postid: post.post.postid,
+            piid: piid,
+            successCallback: ((message) => {
+                let tempList = dataSource
+
+                let updatedIndex = dataSource.findIndex((obj) => obj.piid === piid)
+                let updated = dataSource.find((obj) => obj.piid === piid)
+                updated.isVerified = true
+                tempList[updatedIndex] = updated
+
+
+                setDataSource(tempList)
+                setIsRender(!isRender)
+
+                setInfoMessage({ info: message, success: true })
+                setIsLoading(false)
+                showCustomLayout()
+            }),
+            errorCallback: ((message) => {
+                setInfoMessage({ info: message, success: false })
+                setIsLoading(false)
+                showCustomLayout()
+
+            })
+        })
+    }
 
     const renderFooter = () => {
         return (
@@ -203,11 +232,14 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                         // extraData={isRender}
                         keyExtractor={(item, index) => index}
                         enableEmptySections={true}
-                        renderItem={(item) => {
+                        renderItem={(item, index) => {
 
                             return <UserComponent
                                 user={item.item}
-                                deleteInterested={deleteInterested}
+                                index={index}
+                                onProfileClick={onProfileClick}
+                                deleteInterested={deleteInterested1}
+                                giveApproval={giveApproval}
                                 fillWidth />
                         }}
                         ListFooterComponent={renderFooter}
