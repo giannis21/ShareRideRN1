@@ -9,6 +9,7 @@ import { Spacer } from '../layout/Spacer';
 import { colors } from '../utils/Colors';
 import { PictureComponent } from './PictureComponent';
 import { useSelector, useDispatch } from 'react-redux';
+import { StarsRating } from '../utils/StarsRating';
 
 export function PostLayoutComponent({
     onPress,
@@ -96,7 +97,17 @@ export function PostLayoutComponent({
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
                             </TouchableOpacity>
 
-                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10 }}>{item?.post?.date} - {item?.post?.postid}</Text>
+                            {((item?.user?.count && item?.user?.count > 0) || (myUser.count > 0) && _.isUndefined(item?.user?.email)) &&
+                                <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+
+                                    <StarsRating rating={item?.user?.average ?? myUser.average} size="small" />
+                                    <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({item?.user?.count ?? myUser.count})</Text>
+
+
+                                </View>
+                            }
+
+                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginTop: 4 }}>{item?.post?.date} - {item?.post?.postid}</Text>
 
 
                             <Spacer height={10} />
@@ -178,10 +189,13 @@ export function PostLayoutComponent({
                         item.hasMoreUsers &&
                         <View style={{ marginTop: 14 }}>
                             <View style={addMoreUsers} >
-                                <Text style={{ fontSize: 16, fontWeight: 'bold', color: 'black' }}> Δείτε περισσότερους χρήστες</Text>
+                                <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Δείτε τους ενδιαφερόμενους
+                                    <Text style={seats}>({item.users}) </Text>
+                                </Text>
+
                                 <TouchableOpacity
                                     onPress={() => { showMoreUsers(item) }}
-                                    style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: 'turquoise', borderRadius: 50 }}>
+                                    style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
                                     <AntDesign name="arrowright" size={15} color='white' />
 
                                 </TouchableOpacity>

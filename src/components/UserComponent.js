@@ -1,6 +1,7 @@
 
+import _ from 'lodash';
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, ActivityIndicator } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Entypo from 'react-native-vector-icons/Entypo';
 import FontAwesome from 'react-native-vector-icons/FontAwesome';
@@ -8,6 +9,7 @@ import { BASE_URL } from '../constants/Constants';
 import { Spacer } from '../layout/Spacer';
 
 import { colors } from '../utils/Colors';
+import { StarsRating } from '../utils/StarsRating';
 import { PictureComponent } from './PictureComponent';
 
 export function UserComponent({
@@ -20,8 +22,8 @@ export function UserComponent({
 }) {
     const { userStyleAdded, stretch, noStretch, container } = styles
 
-    let color = user.isVerified ? colors.verifiedUser : colors.CoolGray2
-    console.log(user.isVerified)
+    let color = _.isNull(user.isVerified) ? null : user.isVerified === true ? colors.verifiedUser : colors.CoolGray2
+
     return (
 
         <TouchableOpacity onPress={() => {
@@ -34,22 +36,44 @@ export function UserComponent({
                 <View style={container}>
                     <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
                     <Spacer width={14} />
-                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.piid}</Text>
+                    <View style={{ alignSelf: 'flex-start' }}>
+                        <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
+                        <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+                            <StarsRating rating={user.average} size="small" />
+                            <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({user.count})</Text>
+
+
+                        </View>
+
+                    </View>
+
                 </View>
 
 
 
                 <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                    <TouchableOpacity onPress={() => {
+                    {/* <TouchableOpacity onPress={() => {
                         deleteInterested(user.piid)
                     }}>
 
-                        <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} />
-                    </TouchableOpacity>
+                        <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} /> 
+                    </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => {
-                        giveApproval(user.piid)
+                        console.log(user.piid, user.isVerified)
+                        giveApproval(user.piid, user.isVerified)
                     }}>
-                        <Entypo name={user.isVerified ? "check" : "add-user"} size={22} color={colors.colorPrimary} style={{ marginHorizontal: 5 }} />
+                        {_.isNull(user.isVerified) ?
+                            <ActivityIndicator
+                                size='small'
+                                style={{ marginHorizontal: 5 }}
+                                animating={true}
+                                hidesWhenStopped={true}
+                                color={colors.colorPrimary}
+                            /> : (
+                                <Entypo name={user.isVerified ? "check" : "add-user"} size={22} color={colors.infoColor} style={{ marginHorizontal: 5 }} />
+                            )
+                        }
+
 
                     </TouchableOpacity>
                 </View>
@@ -73,7 +97,7 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         alignItems: 'center',
 
-
+        paddingVertical: 6,
 
         borderRadius: 13,
         marginEnd: 10,

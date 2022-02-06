@@ -198,11 +198,11 @@ export const getInterestedPerPost = async ({ postId, page, successCallback, erro
             "page": page
         }
     }
-    console.log(send)
+
     await instance.post(`/getIntPost`, send, config)
         .then(res => {
 
-            // console.log("getIntPost ", res.data )
+            console.log("getIntPost ", res.data)
             successCallback(res.data)
         }).catch(function (error) {
             console.log("getIntPost", error)

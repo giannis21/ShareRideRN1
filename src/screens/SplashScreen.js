@@ -43,7 +43,7 @@ const SplashScreen = ({ navigation, route }) => {
             const minutes = seconds / 60
             const hours = minutes / 60
             const days = hours / 24
-            if (days > 55) {
+            if (days < 55) {
                 onLogin(email, password)
             } else {
                 getUserFromStorage().then((user) => {

@@ -28,6 +28,8 @@ import InterestedInMeScreen from '../profile_tabs/InterestedInMeScreen';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { Animated, Easing } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
+import { RoundButton } from '../../Buttons/RoundButton';
+import { ADD_AVERAGE } from '../../actions/types';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -49,14 +51,29 @@ const ProfileScreen = ({ navigation, route }) => {
     const [openPostsInterested, setOpenPostsInterested] = useState(false)
     const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
 
-
+    const dispatch = useDispatch()
     let heightValue = useState(new Animated.Value(height))[0]
     let heightValue1 = useState(new Animated.Value(height))[0]
     const myUser = useSelector(state => state.authReducer.user)
+    // const checkBeforeLeaving = (e) => {
+    //     console.log(initalData)
+    //     // setOpenPostsInterestedInMe(false)
+    // }
+    // useEffect(() => {
+    //     // Adding side effect on component mount
+    //     navigation.addListener('blur', checkBeforeLeaving);
 
-    useEffect(async () => {
+    //     // Specify how to clean up after this effect on component-unmount:    
+    //     return () => navigation.removeEventListener('blur', checkBeforeLeaving)
+    // }, [navigation])
+    // useEffect(() => {
+    //     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
 
-    }, [])
+    //     });
+
+    //     return unsubscribe;
+    // }, [navigation]);
+
 
     const scrollRef = useRef();
 
@@ -125,7 +142,7 @@ const ProfileScreen = ({ navigation, route }) => {
             count: data.count,
             interestedForYourPosts: data.interestedForYourPosts
         })
-
+        dispatch({ type: ADD_AVERAGE, payload: { average: data.average, count: data.count } })
     }
 
     useEffect(() => {
@@ -341,8 +358,8 @@ const ProfileScreen = ({ navigation, route }) => {
 
                                         }
                                         }
-                                        style={{ flexDirection: 'row', alignItems: 'center', }}>
-                                        <View style={styles.dot} />
+                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
+
                                         <Text style={styles.rates} >Αξιολογήσεις</Text>
                                     </TouchableOpacity>
                                 }
@@ -355,21 +372,23 @@ const ProfileScreen = ({ navigation, route }) => {
                                             handlerAnimation(true)
                                         }
                                         }
-                                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                                        <View style={styles.dot} />
+                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
+
                                         <Text style={styles.rates} >τα Post μου</Text>
                                     </TouchableOpacity>
                                 }
                                 {data.hasInterested && myUser.email === data.email &&
+
                                     <TouchableOpacity
+                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}
                                         onPress={() => {
                                             setHeaderVisible(false);
                                             setOpenPostsInterested(true)
                                             handlerAnimation(true)
                                         }
                                         }
-                                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10 }}>
-                                        <View style={styles.dot} />
+                                    >
+
                                         <Text style={styles.rates} >Post που ενδιαφέρομαι</Text>
                                     </TouchableOpacity>
                                 }
@@ -382,8 +401,8 @@ const ProfileScreen = ({ navigation, route }) => {
                                             handlerAnimation(true)
                                         }
                                         }
-                                        style={{ flexDirection: 'row', alignItems: 'center', marginTop: 10, }}>
-                                        <View style={styles.dot} />
+                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
+
                                         <Text style={styles.rates} >Ενδιαφερόμενοι</Text>
                                     </TouchableOpacity>
                                 }
@@ -404,7 +423,7 @@ const ProfileScreen = ({ navigation, route }) => {
             }
 
 
-            {(openTabs || ((myUser.email !== data.email && data.hasReviews) && openTabs)) &&
+            {/* {(openTabs || ((myUser.email !== data.email && data.hasReviews) && openTabs)) &&
                 <View>
                     <View style={{ top: 47, right: 0, left: 0, bottom: 0, marginHorizontal: 10, paddingBottom: 50, height: '100%' }}>
                         <Tab.Navigator
@@ -460,7 +479,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     </View>
 
                 </View>
-            }
+            } */}
 
             {openRatings &&
 
@@ -565,6 +584,15 @@ const styles = StyleSheet.create({
         backgroundColor: colors.colorPrimary,
 
     },
+    infoContainer: {
+        alignSelf: 'baseline',
+        borderRadius: 5,
+        paddingVertical: 8,
+        paddingHorizontal: 18,
+        flexDirection: 'row',
+        backgroundColor: colors.infoColor,
+
+    },
     dot: {
         marginLeft: 10,
         width: 6,
@@ -573,12 +601,11 @@ const styles = StyleSheet.create({
         backgroundColor: 'black',
     },
     rates: {
-        fontSize: 17,
+        fontSize: 15,
         marginLeft: 10,
-        textDecorationLine: "underline",
-        color: "#7398F4",
+
+        color: "white",
         fontWeight: 'bold',
-        textDecorationStyle: "solid",
-        textDecorationColor: "#7398F4",
+
     }
 });

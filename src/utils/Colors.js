@@ -19,5 +19,6 @@ export const colors = {
     transparent: '#0000',
     ActionRed: '#ED6565',
     infoGreen: '#64c46c',
-    verifiedUser: "#c5dde3"
+    verifiedUser: "#c5dde3",
+    infoColor: '#5BC0DE'
 }

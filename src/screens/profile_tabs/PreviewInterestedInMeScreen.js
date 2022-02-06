@@ -41,6 +41,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     const post = useSelector(state => state.postReducer.activePost)
     let dispatch = useDispatch()
     let isFocused = useIsFocused()
+    let navigation1 = useNavigation()
 
     // console.log("post.activePost", post)
     useEffect(() => {
@@ -56,7 +57,8 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     }, [isFocused])
 
     const onProfileClick = (email) => {
-        navigation.push(routes.PROFILE_SCREEN, { email: email })
+        console.log(email)
+        navigation.replace(routes.PROFILE_SCREEN, { email })
     }
     const getUsers = () => {
         // console.log(post.post.postid, offset)
@@ -91,25 +93,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     const onActionSheet = (index) => {
         setIsLoading(true)
 
-        deletePost({
-            postID: deletedPost.post.postid,
-            successCallback: ((message) => {
-
-                let newData = dataSource.filter((obj) => obj !== deletedPost)
-                setDataSource(newData)
-                setIsRender(!isRender)
-
-                setInfoMessage({ info: message, success: true })
-                setIsLoading(false)
-                showCustomLayout()
-            }),
-            errorCallback: ((message) => {
-                setInfoMessage({ info: message, success: false })
-                setIsLoading(false)
-                showCustomLayout()
-
-            })
-        })
 
 
     };
@@ -159,18 +142,22 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
     }
 
-    const giveApproval = (piid) => {
+    const giveApproval = (piid, isVerified) => {
+        let tempList = dataSource
 
-
+        let updatedIndex = dataSource.findIndex((obj) => obj.piid === piid)
+        let updated = dataSource.find((obj) => obj.piid === piid)
+        updated.isVerified = null
+        tempList[updatedIndex] = updated
+        setDataSource(tempList)
+        setIsRender(!isRender)
         verInterested({
             postid: post.post.postid,
             piid: piid,
             successCallback: ((message) => {
                 let tempList = dataSource
 
-                let updatedIndex = dataSource.findIndex((obj) => obj.piid === piid)
-                let updated = dataSource.find((obj) => obj.piid === piid)
-                updated.isVerified = !updated.isVerified
+                updated.isVerified = !isVerified
                 tempList[updatedIndex] = updated
 
 
@@ -182,6 +169,16 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                 showCustomLayout()
             }),
             errorCallback: ((message) => {
+
+                let tempList = dataSource
+
+                updated.isVerified = isVerified
+                tempList[updatedIndex] = updated
+
+
+                setDataSource(tempList)
+                setIsRender(!isRender)
+
                 setInfoMessage({ info: message, success: false })
                 setIsLoading(false)
                 showCustomLayout()
@@ -192,13 +189,13 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
     const renderFooter = () => {
         return (
-            !_.isEmpty(dataSource) && (offset <= total_pages - 1) ?
+            !_.isEmpty(dataSource) && (offset <= total_pages) ?
                 (
                     <View style={styles.footer}>
                         <TouchableOpacity
                             activeOpacity={0.9}
                             onPress={() => {
-                                // setIsLoading(true)
+                                setIsLoading(true)
                                 getUsers()
                             }}
 
@@ -228,11 +225,11 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                     <FlatList
 
                         data={dataSource}
-                        // extraData={isRender}
+                        extraData={isRender}
                         keyExtractor={(item, index) => index}
                         enableEmptySections={true}
                         renderItem={(item, index) => {
-                            console.log(item.item.isVerified)
+
                             return <UserComponent
                                 user={item.item}
                                 index={index}

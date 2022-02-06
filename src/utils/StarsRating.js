@@ -33,7 +33,7 @@ export function StarsRating(props) {
                             style={key == 4 ? { marginRight: 0 } : { marginRight: marginRight }}
                             name={item <= (props.rating ? props.rating : defaultRating) ? 'star' : 'star-o'}
                             color={item <= (props.rating ? props.rating : defaultRating) ? '#F0C30E' : colors.Gray2}
-                            size={props.size === "small" ? 14 : 32}
+                            size={props.size === "small" ? 12 : 32}
                         />
                     </TouchableOpacity>
                 );

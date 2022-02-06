@@ -25,7 +25,9 @@ import { constVar } from '../../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
 import { CalendarPickerModal } from '../../utils/CalendarPickerModal';
 import { ADD_START_DATE, SET_RADIO_SELECTED } from '../../actions/types';
-import { SearchFragment } from '../../components/SearchFragment';
+
+import { resetValues } from '../../services/MainServices';
+import { SearchLocationComponent } from '../../components/SearchLocationComponent';
 
 const CreatePostScreen = ({ navigation, route }) => {
 
@@ -189,9 +191,11 @@ const CreatePostScreen = ({ navigation, route }) => {
             />
             <KeyboardAwareScrollView style={{}}>
                 <View>
-                    <Spacer height={15} />
-                    <View style={{ paddingHorizontal: 16 }}>
-                        <SelectLocationComponent title={'Αφετηρία προορισμού'}
+                    <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
+
+                        <SelectLocationComponent
+                            titleStart={'Αφετηρία προορισμού'}
+                            titleEnd={'Τελικός προορισμός'}
                             startingPointPress={() => { setOpenSearch({ from: true, open: true }) }}
                             endPointPress={() => { setOpenSearch({ from: false, open: true }) }} />
                         <Spacer height={20} />
@@ -233,7 +237,7 @@ const CreatePostScreen = ({ navigation, route }) => {
             </KeyboardAwareScrollView>
 
             {openSearch.open &&
-                <SearchFragment from={openSearch.from} />
+                <SearchLocationComponent from={openSearch.from} />
             }
 
             <CalendarPickerModal

@@ -188,7 +188,9 @@ const getUser = (res, password) => {
       instagram: res.user.instagram ?? "-",
       phone: res.user.mobile.toString(),
       password: password,
-      token: ''
+      token: '',
+      average: res.user.average ?? "0",
+      count: res.user.count ?? "0",
     }
     //  configureStore.dispatch({ type: types.LOGIN_USER, payload: user })
   } catch (err) {

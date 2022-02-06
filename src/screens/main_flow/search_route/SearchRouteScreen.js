@@ -11,9 +11,14 @@ import { BackHandler } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
+import { SearchRouteComponent } from '../../../components/SearchRouteComponent';
+import { CustomInput } from '../../../utils/CustomInput';
+import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 
 const SearchRouteScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
+    const [openSearch, setOpenSearch] = useState({ from: true, open: false })
+
 
     let scaleValue = new Animated.Value(0); // declare an animated value
     const isFocused = useIsFocused()
@@ -61,7 +66,9 @@ const SearchRouteScreen = ({ navigation, route }) => {
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <Loader isLoading={isLoading} />
             <MainHeader
+                onClose={() => { setOpenSearch({ from: true, open: false }) }}
                 title={"Αναζήτηση διαδρομής"}
+                showX={openSearch.open === true}
                 onSettingsPress={() => {
                     //  moveBall()
                     navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email })
@@ -75,15 +82,17 @@ const SearchRouteScreen = ({ navigation, route }) => {
                     })
 
                 }}
-                showX
+
             />
+            {openSearch.open &&
+                <SearchLocationComponent from={openSearch.from} />
+            }
 
-            <View style={{ flex: 1, flexDirection: 'column' }} >
+            <SearchRouteComponent openSearch={(item) => {
+                console.log(item)
+                setOpenSearch({ from: item.from, open: item.open })
+            }} />
 
-
-
-
-            </View>
         </BaseView>
 
     );

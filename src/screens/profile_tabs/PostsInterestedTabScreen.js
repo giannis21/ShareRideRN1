@@ -132,6 +132,7 @@ const PostsInterestedTabScreen = ({ navigation, route, email, onCloseContainer }
                             keyExtractor={(item, index) => 'item' + index}
                             //   enableEmptySections={true}
                             renderItem={(item, index) => {
+
                                 return <PostLayoutComponent
                                     showFavoriteIcon={true}
                                     showMenu={false}

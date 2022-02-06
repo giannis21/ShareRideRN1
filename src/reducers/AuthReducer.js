@@ -1,4 +1,4 @@
-import { LOGIN_USER, LOGOUT, SIGNUP_CHECK } from '../actions/types';
+import { LOGIN_USER, LOGOUT, SIGNUP_CHECK, ADD_AVERAGE } from '../actions/types';
 
 export const CONTRACT_TYPE = {
   HOME: 'RES',
@@ -24,13 +24,14 @@ const intialState = {
     instagram: '',
     phone: '',
     password: '',
-    token: ''
+    token: '',
+    average: '0',
+    count: '0'
   },
 
 };
 
 export function AuthReducer(state = intialState, action) {
-  console.log("reducer calledn\n\n\n\n\n\n", action.payload)
   switch (action.type) {
     case LOGIN_USER:
       return {
@@ -45,6 +46,16 @@ export function AuthReducer(state = intialState, action) {
       return {
         ...intialState,
         user: {}
+      };
+    case ADD_AVERAGE:
+      console.log("action", action.payload)
+      return {
+        ...intialState,
+        user: {
+          ...state.user,
+          average: action.payload.average,
+          count: action.payload.count
+        }
       };
     default:
       return state;

@@ -55,6 +55,7 @@ const InterestedInMeScreen = ({ email, onCloseContainer }) => {
     }, [isFocused]);
 
     const successCallback = (data) => {
+
         setIsLoading(false)
         setDataSource([...dataSource, ...data.postUser]);
         setTotalPages(data.totalPages)

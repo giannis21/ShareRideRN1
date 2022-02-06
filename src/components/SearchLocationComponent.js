@@ -1,6 +1,3 @@
-
-
-
 import React from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -9,7 +6,7 @@ import { colors } from '../utils/Colors';
 import { CustomInput } from '../utils/CustomInput';
 
 
-export function SearchFragment({
+export function SearchLocationComponent({
     onPress,
     from
 }) {
