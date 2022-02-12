@@ -6,7 +6,8 @@ import { Spacer } from '../../layout/Spacer';
 import { colors } from '../../utils/Colors';
 import { Loader } from '../../utils/Loader';
 import { MainHeader } from '../../utils/MainHeader';
-import Feather from 'react-native-vector-icons/Feather';
+import Entypo from 'react-native-vector-icons/Entypo';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
 import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StarsRating } from '../../utils/StarsRating';
@@ -30,6 +31,7 @@ import { Animated, Easing } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
 import { RoundButton } from '../../Buttons/RoundButton';
 import { ADD_AVERAGE } from '../../actions/types';
+import { TextInput } from 'react-native-gesture-handler';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -50,7 +52,7 @@ const ProfileScreen = ({ navigation, route }) => {
     const [openMyPosts, setOpenMyPosts] = useState(false)
     const [openPostsInterested, setOpenPostsInterested] = useState(false)
     const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
-
+    const [editProfile, setEditProfile] = useState(false)
     const dispatch = useDispatch()
     let heightValue = useState(new Animated.Value(height))[0]
     let heightValue1 = useState(new Animated.Value(height))[0]
@@ -83,16 +85,20 @@ const ProfileScreen = ({ navigation, route }) => {
 
     const Tab = createMaterialTopTabNavigator();
 
-    function userInfo(icon, title, subTitle) {
+    function userInfo(icon, title, subTitle, editable, keyboardType) {
         return (
-            <View style={{ flexDirection: 'row', marginStart: 16 }}>
+            <View style={{ flexDirection: 'row', marginStart: 16, marginEnd: 16 }}>
                 <MaterialCommunityIcons name={icon} size={32} color={colors.colorPrimary} />
                 <Spacer width={16} />
                 <View>
                     <Spacer height={3} />
                     <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6 }}>{title}</Text>
                     <Spacer height={5} />
-                    <Text style={{ fontSize: 15, fontWeight: 'bold', color: 'black' }}>{subTitle}</Text>
+                    <TextInput keyboardType={keyboardType ? 'numeric' : 'default'} editable={editable} style={{ fontSize: 15, fontWeight: 'bold', color: 'black', width }}>{subTitle}</TextInput>
+                    {editable &&
+                        <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '80%' }} />
+                    }
+
                 </View>
             </View>
         )
@@ -109,11 +115,25 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     <PictureComponent url={data.image} imageSize={"medium"} />
                     <Spacer width={5} />
-                    <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
+                    <View style={{ alignItems: 'flex-start' }}>
+                        <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
+                        <StarsRating rating={rating} size="small" />
+                    </View>
+
                 </View>
 
                 <Spacer height={5} />
                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
+                {
+                    route.params?.email === myUser.email &&
+                    <TouchableOpacity activeOpacity={1} onPress={() => { setEditProfile(!editProfile) }} style={{ position: 'absolute', justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16 }}>
+                        {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
+                            <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
+                        }
+                    </TouchableOpacity>
+                }
+
+
 
             </View>
         )
@@ -205,10 +225,12 @@ const ProfileScreen = ({ navigation, route }) => {
     const handleScroll = (event) => {
         if (event.nativeEvent.contentOffset.y === 0) {
             setHeaderVisible(false)
-        } else {
-            if (headerVisible === false)
-                setHeaderVisible(true)
+            return
         }
+
+        if (headerVisible === false)
+            setHeaderVisible(true)
+
 
     }
 
@@ -247,9 +269,20 @@ const ProfileScreen = ({ navigation, route }) => {
                 icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                 success={infoMessage.success}
             />
-            <View style={{ position: 'absolute', marginTop: 5 }}>
+            <View style={{ position: 'absolute', marginTop: 5, justifyContent: 'space-around' }}>
                 <CloseIconComponent onPress={() => openTabs ? setOpenTabs(false) : navigation.goBack()} />
             </View>
+
+            <TouchableOpacity
+                style={{ justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16, zIndex: 1, position: 'absolute' }}
+                activeOpacity={1}
+                onPress={() => { setEditProfile(!editProfile) }}>
+                {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
+                    <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
+                }
+
+            </TouchableOpacity>
+
 
             {data.email !== '' &&
 
@@ -305,11 +338,11 @@ const ProfileScreen = ({ navigation, route }) => {
                     </View>
 
                     <Spacer height={28} />
-                    {userInfo('email', constVar.email, data.email)}
+                    {userInfo('email', constVar.email, data.email, false)}
                     <Spacer height={28} />
-                    {userInfo('phone', constVar.mobile, data.phone)}
+                    {userInfo('phone', constVar.mobile, data.phone, editProfile ? true : false, "numeric")}
                     <Spacer height={28} />
-                    {userInfo('phone', constVar.age, data.age)}
+                    {userInfo('phone', constVar.age, data.age, editProfile ? true : false, "numeric")}
                     <Spacer height={28} />
 
                     <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.socialTitle}</Text>
@@ -318,27 +351,33 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     <Spacer height={28} />
 
-                    {userInfo('facebook', constVar.facebook, data.facebook)}
+                    {userInfo('facebook', constVar.facebook, data.facebook, editProfile ? true : false)}
                     <Spacer height={28} />
-                    {userInfo('instagram', constVar.instagram, data.instagram)}
+                    {userInfo('instagram', constVar.instagram, data.instagram, editProfile ? true : false)}
                     <Spacer height={28} />
 
                     <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.car}</Text>
                     <Spacer height={10} />
                     <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
                     <Spacer height={28} />
-                    <View style={{ flexDirection: 'row' }}>
+                    <View style={{ flexDirection: 'row', marginHorizontal: 16 }}>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carBrand}</Text>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: 'black', alignSelf: 'center' }}>{data.carBrand}</Text>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{constVar.carBrand}</Text>
 
+                            <TextInput editable={editProfile ? true : false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', width: '100%', textAlign: 'center' }}>{data.carBrand}</TextInput>
+                            {editProfile &&
+                                <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '100%' }} />
+                            }
                         </View>
 
                         <View style={{ flex: 1 }}>
-                            <Text style={{ padding: 3, fontSize: 15, fontWeight: 'bold', backgroundColor: colors.CoolGray2, opacity: 0.6, textAlign: 'center', color: 'black' }}>{constVar.carAgeTitle}</Text>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: 'black', alignSelf: 'center' }}>{data.carDate}</Text>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{constVar.carAgeTitle}</Text>
 
+                            <TextInput keyboardType='numeric' editable={editProfile ? true : false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', textAlign: 'center', width: '100%' }}>{data.carDate}</TextInput>
+                            {editProfile &&
+                                <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '100%' }} />
+                            }
                         </View>
 
                     </View>

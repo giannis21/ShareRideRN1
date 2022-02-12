@@ -18,7 +18,7 @@ export function CloseIconComponent({
             <View style={styles.circleContainer}>
 
 
-                <Icon name="close" color='black' size={18} style={{ color: colors.colorPrimary }} />
+                <Icon name="close" color='black' size={18} />
             </View>
 
         </TouchableWithoutFeedback>
@@ -38,7 +38,7 @@ const styles = StyleSheet.create({
         height: 35,
         justifyContent: 'center',
         alignItems: 'center',
-        borderColor: colors.colorPrimary,
+        borderColor: 'black',
         borderWidth: 1
     },
     container: {

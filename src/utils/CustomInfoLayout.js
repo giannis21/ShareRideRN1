@@ -18,11 +18,9 @@ export function CustomInfoLayout({
   return (
 
     <Modal
-
       style={modal}
       visible={isVisible}
       transparent={true}
-
     >
       <View style={[container, { backgroundColor: selectedColor }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
