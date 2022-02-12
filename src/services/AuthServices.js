@@ -42,7 +42,7 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
 const login = async ({ send, token, successCallBack, errorCallback }) => {
   setValue(keyNames.token, token)
   let config = await getHeaderConfig(token)
-  console.log("dssdsd ", send)
+
   await instance.post(`/login`, send, config)
     .then(res => {
       console.log(res.data)

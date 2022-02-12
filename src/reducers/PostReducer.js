@@ -1,4 +1,4 @@
-import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_START_DATE, DELETE_ACTIVE_USER, LOGIN_USER, LOGOUT, SET_RADIO_SELECTED, SIGNUP_CHECK } from '../actions/types';
+import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_START_DATE, DELETE_ACTIVE_USER, LOGIN_USER, LOGOUT, SET_RADIO_SELECTED, SIGNUP_CHECK } from '../actions/types';
 import { constVar } from '../utils/constStr';
 
 
@@ -17,12 +17,13 @@ const intialState = {
     comment: "",
     moreplaces: [],
     radioSelected: 0,
-
+    returnStartDate: constVar.returnInitialDate,
+    returnEndDate: constVar.returnEndDate,
     activePost: {}
 };
 
 export function PostReducer(state = intialState, action) {
-
+    console.log("reducer called", action.type, action.payload)
     switch (action.type) {
 
         case ADD_START_DATE:
@@ -35,6 +36,19 @@ export function PostReducer(state = intialState, action) {
             return {
                 ...state,
                 enddate: state.enddate = action.payload
+            };
+
+        case ADD_RETURN_START_DATE:
+
+            return {
+                ...state,
+                returnStartDate: state.returnStartDate = action.payload
+            };
+
+        case ADD_RETURN_END_DATE:
+            return {
+                ...state,
+                returnEndDate: state.returnEndDate = action.payload
             };
         case SET_RADIO_SELECTED:
             return {

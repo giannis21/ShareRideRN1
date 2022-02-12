@@ -8,6 +8,7 @@ import { Spacer } from '../layout/Spacer';
 import { constVar } from '../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
 import { SET_RADIO_SELECTED } from '../actions/types';
+import { CheckBox } from 'react-native-elements';
 
 
 export function CustomRadioButton({
@@ -18,34 +19,47 @@ export function CustomRadioButton({
 
     let dispatch = useDispatch()
     const [selected, setSelected] = useState("one")
+    const [hasReturnDate, setHasReturnDate] = useState(false)
     const post = useSelector(state => state.postReducer)
 
-    console.log(post.radioSelected)
 
     let backgroundColorLeft = selected == "one" ? colors.colorPrimary : 'white'
     let backgroundColorRight = selected !== "one" ? colors.colorPrimary : 'white'
     let opacityRight = selected === "one" ? 0.2 : null
 
     const setOption = (option) => {
-        let payload = 1
-        if (option === "one")
-            payload = 0
-
-        dispatch({
-            type: SET_RADIO_SELECTED,
-            payload: payload
-        })
         setSelected(option)
     }
 
     const setSelectedDate = (dateIndicator) => {
         selectedOption(dateIndicator)
     }
+
+    const DateInput = ({ date, selection, opacity, disabled }) => {
+        return (
+            <TouchableOpacity disabled={disabled} style={{ width: '48%' }} onPress={() => { setSelectedDate(selection) }} >
+                <Spacer height={20} />
+                <Text style={{ color: getColor(selection), alignSelf: 'center', opacity }}>{date}</Text>
+                <Spacer height={10} />
+                <View style={{ width: '100%', backgroundColor: colors.colorPrimary, height: 1, opacity }} />
+            </TouchableOpacity>
+        )
+    }
+
+    const getColor = (option) => {
+        switch (option) {
+            case 0: return post.startdate === constVar.initialDate ? '#8b9cb5' : 'black'
+            case 1: return post.enddate === constVar.endDate ? '#8b9cb5' : 'black'
+            case 2, 3: return 'black'
+        }
+
+    }
     return (
         <View
             onPress={onPress}
             style={styles.container}>
             <View style={{ flexDirection: 'row', marginHorizontal: 50 }}>
+
                 <TouchableOpacity
                     style={[styles.leftContainer, { backgroundColor: backgroundColorLeft }]}
                     onPress={() => { setOption("one") }}>
@@ -61,23 +75,32 @@ export function CustomRadioButton({
             <Spacer height={20} />
 
             <View style={{ flexDirection: 'row', }}>
-                <TouchableOpacity style={{ width: '48%' }} onPress={() => { setSelectedDate(0) }} >
-                    <Spacer height={20} />
-                    <Text style={{ color: post.startdate === constVar.initialDate ? '#8b9cb5' : 'black', alignSelf: 'center' }}>{post?.startdate}</Text>
-                    <Spacer height={10} />
-                    <View style={{ width: '100%', backgroundColor: colors.colorPrimary, height: 1 }} />
-                </TouchableOpacity>
+                <DateInput date={post?.startdate} selection={0} />
 
                 <View style={{ width: '4%' }} />
 
-                <TouchableOpacity disabled={selected === "one"} style={{ width: '48%' }} onPress={() => { setSelectedDate(1) }} >
-                    <Spacer height={20} />
-                    <Text style={{ color: post.enddate === constVar.endDate ? '#8b9cb5' : 'black', alignSelf: 'center', opacity: opacityRight }}>{post?.enddate}</Text>
-                    <Spacer height={10} />
-                    <View style={{ width: '100%', opacity: opacityRight, backgroundColor: colors.colorPrimary, height: 1 }} />
-                </TouchableOpacity>
+                <DateInput date={post?.enddate} selection={1} opacity={opacityRight} disabled={selected === "one"} />
+
             </View>
 
+            <TouchableWithoutFeedback onPress={() => { setHasReturnDate(!hasReturnDate) }} style={{ alignItems: 'center', marginTop: 13, }}>
+                <Text style={{ color: '#8b9cb5', }}>με επιστροφη; {hasReturnDate ? "👍" : "👎"}</Text>
+
+            </TouchableWithoutFeedback>
+
+            {
+                hasReturnDate && <View style={{ marginTop: 15 }}>
+                    <Text style={{ color: '#8b9cb5' }}>Σκέφτομαι να επιστρέψω..</Text>
+                    <View style={{ flexDirection: 'row' }}>
+                        <DateInput date={post?.returnStartDate} selection={2} />
+
+                        <View style={{ width: '4%' }} />
+
+                        <DateInput date={post?.returnEndDate} selection={3} />
+
+                    </View>
+                </View>
+            }
 
         </View >
 

@@ -18,11 +18,11 @@ export function CustomInfoLayout({
   return (
 
     <Modal
-      isVisible={isVisible}
+
       style={modal}
+      visible={isVisible}
       transparent={true}
-      animationIn={'fadeIn'}
-      animationOut={'fadeOut'}
+
     >
       <View style={[container, { backgroundColor: selectedColor }]}>
         <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
@@ -49,6 +49,7 @@ const styles = StyleSheet.create({
   modal: {
     justifyContent: 'flex-end',
     marginBottom: 20
+
   },
   container: {
 

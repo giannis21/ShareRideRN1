@@ -219,7 +219,6 @@ const CreatePostScreen = ({ navigation, route }) => {
 
                     selectedOption={(option) => {
                         setRadioSelection(option)
-
                         setIsPickerVisible(true)
                     }} />
 

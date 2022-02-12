@@ -9,7 +9,7 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import DatePicker from 'react-native-date-picker';
 import { constVar } from './constStr';
 import { useSelector, useDispatch } from 'react-redux';
-import { ADD_END_DATE, ADD_START_DATE } from '../actions/types';
+import { ADD_END_DATE, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_START_DATE } from '../actions/types';
 export function CalendarPickerModal({
     closeAction,
     title,
@@ -38,7 +38,6 @@ export function CalendarPickerModal({
 
 
         if (post.startdate !== constVar.initialDate) {
-            //  
             let dateArray = post.startdate.split("/")
             let year = dateArray[2]
             let month = dateArray[1]
@@ -71,23 +70,25 @@ export function CalendarPickerModal({
         let day = date.getDate()
         let month = date.getMonth() + 1
 
-        post.radioSelected === 0 ? (
+        addToReducer(post.radioSelected, year, day, month)
 
-            dispatch({
-                type: ADD_START_DATE,
-                payload: day + "/" + month + "/" + year
-            })
-        ) : (
-            dispatch({
-                type: ADD_END_DATE,
-                payload: day + "/" + month + "/" + year
-            })
-        )
 
         buttonPress(1)
     }
 
 
+    const addToReducer = (selectedValue, year, day, month) => {
+
+        if (selectedValue === 0 && dispatch({ type: ADD_START_DATE, payload: day + "/" + month + "/" + year }))
+            return
+        if (selectedValue === 1 && dispatch({ type: ADD_END_DATE, payload: day + "/" + month + "/" + year }))
+            return
+        if (selectedValue === 2 && dispatch({ type: ADD_RETURN_START_DATE, payload: day + "/" + month + "/" + year }))
+            return
+        if (selectedValue === 3 && dispatch({ type: ADD_RETURN_END_DATE, payload: day + "/" + month + "/" + year }))
+            return
+
+    }
     const closeModal = () => {
         setError({ state: false, message: '' })
         closeAction()
