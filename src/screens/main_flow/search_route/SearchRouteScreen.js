@@ -71,7 +71,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 showX={openSearch.open === true}
                 onSettingsPress={() => {
                     //  moveBall()
-                    navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email })
+                    navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email })
                 }}
                 onLogout={() => {
                     navigation.removeListener('beforeRemove')

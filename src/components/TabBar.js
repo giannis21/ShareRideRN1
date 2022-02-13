@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Dimensions, Animated, Text } from 'react-native';
+import { useKeyboard } from '../customHooks/useKeyboard';
 import { colors } from '../utils/Colors';
 import Tab from './Tab';
 
@@ -11,7 +12,7 @@ const TabBar = ({ state, navigation }) => {
     const { routes } = state;
     const renderColor = currentTab => (currentTab === selected ? colors.colorPrimary : 'grey');
 
-    //  const { showTabBar } = useTabBar();
+    const isKeyBoardOpen = useKeyboard();
 
     const animation = useRef(new Animated.Value(0)).current;
 
@@ -43,21 +44,27 @@ const TabBar = ({ state, navigation }) => {
     // }, [selected]);
 
     return (
-        <View style={styles.wrapper}>
-            <Animated.View
-                style={[styles.container, { transform: [{ translateY: animation }] }]}
-            >
-                {routes.map((route, index) => (
 
-                    <Tab
-                        tab={route}
-                        icon={route.params.icon}
-                        onPress={() => handlePress(route.name, index)}
-                        color={renderColor(route.name)}
-                        key={index}
-                    />
-                ))}
-            </Animated.View>
+
+        <View style={styles.wrapper}>
+            {isKeyBoardOpen ? <View /> : (
+                <Animated.View
+
+                    style={[styles.container, { transform: [{ translateY: animation }], }]}
+                >
+                    {routes.map((route, index) => (
+
+                        <Tab
+                            tab={route}
+                            icon={route.params.icon}
+                            onPress={() => handlePress(route.name, index)}
+                            color={renderColor(route.name)}
+                            key={index}
+                        />
+                    ))}
+                </Animated.View>
+            )}
+
         </View>
     );
 };
@@ -73,8 +80,7 @@ const styles = StyleSheet.create({
     container: {
         flexDirection: 'row',
         justifyContent: 'space-between',
-        // backgroundColor: 'rgba(220,220,220,0.8)',
-        backgroundColor: 'white',
+        backgroundColor: 'rgba(220,220,220,0.9)',
         alignSelf: 'baseline',
         marginHorizontal: 50,
         borderRadius: 100,

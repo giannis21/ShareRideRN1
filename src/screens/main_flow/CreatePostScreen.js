@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useRef, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RoundButton } from '../../Buttons/RoundButton';
@@ -28,6 +28,7 @@ import { ADD_START_DATE, SET_RADIO_SELECTED } from '../../actions/types';
 
 import { resetValues } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
+import { useKeyboard } from '../../customHooks/useKeyboard';
 
 const CreatePostScreen = ({ navigation, route }) => {
 
@@ -55,7 +56,7 @@ const CreatePostScreen = ({ navigation, route }) => {
 
     const dispatch = useDispatch();
 
-
+    const scrollRef = useRef()
 
     const post = useSelector(state => state.postReducer)
     const myUser = useSelector(state => state.authReducer.user)
@@ -175,7 +176,7 @@ const CreatePostScreen = ({ navigation, route }) => {
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
 
             <MainHeader
-                onSettingsPress={() => { navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email }) }}
+                onSettingsPress={() => { navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email }) }}
                 onClose={() => { setOpenSearch({ from: true, open: false }) }}
                 showX={openSearch.open === true}
                 title={openSearch.open === true ? "Αναζήτηση" : "Δημιουργία Post"}
@@ -189,7 +190,7 @@ const CreatePostScreen = ({ navigation, route }) => {
 
                 }}
             />
-            <KeyboardAwareScrollView style={{}}>
+            <KeyboardAwareScrollView ref={scrollRef} style={{}}>
                 <View>
                     <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
 
@@ -222,7 +223,15 @@ const CreatePostScreen = ({ navigation, route }) => {
                         setIsPickerVisible(true)
                     }} />
 
-                <CommentInputComponent removeNote={true} extraStyle={{ marginTop: 10 }} onChangeText={(val) => setComment(val)} />
+                <CommentInputComponent
+                    onFocus={() => {
+                        setTimeout(() => {
+                            scrollRef.current.scrollToEnd({ animated: true })
+                        }, 400);
+                    }}
+                    removeNote={true}
+                    extraStyle={{ marginTop: 10 }}
+                    onChangeText={(val) => setComment(val)} />
                 <Spacer height={16} />
 
 

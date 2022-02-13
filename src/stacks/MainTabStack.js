@@ -12,6 +12,8 @@ import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
 import TabBar from '../components/TabBar';
 import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import PreviewInterestedInMeScreen from '../screens/profile_tabs/PreviewInterestedInMeScreen';
+import RegisterScreen from '../screens/RegisterScreen';
+import SettingsScreen from '../screens/main_flow/SettingsScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -26,6 +28,11 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.PROFILE_SCREEN}
             component={ProfileScreen} />
+
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.SETTINGS_SCREEN}
+            component={SettingsScreen} />
         <Stack.Screen
             options={{ headerShown: false }}
             name={routes.PREVIEW_INTERESTED_IN_ME_SCREEN}
