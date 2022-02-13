@@ -32,6 +32,8 @@ import { useSelector, useDispatch } from 'react-redux';
 import { RoundButton } from '../../Buttons/RoundButton';
 import { ADD_AVERAGE } from '../../actions/types';
 import { TextInput } from 'react-native-gesture-handler';
+import { onLaunchCamera, onLaunchGallery } from '../../utils/Functions';
+import { OpenImageModal } from '../../utils/OpenImageModal';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -53,6 +55,8 @@ const ProfileScreen = ({ navigation, route }) => {
     const [openPostsInterested, setOpenPostsInterested] = useState(false)
     const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
     const [editProfile, setEditProfile] = useState(false)
+    const [singleFile, setSingleFile] = useState(null);
+    const [isImageModalVisible, setImageModalVisible] = useState(false)
     const dispatch = useDispatch()
     let heightValue = useState(new Animated.Value(height))[0]
     let heightValue1 = useState(new Animated.Value(height))[0]
@@ -113,7 +117,10 @@ const ProfileScreen = ({ navigation, route }) => {
 
                 <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
 
-                    <PictureComponent url={data.image} imageSize={"medium"} />
+                    <PictureComponent
+                        singleFile={singleFile}
+                        url={singleFile ? null : data.image}
+                        imageSize={"medium"} />
                     <Spacer width={5} />
                     <View style={{ alignItems: 'flex-start' }}>
                         <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
@@ -138,6 +145,24 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
         )
     }
+
+    const onActionSheet = (index) => {
+        switch (index) {
+            case 0:
+                return onLaunchCamera((data) => {
+                    setSingleFile(data)
+                });
+            case 1:
+                return onLaunchGallery((data) => {
+                    setSingleFile(data)
+                });
+            case 2: {
+                setSingleFile(null)
+                return null
+
+            }
+        }
+    };
 
     const setUserData = async (data) => {
 
@@ -269,6 +294,19 @@ const ProfileScreen = ({ navigation, route }) => {
                 icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                 success={infoMessage.success}
             />
+
+            <OpenImageModal
+                isVisible={isImageModalVisible}
+                closeAction={() => {
+                    setImageModalVisible(false);
+                }}
+                buttonPress={(index) => {
+                    setImageModalVisible(false);
+                    onActionSheet(index)
+                }}
+
+            />
+
             <View style={{ position: 'absolute', marginTop: 5, justifyContent: 'space-around' }}>
                 <CloseIconComponent onPress={() => openTabs ? setOpenTabs(false) : navigation.goBack()} />
             </View>
@@ -293,7 +331,12 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     <Spacer height={35} />
                     <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                        <PictureComponent url={data.image} imageSize={"big"} />
+                        <PictureComponent
+                            singleFile={singleFile}
+                            onPress={() => { editProfile && setImageModalVisible(true) }}
+                            openCamera={editProfile ? true : false}
+                            url={singleFile ? null : data.image}
+                            imageSize={"big"} />
 
 
                         <Spacer height={10} />

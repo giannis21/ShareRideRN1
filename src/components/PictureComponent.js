@@ -34,7 +34,7 @@ export function PictureComponent({
 
     return (
 
-        <TouchableWithoutFeedback style={getStyle()} onPress={onPress}>
+        <TouchableWithoutFeedback style={getStyle()} onPress={onPress} >
             <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
 
                 <Image
