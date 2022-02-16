@@ -14,11 +14,13 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SearchRouteComponent } from '../../../components/SearchRouteComponent';
 import { CustomInput } from '../../../utils/CustomInput';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
+import { FiltersModal } from '../../../utils/FiltersModal';
+import { constVar } from '../../../utils/constStr';
 
 const SearchRouteScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [openSearch, setOpenSearch] = useState({ from: true, open: false })
-
+    const [isModalVisible, setIsModalVisible] = useState(false)
 
     let scaleValue = new Animated.Value(0); // declare an animated value
     const isFocused = useIsFocused()
@@ -28,15 +30,19 @@ const SearchRouteScreen = ({ navigation, route }) => {
     });
 
     const myUser = useSelector(state => state.authReducer.user)
+
+
+    function handleBackButtonClick() {
+        BackHandler.exitApp()
+        return true;
+    }
+
     useEffect(() => {
-
-        const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-            e.preventDefault();
-            BackHandler.exitApp()
-        });
-
-        return unsubscribe;
-    }, [navigation]);
+        BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+        return () => {
+            BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+        };
+    }, []);
 
     const value = useState(new Animated.ValueXY({ x: 0, y: 0 }))[0] //παιρνω μονο την get method του usestate
     const leftvalue = useState(new Animated.Value(11))[0] //παιρνω μονο την get method του usestate
@@ -76,11 +82,12 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 onLogout={() => {
                     navigation.removeListener('beforeRemove')
                     resetValues(() => {
-
-                        navigation.popToTop();
-                        navigation.goBack();
+                        navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
                     })
 
+                }}
+                onFilterPress={() => {
+                    setIsModalVisible(true)
                 }}
 
             />
@@ -93,6 +100,17 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 setOpenSearch({ from: item.from, open: item.open })
             }} />
 
+            <FiltersModal
+                isVisible={isModalVisible}
+                description={constVar.changePassDescription}
+                buttonText={constVar.go}
+                closeAction={() => {
+                    setIsModalVisible(false);
+                }}
+                buttonPress={() => { }}
+                descrStyle={true}
+                onChangeText={() => { }}
+            />
         </BaseView>
 
     );

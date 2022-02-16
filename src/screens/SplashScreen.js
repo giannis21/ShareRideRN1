@@ -32,6 +32,7 @@ const SplashScreen = ({ navigation, route }) => {
         let email = await getValue(keyNames.email)
         let password = await getValue(keyNames.password)
         if (email === '' || _.isUndefined(email)) {
+            console.log("mpikeeeeeee")
             goToLogin()
         } else {
 
@@ -44,8 +45,10 @@ const SplashScreen = ({ navigation, route }) => {
             const hours = minutes / 60
             const days = hours / 24
             if (days < 55) {
+                console.log("mpikeeeeeee111")
                 onLogin(email, password)
             } else {
+                console.log("mpikeeeeeee1112222")
                 getUserFromStorage().then((user) => {
                     dispatchValues(user)
                     goToHome()

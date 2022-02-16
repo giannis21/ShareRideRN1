@@ -29,7 +29,7 @@ export const constVar = {
     age: "ηλικία",
     phone: "αριθμός τηλεφώνου",
     fullName: "ονοματεπώνυμο",
-    passwordDifferent: "Οι κωδικοί είναι διαφορετικοί.",
+    passwordDifferent: "Ο κωδικός με τον κωδικο επιβαιβέωσης είναι διαφορετικοί.",
     givePass: "δώσε έναν νέο κωδικό",
     newPass: "Νέο password",
     personalInfo: "Προσωπικά στοιχεία",

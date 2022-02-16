@@ -107,6 +107,7 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
         )
     }
+    console.log("singleFile", singleFile)
     function renderTopContainer() {
         return (
             <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
@@ -284,6 +285,12 @@ const ProfileScreen = ({ navigation, route }) => {
     let style1 = { flex: 1, backgroundColor: 'white' }
     let style2 = { flex: 1, backgroundColor: 'black', opacity: 0.5 }
 
+    const showLoader = () => {
+        setIsLoading(true)
+        setTimeout(() => {
+            setIsLoading(false)
+        }, 3000)
+    }
     const { tabsStyle } = styles
     return (
 

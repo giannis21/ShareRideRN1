@@ -7,12 +7,12 @@ import { Loader } from '../utils/Loader';
 import { BaseView } from '../layout/BaseView';
 import { colors } from '../utils/Colors';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
-import OTPInputView from '@twotalltotems/react-native-otp-input';
 import { useTimer } from '../customHooks/useTimer';
 import { forgotPass } from '../services/AuthServices';
 import { routes } from '../navigation/RouteNames';
 import { constVar } from '../utils/constStr';
 import { verifyUser } from '../services/MainServices';
+import { CustomOtpRightToLeft } from '../components/CustomOtpRightToLeft';
 
 const OtpScreen = ({ navigation, route }) => {
   const [isLoading, setIsLoading] = React.useState(false)
@@ -49,7 +49,7 @@ const OtpScreen = ({ navigation, route }) => {
         email,
         successCallback: ((message) => {
           if (goToRestore)
-            navigation.navigate(routes.RESTORE_PASSWORD_SCREEN, { email: email })
+            navigation.navigate(routes.RESTORE_PASSWORD_SCREEN, { email: email, isRestore: true })
           else
             navigation.navigate(routes.LOGIN_SCREEN, { message: message ?? constVar.emailApproved })
         }),
@@ -149,24 +149,19 @@ const OtpScreen = ({ navigation, route }) => {
           <Spacer height={45} />
 
           <Text style={{ fontSize: 17, fontWeight: '900', textAlign: 'center' }}>Έλαβες έναν 4-ψήφιο κωδικό στο {email}; Πληκτρολόγησέ τον εδώ:</Text>
-
-          <OTPInputView
-            style={{ width: '70%', height: '20%' }}
-            codeInputHighlightStyle={{ borderColor: colors.colorPrimary }}
-            pinCount={4}
-            autoFocusOnLoad={true}
-            codeInputFieldStyle={styles.box}
-            onCodeFilled={(code) => {
-              onConfirm(code)
-            }}
-            code={code}
-            onCodeChanged={(c) => {
-              if (showTextError && code.length === 0) {
+          <Spacer height={25} />
+          <CustomOtpRightToLeft
+            onCodeChanged={(code) => {
+              if (showTextError) {
                 setShowTextError(false)
               }
-              setCode(c)
+              setCode(code)
+              if (code.length === 4) {
+                onConfirm(code)
+              }
             }}
           />
+
 
           {showTextError && (
             <Text style={styles.wrongPass}>{constVar.expiredPass}</Text>)}

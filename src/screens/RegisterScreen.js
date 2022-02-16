@@ -19,7 +19,7 @@ import RNPickerSelect from 'react-native-picker-select';
 import { OpenImageModal } from '../utils/OpenImageModal';
 import { constVar } from '../utils/constStr';
 import { PictureComponent } from '../components/PictureComponent';
-
+import RNFetchBlob from 'rn-fetch-blob';
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
 
@@ -46,7 +46,17 @@ const RegisterScreen = ({ navigation }) => {
      }, [navigation]);
 
 
-     const onRegister = () => {
+     const storeImageLocally = async () => {
+          const path = `${RNFetchBlob.fs.dirs.DCIMDir}/myProfile.png`;
+
+          try {
+               const data = await RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
+               setSingleFile(data)
+          } catch (error) {
+               console.log(error.message);
+          }
+     }
+     const onRegister = async () => {
           if (!valid())
                return
           setIsLoading(true)
@@ -55,6 +65,7 @@ const RegisterScreen = ({ navigation }) => {
 
                     //success callback
                     ((message, otp) => {
+                         storeImageLocally()
                          setIsLoading(false)
                          setInfoMessage({ info: message, success: true })
                          showCustomLayout(() => {

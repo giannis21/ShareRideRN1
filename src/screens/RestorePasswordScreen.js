@@ -21,14 +21,16 @@ import { constVar } from '../utils/constStr'
 let hasErrors = false
 const RestorePasswordScreen = ({ navigation, route }) => {
   var _ = require('lodash');
-  const [data, setData] = React.useState({ password: '', passwordConfirm: '', secureTextEntry: true, secureTextEntryConfirmed: true })
+  const [data, setData] = React.useState({ password: '', passwordConfirm: '', currentPassword: "", secureTextEntry: true, secureTextEntryConfirmed: true, secureTextEntryCurrent: true })
   const [isLoading, setIsLoading] = React.useState(false)
   const [showInfoModal, setShowInfoModal] = React.useState(false);
   const [infoMessage, setInfoMessage] = React.useState({ hasError: false, message: false });
   const [email, setEmail] = useState(route.params.email)
+
+
   React.useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
-      setData({ password: '', passwordConfirm: '', secureTextEntry: true, secureTextEntryConfirmed: true })
+      setData({ password: '', passwordConfirm: '', currentPassword: "", secureTextEntry: true, secureTextEntryConfirmed: true, secureTextEntryCurrent: true })
       setIsLoading(false)
       setInfoMessage({ hasError: false, message: false });
       setShowInfoModal(false)
@@ -50,7 +52,7 @@ const RestorePasswordScreen = ({ navigation, route }) => {
   const successCallBack = (message) => {
     setInfoMessage({ hasError: false, message })
     showCustomLayout((() => {
-      navigation.popToTop()
+      route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack()
     }))
   }
   const errorCallback = (message) => {
@@ -59,17 +61,21 @@ const RestorePasswordScreen = ({ navigation, route }) => {
   }
   const onButtonPressed = () => {
     Keyboard.dismiss()
-    if (_.isEmpty(data.password) || _.isEmpty(data.passwordConfirm)) {
+    if (_.isEmpty(data.password) || _.isEmpty(data.passwordConfirm) || (!route.params.isRestore && _.isEmpty(data.currentPassword))) {
       setInfoMessage({ hasError: true, message: constVar.fillFirst })
       showCustomLayout()
 
-    } else if (data.password.length < 5 || data.passwordConfirm.length < 5) {
+    } else if (data.password.length < 5 || data.passwordConfirm.length < 5 || (!route.params.isRestore && data.currentPassword.length < 5)) {
       setInfoMessage({ hasError: true, message: constVar.passLength })
       showCustomLayout()
 
     }
     else if (data.password !== data.passwordConfirm) {
       setInfoMessage({ hasError: true, message: constVar.passwordDifferent })
+      showCustomLayout()
+
+    } else if (data.currentPassword === data.passwordConfirm || data.currentPassword === data.password) {
+      setInfoMessage({ hasError: true, message: 'ο τρέχων κωδικός πρέπει να είναι διαφορετικός απο τον νέο.' })
       showCustomLayout()
 
     } else {
@@ -88,8 +94,14 @@ const RestorePasswordScreen = ({ navigation, route }) => {
   const onPasswordConfirmedChanged = (value) => {
     setData({ ...data, passwordConfirm: value })
   }
+  const oncurrentPasswordChanged = (value) => {
+    setData({ ...data, currentPassword: value })
+  }
   const updateSecureTextEntry = () => {
     setData({ ...data, secureTextEntry: !data.secureTextEntry });
+  }
+  const updateSecureTextEntryCurrent = () => {
+    setData({ ...data, secureTextEntryCurrent: !data.secureTextEntryCurrent });
   }
 
   const updateSecureTextEntryConfirmed = () => {
@@ -114,7 +126,7 @@ const RestorePasswordScreen = ({ navigation, route }) => {
         bounces={true}
         keyboardShouldPersistTaps={'handled'}>
         <View style={styles.topContainer}>
-          <TouchableWithoutFeedback onPress={() => { navigation.popToTop() }}>
+          <TouchableWithoutFeedback onPress={() => { route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack() }}>
             <Feather style={{ alignSelf: 'flex-start' }} name="chevron-left" size={30} color='black' />
           </TouchableWithoutFeedback>
 
@@ -122,6 +134,19 @@ const RestorePasswordScreen = ({ navigation, route }) => {
         </View>
 
         <Spacer height={80} />
+        {
+          !route.params.isRestore &&
+          <CustomInput
+            text={"δώσε τον τωρινό κωδικό"}
+            secureTextEntry={data.secureTextEntryCurrent ? true : false}
+            onChangeText={oncurrentPasswordChanged}
+            onIconPressed={updateSecureTextEntryCurrent}
+            hasIcon={true}
+            value={data.currentPassword}
+          />
+        }
+
+
         <CustomInput
           text={constVar.givePass}
           secureTextEntry={data.secureTextEntry ? true : false}

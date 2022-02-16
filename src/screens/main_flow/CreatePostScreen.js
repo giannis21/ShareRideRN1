@@ -1,5 +1,5 @@
 import React, { useState, useCallback, useRef, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, BackHandler, DeviceEventEmitter } from 'react-native';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { RoundButton } from '../../Buttons/RoundButton';
 import { SelectLocationComponent } from '../../components/SelectLocationComponent';
@@ -29,6 +29,7 @@ import { ADD_START_DATE, SET_RADIO_SELECTED } from '../../actions/types';
 import { resetValues } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
 import { useKeyboard } from '../../customHooks/useKeyboard';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 
 const CreatePostScreen = ({ navigation, route }) => {
 
@@ -55,11 +56,50 @@ const CreatePostScreen = ({ navigation, route }) => {
     }, []);
 
     const dispatch = useDispatch();
-
+    const isFocused = useIsFocused()
     const scrollRef = useRef()
 
     const post = useSelector(state => state.postReducer)
     const myUser = useSelector(state => state.authReducer.user)
+
+    function handleBackButtonClick() {
+
+        if (isFocused)
+            BackHandler.exitApp()
+        else {
+            navigation.goBack()
+        }
+        return true;
+    }
+
+    useEffect(() => {
+        const backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            handleBackButtonClick()
+            return true;
+        });
+        return () => {
+            backhandler.remove();
+        };
+    }, []);
+
+    // useEffect(() => {
+    //     if (!isFocused) {
+    //         DeviceEventEmitter.removeAllListeners('hardwareBackPress')
+    //     }
+    // }, [isFocused])
+    // useFocusEffect(
+    //     React.useCallback(() => {
+
+    //         BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
+
+    //         return () => {
+    //             console.log("removeddd")
+    //             BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
+    //         }
+
+    //     }, [])
+    // );
+
 
     const onStartPointChanged = (value) => {
         setData({ ...data, startPoint: value })
@@ -183,9 +223,10 @@ const CreatePostScreen = ({ navigation, route }) => {
                 onLogout={() => {
                     //  navigation.removeListener('beforeRemove')
                     resetValues(() => {
+                        navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
+                        // navigation.popToTop();
 
-                        navigation.popToTop();
-                        navigation.goBack();
+
                     })
 
                 }}

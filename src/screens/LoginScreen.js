@@ -41,7 +41,9 @@ const LoginScreen = ({ navigation, route }) => {
     return unsubscribe;
   }, [navigation]);
 
-
+  useEffect(() => {
+    console.log("mpike login")
+  }, [])
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {

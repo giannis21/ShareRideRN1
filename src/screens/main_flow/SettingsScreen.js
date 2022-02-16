@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { BaseView } from '../../layout/BaseView';
@@ -11,7 +11,7 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { PictureComponent } from '../../components/PictureComponent';
 import { routes } from '../../navigation/RouteNames';
-
+import RNFetchBlob from 'rn-fetch-blob';
 const SettingsScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false }
@@ -44,14 +44,42 @@ const SettingsScreen = ({ navigation, route }) => {
     const goBack = () => {
         navigation.goBack()
     }
+    useEffect(() => {
+        const backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            goBack()
+            return true;
+        });
+        return () => {
+            backhandler.remove();
+        };
+    }, []);
 
     const goToProfile = () => {
         navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email })
     }
 
+    const goToChangePass = () => {
+        navigation.navigate(routes.RESTORE_PASSWORD_SCREEN, { email: myUser.email, isRestore: false })
+    }
+
+    const retrieveImage = async () => {
+        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/myProfile.png`;
+
+        try {
+            const data = await RNFetchBlob.fs.readFile(path, 'base64');
+            setSingleFile(data)
+        } catch (error) {
+            console.log(error.message);
+        }
 
 
-    const { tabsStyle } = styles
+
+    }
+    useEffect(() => {
+        retrieveImage()
+    }, [])
+
+    const { tabsStyle, titleStyle } = styles
     return (
 
         <BaseView statusBarColor={colors.colorPrimary}  >
@@ -72,31 +100,33 @@ const SettingsScreen = ({ navigation, route }) => {
             </View>
             <View style={{ paddingHorizontal: 16 }}>
                 <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+
                     <PictureComponent
-                        url={"https://en.wikipedia.org/wiki/Uri:_The_Surgical_Strike#/media/File:URI_-_New_poster.jpg"}
+                        isLocal={true}
+                        singleFile={singleFile}
                         imageSize={"small"} />
-                    <Text style={{ marginStart: 16, fontSize: 18, color: '#2175D3' }}>{myUser.fullName}</Text>
+                    <Text style={{ marginStart: 16, fontSize: 18, color: '#2175D3' }}>{myUser.fullName.toUpperCase()}</Text>
                 </View>
                 <View style={{ backgroundColor: colors.CoolGray1, height: 1, width: '100%', marginVertical: 20 }} />
 
                 <TouchableOpacity onPress={goToProfile} style={{ flexDirection: 'row', alignItems: 'center' }}>
                     <Fontisto style={{ alignSelf: 'center' }} name="person" size={27} color={'#2175D3'} />
-                    <Text style={{ marginStart: 16, fontSize: 16, color: '#595959', opacity: 0.6 }}>Προβολή προφίλ</Text>
+                    <Text style={titleStyle}>Προβολή προφίλ</Text>
                 </TouchableOpacity>
 
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
+                <TouchableOpacity onPress={goToChangePass} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <Entypo style={{ alignSelf: 'flex-start' }} name="lock" size={27} color={'#2175D3'} />
-                    <Text style={{ marginStart: 16, fontSize: 16, color: '#595959', opacity: 0.6 }}>αλλαγή κωδικού</Text>
+                    <Text style={titleStyle}>αλλαγή κωδικού</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <Entypo style={{ alignSelf: 'flex-start' }} name="message" size={27} color={'#2175D3'} />
-                    <Text style={{ marginStart: 16, fontSize: 16, color: '#595959', opacity: 0.6 }}>Φόρμα επικοινωνίας</Text>
+                    <Text style={titleStyle}>Φόρμα επικοινωνίας</Text>
                 </TouchableOpacity>
 
                 <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <AntDesign style={{ alignSelf: 'flex-start' }} name="exception1" size={27} color={'#2175D3'} />
-                    <Text style={{ marginStart: 16, fontSize: 16, color: '#595959', opacity: 0.6 }}>όροι και Προϋποθέσεις</Text>
+                    <Text style={titleStyle}>όροι και Προϋποθέσεις</Text>
                 </TouchableOpacity>
 
                 <View style={{ backgroundColor: colors.CoolGray1, height: 1, width: '100%', marginTop: 20 }} />
@@ -119,6 +149,12 @@ const SettingsScreen = ({ navigation, route }) => {
 export default SettingsScreen
 
 const styles = StyleSheet.create({
+    titleStyle: {
+        marginStart: 16,
+        fontSize: 16,
+        color: '#595959',
+        opacity: 0.6
+    },
     circle: {
         borderRadius: 100 / 2,
     },

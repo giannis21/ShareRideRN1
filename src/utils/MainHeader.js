@@ -7,7 +7,7 @@ import { RoundButton } from '../Buttons/RoundButton';
 import { Spacer } from '../layout/Spacer';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from 'react-native-vector-icons/Ionicons';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { CloseIconComponent } from '../components/CloseIconComponent';
 
 export function MainHeader({
@@ -15,8 +15,8 @@ export function MainHeader({
     onSettingsPress,
     onClose,
     onLogout,
-    showX
-
+    showX,
+    onFilterPress
 }) {
     const { modal, container } = styles;
     const selectedColor = colors.colorPrimary
@@ -42,7 +42,10 @@ export function MainHeader({
                         </TouchableWithoutFeedback>
 
                         <Spacer width={10} />
-                        <Icon name="filter" color='white' size={23} style={{ alignSelf: 'center' }} />
+                        <TouchableWithoutFeedback onPress={onFilterPress}>
+                            <Icon name="filter" color='white' size={23} style={{ alignSelf: 'center' }} />
+
+                        </TouchableWithoutFeedback>
                         <Spacer width={10} />
                         <TouchableWithoutFeedback onPress={onSettingsPress}>
                             <Icon name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />

@@ -10,7 +10,7 @@ export function PictureComponent({
     singleFile,
     openCamera,
     url,
-    dimensions,
+    isLocal,
     imageSize
 }) {
     var _ = require('lodash');
@@ -32,6 +32,11 @@ export function PictureComponent({
 
     }
 
+
+    const getUri = () => {
+        let imageSingleData = isLocal ? singleFile : singleFile.data
+        return 'data:image/jpg;base64,' + imageSingleData
+    }
     return (
 
         <TouchableWithoutFeedback style={getStyle()} onPress={onPress} >
@@ -43,7 +48,7 @@ export function PictureComponent({
                     source={
                         url ? { uri: url } : (
                             !_.isNull(singleFile)
-                                ? { uri: 'data:image/jpg;base64,' + singleFile.data }
+                                ? { uri: getUri() }
                                 : require('../assets/images/profile.png')
 
 

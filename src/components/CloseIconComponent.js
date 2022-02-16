@@ -12,16 +12,15 @@ export function CloseIconComponent({
 
 
     return (
-        <TouchableWithoutFeedback
+        <TouchableOpacity
+            activeOpacity={1}
             onPress={onPress}
             style={styles.container}>
             <View style={styles.circleContainer}>
-
-
                 <Icon name="close" color='black' size={18} />
             </View>
 
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
 
 
     );
@@ -42,9 +41,8 @@ const styles = StyleSheet.create({
         borderWidth: 1
     },
     container: {
-        flex: 1,
-        marginTop: 5,
-        marginStart: 10
+
+
     },
 
 });

@@ -1,6 +1,6 @@
 export const colors = {
     purple_200: '#FFBB86FC',
-    colorPrimary: '#6200EE',
+    colorPrimary: '#2175D3',
     purple_700: '#FF3700B3',
     teal_200: '#FF03DAC5',
     teal_700: '#FF018786',
@@ -20,5 +20,8 @@ export const colors = {
     ActionRed: '#ED6565',
     infoGreen: '#64c46c',
     verifiedUser: "#c5dde3",
-    infoColor: '#5BC0DE'
+    infoColor: '#5BC0DE',
+    grey100: '#FAFAFA',
+    grey200: '#EEEEEE',
+    blue50: '#e5f5fa'
 }

@@ -14,6 +14,7 @@ import { getFocusedRouteNameFromRoute } from '@react-navigation/native';
 import PreviewInterestedInMeScreen from '../screens/profile_tabs/PreviewInterestedInMeScreen';
 import RegisterScreen from '../screens/RegisterScreen';
 import SettingsScreen from '../screens/main_flow/SettingsScreen';
+import RestorePasswordScreen from '../screens/RestorePasswordScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -37,6 +38,12 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.PREVIEW_INTERESTED_IN_ME_SCREEN}
             component={PreviewInterestedInMeScreen} />
+
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.RESTORE_PASSWORD_SCREEN}
+            component={RestorePasswordScreen} />
+
 
     </Stack.Navigator>
 );
