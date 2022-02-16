@@ -37,19 +37,25 @@ export function FiltersModal({
     const renderNotch = useCallback(() => <Notch />, []);
 
     const [cost, setCost] = useState(0);
-
+    const [isEmpty, setIsEmpty] = useState(false)
 
     const [age, setAge] = useState(18);
     const [highAge, setHighAge] = useState(70);
 
+    const [low, setLow] = useState(1);
+    const [high, setHigh] = useState(100);
+
+    const [allowScroll, setAllowScroll] = useState(true)
     const handleValueChange = useCallback((low, high) => {
 
         setAge(low);
         setHighAge(high);
+
     }, []);
     const handleCostValueChange = useCallback((low, high) => {
 
-        setCost(low);
+        setLow(low);
+        setHigh(high);
 
     }, []);
 
@@ -69,7 +75,7 @@ export function FiltersModal({
                 swipeDirection="down"
                 useNativeDriver={true}
             >
-                <KeyboardAwareScrollView style={container}>
+                <KeyboardAwareScrollView disableScrollViewPanResponder={!allowScroll} style={container}>
                     <View style={[item, { marginHorizontal: 16 }]}>
                         <CloseIconComponent onPress={closeAction} />
                         <Text style={{ fontSize: 20, marginStart: 16, fontWeight: 'bold' }}>Φίλτρα αναζήτησης</Text>
@@ -129,6 +135,7 @@ export function FiltersModal({
                             {showAge &&
                                 <Slider
 
+                                    style={styles.slider}
                                     min={18}
                                     max={70}
                                     step={1}
@@ -169,6 +176,8 @@ export function FiltersModal({
                                     renderLabel={renderLabel}
                                     renderNotch={renderNotch}
                                     onValueChanged={handleCostValueChange}
+                                    onTouchStart={() => { setAllowScroll(false) }}
+                                    onTouchEnd={() => { setAllowScroll(true) }}
                                 />
                             }
                         </TouchableOpacity>
@@ -185,7 +194,13 @@ export function FiltersModal({
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 'auto', marginTop: 16 }}>
 
                             <Text style={{ fontSize: 15 }}>Χρονολογια <Text style={{ fontSize: 12 }}>{'(>)'}</Text></Text>
-                            <TextInput style={{ fontSize: 20 }} maxLength={4} placeholder={'ex 2018'} keyboardType='numeric' />
+                            <TextInput
+                                style={{ fontSize: 20 }}
+                                maxLength={4}
+                                placeholder={'ex 2018'}
+                                keyboardType='numeric'
+                                onChangeText={(val) => { }}
+                            />
 
                         </View>
                         <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />

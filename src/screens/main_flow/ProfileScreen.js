@@ -112,7 +112,7 @@ const ProfileScreen = ({ navigation, route }) => {
         return (
             <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
                 <Spacer height={5} />
-                <View style={{ position: 'absolute', marginTop: 5 }}>
+                <View style={{ position: 'absolute', marginTop: 10, marginStart: 10 }}>
                     <CloseIconComponent onPress={() => navigation.goBack()} />
                 </View>
 
@@ -314,7 +314,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
             />
 
-            <View style={{ position: 'absolute', marginTop: 5, justifyContent: 'space-around' }}>
+            <View style={{ position: 'absolute', marginTop: 10, marginStart: 10, justifyContent: 'space-around' }}>
                 <CloseIconComponent onPress={() => openTabs ? setOpenTabs(false) : navigation.goBack()} />
             </View>
 
@@ -329,7 +329,8 @@ const ProfileScreen = ({ navigation, route }) => {
             </TouchableOpacity>
 
 
-            {data.email !== '' &&
+            {
+                data.email !== '' &&
 
                 <KeyboardAwareScrollView height={400} ref={scrollRef} onScroll={handleScroll}>
 
@@ -570,7 +571,8 @@ const ProfileScreen = ({ navigation, route }) => {
                 </View>
             } */}
 
-            {openRatings &&
+            {
+                openRatings &&
 
                 <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
                     <RatingTabScreen
@@ -584,7 +586,8 @@ const ProfileScreen = ({ navigation, route }) => {
                 </Animated.View>
             }
 
-            {openMyPosts &&
+            {
+                openMyPosts &&
                 <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
                     <MyPostsTabScreen
                         navigation={navigation}
@@ -597,7 +600,8 @@ const ProfileScreen = ({ navigation, route }) => {
                     />
                 </Animated.View>
             }
-            {openPostsInterested &&
+            {
+                openPostsInterested &&
                 <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
                     <PostsInterestedTabScreen
                         email={data.email}
@@ -610,7 +614,8 @@ const ProfileScreen = ({ navigation, route }) => {
                 </Animated.View>
             }
 
-            {openPostsInterestedInMe &&
+            {
+                openPostsInterestedInMe &&
                 <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
                     <InterestedInMeScreen
                         email={data.email}

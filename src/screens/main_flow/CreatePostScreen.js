@@ -167,6 +167,8 @@ const CreatePostScreen = ({ navigation, route }) => {
                     renderNotch={renderNotch}
                     onValueChanged={handleValueChange}
                 />
+
+
             </View>
         )
     }

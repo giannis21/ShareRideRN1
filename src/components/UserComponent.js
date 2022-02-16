@@ -36,14 +36,15 @@ export function UserComponent({
                 <View style={container}>
                     <PictureComponent imageSize="small" url={BASE_URL + user.imagePath} />
                     <Spacer width={14} />
-                    <View style={{ alignSelf: 'flex-start' }}>
+                    <View style={{ alignSelf: 'center' }}>
                         <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
-                        <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-                            <StarsRating rating={user.average} size="small" />
-                            <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({user.count})</Text>
+                        {user.average && user.average > 0 &&
+                            <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+                                <StarsRating rating={user.average} size="small" />
+                                <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({user.count})</Text>
+                            </View>
+                        }
 
-
-                        </View>
 
                     </View>
 

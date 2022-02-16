@@ -63,7 +63,7 @@ const SettingsScreen = ({ navigation, route }) => {
     }
 
     const retrieveImage = async () => {
-        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/myProfile.png`;
+        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
 
         try {
             const data = await RNFetchBlob.fs.readFile(path, 'base64');
@@ -95,7 +95,7 @@ const SettingsScreen = ({ navigation, route }) => {
                 source={require('../../assets/images/logo_transparent.png')}
             />
 
-            <View style={{ position: 'absolute', marginTop: 5, justifyContent: 'space-around' }}>
+            <View style={{ position: 'absolute', marginTop: 10, marginStart: 10, justifyContent: 'space-around' }}>
                 <CloseIconComponent onPress={goBack} />
             </View>
             <View style={{ paddingHorizontal: 16 }}>

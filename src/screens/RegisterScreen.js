@@ -47,7 +47,7 @@ const RegisterScreen = ({ navigation }) => {
 
 
      const storeImageLocally = async () => {
-          const path = `${RNFetchBlob.fs.dirs.DCIMDir}/myProfile.png`;
+          const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
 
           try {
                const data = await RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
