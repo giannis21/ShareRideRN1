@@ -61,24 +61,6 @@ const ProfileScreen = ({ navigation, route }) => {
     let heightValue = useState(new Animated.Value(height))[0]
     let heightValue1 = useState(new Animated.Value(height))[0]
     const myUser = useSelector(state => state.authReducer.user)
-    // const checkBeforeLeaving = (e) => {
-    //     console.log(initalData)
-    //     // setOpenPostsInterestedInMe(false)
-    // }
-    // useEffect(() => {
-    //     // Adding side effect on component mount
-    //     navigation.addListener('blur', checkBeforeLeaving);
-
-    //     // Specify how to clean up after this effect on component-unmount:    
-    //     return () => navigation.removeEventListener('blur', checkBeforeLeaving)
-    // }, [navigation])
-    // useEffect(() => {
-    //     const unsubscribe = navigation.addListener('beforeRemove', (e) => {
-
-    //     });
-
-    //     return unsubscribe;
-    // }, [navigation]);
 
 
     const scrollRef = useRef();
@@ -107,7 +89,6 @@ const ProfileScreen = ({ navigation, route }) => {
             </View>
         )
     }
-    console.log("singleFile", singleFile)
     function renderTopContainer() {
         return (
             <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>

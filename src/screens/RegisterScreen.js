@@ -59,6 +59,7 @@ const RegisterScreen = ({ navigation }) => {
      const onRegister = async () => {
           if (!valid())
                return
+
           setIsLoading(true)
           uploadImage(data.email, singleFile.path, () => {
                registerUser(data,

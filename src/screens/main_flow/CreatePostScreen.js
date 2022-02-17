@@ -30,6 +30,7 @@ import { resetValues } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
 import { useKeyboard } from '../../customHooks/useKeyboard';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { FiltersModal } from '../../utils/FiltersModal';
 
 const CreatePostScreen = ({ navigation, route }) => {
 
@@ -40,6 +41,7 @@ const CreatePostScreen = ({ navigation, route }) => {
     const [comment, setComment] = useState('');
     const [date, setDate] = useState(new Date())
     const [dateSelected, setDateSelected] = useState(0)
+    const [isModalVisible, setIsModalVisible] = useState(false)
     const [initialDate, setInitialDate] = useState(constVar.initialDate)
     const [endDate, setEndDate] = useState(constVar.endDate)
     const [isPickerVisible, setIsPickerVisible] = useState(false)
@@ -232,6 +234,9 @@ const CreatePostScreen = ({ navigation, route }) => {
                     })
 
                 }}
+                onFilterPress={() => {
+                    setIsModalVisible(true)
+                }}
             />
             <KeyboardAwareScrollView ref={scrollRef} style={{}}>
                 <View>
@@ -308,7 +313,17 @@ const CreatePostScreen = ({ navigation, route }) => {
                 }}
 
             />
-
+            <FiltersModal
+                isVisible={isModalVisible}
+                description={constVar.changePassDescription}
+                buttonText={constVar.go}
+                closeAction={() => {
+                    setIsModalVisible(false);
+                }}
+                buttonPress={() => { }}
+                descrStyle={true}
+                onChangeText={() => { }}
+            />
         </BaseView >
 
     );
