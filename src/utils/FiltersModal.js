@@ -16,8 +16,8 @@ import RailSelected from '../components/rangePicker/RailSelected';
 import Label from '../components/rangePicker/Label';
 import Notch from '../components/rangePicker/Notch';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
-
-
+import DropDownPicker from 'react-native-dropdown-picker';
+import { carBrands } from '../utils/Functions'
 export function FiltersModal({
     closeAction,
     title,
@@ -37,7 +37,15 @@ export function FiltersModal({
     const renderNotch = useCallback(() => <Notch />, []);
 
     const [cost, setCost] = useState(0);
-    const [isEmpty, setIsEmpty] = useState(false)
+
+
+    const [open, setOpen] = useState(false);
+    const [value, setValue] = useState(null);
+    const [items, setItems] = useState(carBrands);
+
+
+
+
 
     const [age, setAge] = useState(18);
     const [highAge, setHighAge] = useState(70);
@@ -54,7 +62,7 @@ export function FiltersModal({
     }, []);
     const handleCostValueChange = useCallback((low, high) => {
 
-        setLow(low);
+        setCost(low);
         setHigh(high);
 
     }, []);
@@ -184,12 +192,6 @@ export function FiltersModal({
 
                         <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
 
-                        <View style={item}>
-                            <Text style={{ fontSize: 15 }}>μάρκα αυτοκινήτου</Text>
-                            <Text style={{ fontSize: 20 }}>Toyota</Text>
-
-                        </View>
-                        <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
 
                         <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 'auto', marginTop: 16 }}>
 
@@ -204,13 +206,38 @@ export function FiltersModal({
 
                         </View>
                         <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
+                        <View style={[item, { marginBottom: 16 }]}>
+                            <Text style={{ fontSize: 15, width: '50%' }}>μάρκα αυτοκινήτου</Text>
+                        </View>
+                        <View style={open ? { height: 244 } : { height: 44 }}>
+                            <DropDownPicker
+                                //onTouchStart
+                                containerStyle={{ height: 'auto' }}
+                                zIndex={3000}
+                                zIndexInverse={1000}
+                                customItemContainerStyle={{}}
+                                itemSeparatorStyle={{
+                                    backgroundColor: "black"
+                                }}
+                                open={open}
+                                value={value}
+                                items={items}
+                                setOpen={setOpen}
+                                setValue={setValue}
+                                setItems={setItems}
+                            />
+                        </View>
 
-                        <Spacer height={26} />
+
+
+
+                        <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
+
                         <RoundButton text={"Αποθήκευση"} onPress={buttonPress} backgroundColor={colors.colorPrimary} />
-                        <Spacer height={26} />
                     </View>
 
                 </KeyboardAwareScrollView>
+
             </Modal>
         </View>
     );
@@ -238,12 +265,13 @@ const styles = StyleSheet.create({
     modal: {
         justifyContent: 'flex-end',
         margin: 0,
+
     },
     container: {
         backgroundColor: 'white',
         borderTopLeftRadius: 24,
         borderTopRightRadius: 24,
-        height: '95%',
+        height: '100%',
 
     },
     descriptionStyle: {
