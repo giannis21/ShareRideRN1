@@ -63,7 +63,7 @@ const SettingsScreen = ({ navigation, route }) => {
     }
 
     const retrieveImage = async () => {
-        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
+        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
 
         try {
             const data = await RNFetchBlob.fs.readFile(path, 'base64');

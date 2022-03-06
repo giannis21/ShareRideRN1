@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
-import { resetValues } from '../../../services/MainServices';
+import { getPlaceInfo, resetValues } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
@@ -11,17 +11,24 @@ import { BackHandler } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { SearchRouteComponent } from '../../../components/SearchRouteComponent';
 import { CustomInput } from '../../../utils/CustomInput';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 import { FiltersModal } from '../../../utils/FiltersModal';
 import { constVar } from '../../../utils/constStr';
+import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES } from '../../../actions/types';
+import { SelectLocationComponent } from '../../../components/SelectLocationComponent';
+import { Spacer } from '../../../layout/Spacer';
+import { RoundButton } from '../../../Buttons/RoundButton';
+import { SearchedPostsComponent } from '../../../components/SearchedPostsComponent';
+import { CustomInfoLayout } from '../../../utils/CustomInfoLayout';
 
 const SearchRouteScreen = ({ navigation, route }) => {
     const [isLoading, setIsLoading] = useState(false)
     const [openSearch, setOpenSearch] = useState({ from: true, open: false })
+    const [openSearchedPost, setOpenSearchedPosts] = useState(false)
     const [isModalVisible, setIsModalVisible] = useState(false)
-
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     let scaleValue = new Animated.Value(0); // declare an animated value
     const isFocused = useIsFocused()
     const cardScale = scaleValue.interpolate({
@@ -30,53 +37,100 @@ const SearchRouteScreen = ({ navigation, route }) => {
     });
 
     const myUser = useSelector(state => state.authReducer.user)
+    const post = useSelector(state => state.postReducer)
 
+    const dispatch = useDispatch()
 
+    const resetValues = () => {
+        dispatch({ type: CLEAR_SEARCH_VALUES, payload: {} })
+    }
     function handleBackButtonClick() {
         BackHandler.exitApp()
         return true;
     }
 
+    const showFavorite = () => {
+        if (post.searchStartplace !== '' && post.searchEndplace !== '')
+            return true
+
+        return false
+    }
     useEffect(() => {
+
         BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
         return () => {
             BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
         };
     }, []);
+    const getPlace = (place_id, place, isStartPoint) => {
 
-    const value = useState(new Animated.ValueXY({ x: 0, y: 0 }))[0] //παιρνω μονο την get method του usestate
-    const leftvalue = useState(new Animated.Value(11))[0] //παιρνω μονο την get method του usestate
-    const moveBall = () => {
-        // scaleValue.setValue(0);
-        Animated.timing(scaleValue, {
-            toValue: 1,
-            duration: 450,
-            easing: Easing.linear,
-            useNativeDriver: true
-        }).start();
+        getPlaceInfo({
+            place_id,
+            successCallback: ((coordinates) => {
 
-        // Animated.spring(leftvalue, {
-        //     toValue: 500,
-        //     //   duration: 1000,
-        //     useNativeDriver: false
-        // }).start()
-        // Animated.timing(leftvalue, {
-        //     toValue: { x: 100, y: 100 },
-        //     duration: 1000,
-        //     useNativeDriver: false
-        // }).start()
+                dispatch({
+                    type: getType(isStartPoint),
+                    payload: [place, coordinates]
+                })
+
+            }),
+            errorCallback: (() => { })
+        })
     }
+    const showCustomLayout = (callback) => {
+        setShowInfoModal(true)
+        setTimeout(function () {
+            setShowInfoModal(false)
+            if (callback)
+                callback()
+        }, 2000);
+    }
+    const searchPosts = () => {
+        //  setOpenSearchedPosts(true)
+        if (post.searchStartplace === '' || post.searchEndplace === '') {
+            setInfoMessage({ info: "Συμπλήρωσε και τα δύο πεδία πρώτα!", success: false })
+            showCustomLayout()
+            return
+        }
+
+        let send = {
+            data: {
+                email: myUser.email,
+                startplace: post.searchStartplace,
+                startcoord: post.searchStartcoord,
+                endplace: post.searchEndplace,
+                endcoord: post.searchEndcoord,
+                startdate: "2021-10-05",
+                enddate: "2022-12-19",
+                page: 1,
+                cost: 100,
+                age: null,
+                age_end: null,
+                car: null,
+                cardate: null,
+                gender: null,
+                withReturn: true,
+                petAllowed: true,
+                returnStartDate: "2022-12-19",
+                returnEndDate: "2022-12-20"
+            }
+        }
+    }
+
+    function getType(isStartPoint) {
+        return isStartPoint ? ADD_SEARCH_START_POINT : ADD_SEARCH_END_POINT
+    }
+
 
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <Loader isLoading={isLoading} />
             <MainHeader
-                onClose={() => { setOpenSearch({ from: true, open: false }) }}
+                onClose={() => { openSearchedPost ? setOpenSearchedPosts(false) : setOpenSearch({ from: true, open: false }) }}
                 title={"Αναζήτηση διαδρομής"}
-                showX={openSearch.open === true}
+                showX={openSearch.open === true || openSearchedPost === true}
                 onSettingsPress={() => {
-                    //  moveBall()
                     navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email })
                 }}
                 onLogout={() => {
@@ -92,13 +146,39 @@ const SearchRouteScreen = ({ navigation, route }) => {
 
             />
             {openSearch.open &&
-                <SearchLocationComponent from={openSearch.from} />
-            }
+                <SearchLocationComponent
+                    from={openSearch.from}
+                    onPress={(place_id, place, isStartPoint) => {
+                        getPlace(place_id, place, isStartPoint)
+                        setOpenSearch({ from: true, open: false })
 
-            <SearchRouteComponent openSearch={(item) => {
-                console.log(item)
-                setOpenSearch({ from: item.from, open: item.open })
-            }} />
+                    }} />
+            }
+            {openSearchedPost &&
+                <SearchedPostsComponent
+                />
+            }
+            <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
+
+                <SelectLocationComponent
+                    onReset={resetValues}
+                    titleStart={'Αφετηρία προορισμού'}
+                    titleEnd={'Τελικός προορισμός'}
+                    startingPointPress={() => { setOpenSearch({ from: true, open: true }) }}
+                    endPointPress={() => { setOpenSearch({ from: false, open: true }) }} />
+
+                <Spacer height={16} />
+                <RoundButton
+                    text={'Αναζήτηση'}
+                    onPress={searchPosts}
+                    backgroundColor={colors.colorPrimary} />
+            </View>
+            <CustomInfoLayout
+                isVisible={showInfoModal}
+                title={infoMessage.info}
+                icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
+                success={infoMessage.success}
+            />
 
             <FiltersModal
                 isVisible={isModalVisible}

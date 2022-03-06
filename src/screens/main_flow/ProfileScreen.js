@@ -23,6 +23,7 @@ import { constVar } from '../../utils/constStr';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
 import RatingTabScreen from '../profile_tabs/RatingTabScreen';
 import MyPostsTabScreen from '../profile_tabs/MyPostsTabScreen';
+import ActiveRequestsScreen from '../profile_tabs/ActiveRequestsScreen'
 import { NavigationContainer } from '@react-navigation/native';
 import PostsInterestedTabScreen from '../profile_tabs/PostsInterestedTabScreen';
 import InterestedInMeScreen from '../profile_tabs/InterestedInMeScreen';
@@ -37,7 +38,7 @@ import { OpenImageModal } from '../../utils/OpenImageModal';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
-    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false }
+    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false, hasRequests: false }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -54,6 +55,7 @@ const ProfileScreen = ({ navigation, route }) => {
     const [openMyPosts, setOpenMyPosts] = useState(false)
     const [openPostsInterested, setOpenPostsInterested] = useState(false)
     const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
+    const [openRequests, setOpenRequests] = useState(false)
     const [editProfile, setEditProfile] = useState(false)
     const [singleFile, setSingleFile] = useState(null);
     const [isImageModalVisible, setImageModalVisible] = useState(false)
@@ -106,7 +108,10 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Spacer width={5} />
                     <View style={{ alignItems: 'flex-start' }}>
                         <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{data.fullName}</Text>
-                        <StarsRating rating={rating} size="small" />
+                        {data.count > 0 &&
+                            <StarsRating rating={rating} size="small" />
+                        }
+
                     </View>
 
                 </View>
@@ -167,7 +172,8 @@ const ProfileScreen = ({ navigation, route }) => {
             hasReviews: data.count > 0,
             hasPosts: data.hasPosts,
             count: data.count,
-            interestedForYourPosts: data.interestedForYourPosts
+            interestedForYourPosts: data.interestedForYourPosts,
+            hasRequests: data.hasRequests
         })
         dispatch({ type: ADD_AVERAGE, payload: { average: data.average, count: data.count } })
     }
@@ -295,8 +301,8 @@ const ProfileScreen = ({ navigation, route }) => {
 
             />
 
-            <View style={{ position: 'absolute', marginTop: 10, marginStart: 10, justifyContent: 'space-around' }}>
-                <CloseIconComponent onPress={() => openTabs ? setOpenTabs(false) : navigation.goBack()} />
+            <View style={{ position: 'absolute', marginTop: 10, marginStart: 10, zIndex: 1 }}>
+                <CloseIconComponent onPress={() => { console.log("dsdsd"); openTabs ? setOpenTabs(false) : navigation.goBack() }} />
             </View>
 
             <TouchableOpacity
@@ -478,6 +484,20 @@ const ProfileScreen = ({ navigation, route }) => {
                                     </TouchableOpacity>
                                 }
 
+                                {data.hasRequests && myUser.email === data.email &&
+                                    <TouchableOpacity
+                                        onPress={() => {
+                                            setHeaderVisible(false);
+                                            setOpenRequests(true)
+                                            handlerAnimation(true)
+                                        }
+                                        }
+                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
+
+                                        <Text style={styles.rates} >Αιτήματα για λήψη ειδοποιήσεων</Text>
+                                    </TouchableOpacity>
+                                }
+
 
                             </View>
 
@@ -599,6 +619,21 @@ const ProfileScreen = ({ navigation, route }) => {
                 openPostsInterestedInMe &&
                 <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
                     <InterestedInMeScreen
+                        email={data.email}
+                        onCloseContainer={() => {
+                            handlerAnimation(false)
+                            setHeaderVisible(true);
+                            setOpenPostsInterestedInMe(false)
+                        }}
+                    />
+                </Animated.View>
+
+            }
+
+            {
+                openRequests &&
+                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
+                    <ActiveRequestsScreen
                         email={data.email}
                         onCloseContainer={() => {
                             handlerAnimation(false)

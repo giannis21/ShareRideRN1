@@ -27,6 +27,7 @@ const LoginScreen = ({ navigation, route }) => {
   const [modalInput, setModalInput] = useState(false)
   const [showInfoModal, setShowInfoModal] = useState(false);
   const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
+
   const [isUserLoggedIn, setUserIsLoggedIn] = useState(null)
 
   const isFocused = useIsFocused()

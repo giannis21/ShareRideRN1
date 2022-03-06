@@ -47,6 +47,10 @@ export const constVar = {
     submit: "Υποβολή",
     initialDate: 'Αρχική',
     endDate: 'Τελική',
-    returnInitialDate: 'Από',
-    returnEndDate: 'μέχρι'
+    returnStartDate: 'Από',
+    returnEndDate: 'μέχρι',
+
+    startDestination: 'Αφετηρία προορισμού',
+    endDestination: 'Τελικός προορισμός',
+
 }

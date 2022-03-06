@@ -20,6 +20,8 @@ import { OpenImageModal } from '../utils/OpenImageModal';
 import { constVar } from '../utils/constStr';
 import { PictureComponent } from '../components/PictureComponent';
 import RNFetchBlob from 'rn-fetch-blob';
+import DropDownPicker from 'react-native-dropdown-picker';
+
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
 
@@ -33,7 +35,10 @@ const RegisterScreen = ({ navigation }) => {
      const [singleFile, setSingleFile] = useState(null);
      const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
 
-
+     const [open, setOpen] = useState(false);
+     const [allowScroll, setAllowScroll] = useState(true)
+     const [items, setItems] = useState(carBrands);
+     const [value, setValue] = useState(null);
      const actionSheetRef = useRef();
 
 
@@ -61,29 +66,30 @@ const RegisterScreen = ({ navigation }) => {
                return
 
           setIsLoading(true)
-          uploadImage(data.email, singleFile.path, () => {
-               registerUser(data,
+          registerUser(data,
 
-                    //success callback
-                    ((message, otp) => {
-                         storeImageLocally()
-                         setIsLoading(false)
-                         setInfoMessage({ info: message, success: true })
-                         showCustomLayout(() => {
-                              navigation.navigate(routes.OTP_SCREEN, { _otp: otp, _email: data.email, goToRestore: false })
-                         })
-                    }),
+               //success callback
+               ((message, otp) => {
+                    storeImageLocally()
+                    setIsLoading(false)
+                    setInfoMessage({ info: message, success: true })
+                    showCustomLayout(() => {
+                         navigation.navigate(routes.OTP_SCREEN, { _otp: otp, _email: data.email, goToRestore: false })
+                    })
+               }),
 
-                    //error callback
-                    ((error) => {
-                         setIsLoading(false)
-                         setInfoMessage({ info: error, success: false })
-                         showCustomLayout()
-                    }))
-          }, (error) => {
-               setInfoMessage({ info: error, success: false })
-               showCustomLayout()
-          });
+               //error callback
+               ((error) => {
+                    setIsLoading(false)
+                    setInfoMessage({ info: error, success: false })
+                    showCustomLayout()
+               }))
+          // uploadImage(data.email, singleFile.path, () => {
+
+          // }, (error) => {
+          //      setInfoMessage({ info: error, success: false })
+          //      showCustomLayout()
+          // });
 
      }
 
@@ -182,12 +188,12 @@ const RegisterScreen = ({ navigation }) => {
      };
 
      let imageWidth = !_.isNull(singleFile) ? 92 : 70
-
+     console.log(allowScroll)
      return (
 
 
           <BaseView statusBarColor={colors.colorPrimary}>
-               <Loader isLoading={isLoading} />
+               <Loader isLoading={false} />
                <CustomInfoLayout
                     isVisible={showInfoModal}
                     title={infoMessage.info}
@@ -196,6 +202,8 @@ const RegisterScreen = ({ navigation }) => {
                />
 
                <KeyboardAwareScrollView
+
+                    scrollEnabled={allowScroll}
                     extraScrollHeight={Platform.OS === 'ios' ? 20 : 0}
                     showsVerticalScrollIndicator={false}
                     automaticallyAdjustContentInsets={true}
@@ -291,10 +299,27 @@ const RegisterScreen = ({ navigation }) => {
 
                          <Text style={{ alignSelf: 'center', fontSize: 19, fontWeight: 'bold' }}>{constVar.carTitle}</Text>
                          <Spacer height={20} />
-                         <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                              <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.carBrandTitle}</Text>
-                              <Spacer width={20} />
-                              <RNPickerSelect
+
+                         {/* <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.carBrandTitle}</Text>
+                              <Spacer width={20} /> */}
+                         <View style={open ? { height: 244 } : { height: 44 }}>
+                              <DropDownPicker
+                                   onOpen={() => setAllowScroll(false)}
+                                   onClose={() => setAllowScroll(true)}
+                                   containerStyle={{ height: 'auto' }}
+                                   zIndex={3000}
+                                   zIndexInverse={1000}
+
+                                   open={open}
+                                   value={value}
+                                   items={items}
+                                   setOpen={setOpen}
+                                   setValue={setValue}
+                              //  setItems={setItems}
+                              />
+                         </View>
+
+                         {/* <RNPickerSelect
 
                                    onValueChange={(value) => setData({ ...data, carBrand: value })}
                                    items={carBrands}
@@ -313,8 +338,8 @@ const RegisterScreen = ({ navigation }) => {
                                         );
                                    }}
 
-                              />
-                         </View>
+                              /> */}
+
 
 
                          <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>

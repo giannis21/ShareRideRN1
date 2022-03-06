@@ -21,7 +21,7 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
     .then(res => {
 
       let token = res.data.accessToken
-
+      console.log({ token })
       if (res.data?.otp) {
         errorCallback(res.data.message ?? constVar.sthWentWrong, res.data?.otp, res.data.email)
         return
@@ -64,7 +64,7 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
       "email": email
     }
   }
-  console.log(config)
+
   await instance.post(`/passotp`, send, config)
     .then(res => {
       console.log("passotp called ", res.data)
@@ -90,7 +90,7 @@ export const restorePassword = async ({ email, password, successCallBack, errorC
       "pass": password
     }
   }
-  console.log()
+
   await instance.post(`/updateUserPass`, send, config)
     .then(res => {
       console.log("user updated ", res.data)

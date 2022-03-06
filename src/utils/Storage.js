@@ -4,7 +4,7 @@ export const setValue = async (key, val) => {
     await AsyncStorage.setItem(key, val)
 
   } catch (e) {
-    alert('Failed to save the data to the storage')
+    console.log({ e })
   }
 };
 
@@ -33,5 +33,13 @@ export const keyNames = {
   password: 'password',
   token: 'token',
   carDate: 'carDate'
+
+}
+export const filterKeys = {
+  showMe: 'showMe',
+  ageRange: 'ageRange',
+  maxCost: 'maxCost',
+  carAge: 'carAge',
+  carMark: 'carMark',
 
 }

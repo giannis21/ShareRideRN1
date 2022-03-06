@@ -16,16 +16,20 @@ export function MainHeader({
     onClose,
     onLogout,
     showX,
-    onFilterPress
+    onFilterPress,
 }) {
     const { modal, container } = styles;
     const selectedColor = colors.colorPrimary
 
     return (
 
-        <View style={{ flexDirection: 'row' }}>
+        <View style={[{ flexDirection: 'row' },]}>
+
             {showX &&
-                <CloseIconComponent onPress={onClose} />
+                <View style={{ marginStart: 7, marginTop: 7 }}>
+                    <CloseIconComponent onPress={onClose} />
+                </View>
+
             }
 
             <View style={[container, { flex: 1, marginStart: showX ? 8 : 30 }]}>
@@ -57,7 +61,7 @@ export function MainHeader({
 
 
             </View>
-        </View>
+        </View >
 
 
     );

@@ -10,6 +10,7 @@ import DatePicker from 'react-native-date-picker';
 import { constVar } from './constStr';
 import { useSelector, useDispatch } from 'react-redux';
 import { ADD_END_DATE, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_START_DATE } from '../actions/types';
+import moment from 'moment';
 export function CalendarPickerModal({
     closeAction,
     title,
@@ -30,62 +31,111 @@ export function CalendarPickerModal({
 
 
     const checkDate = () => {
-        let diff = new Date().getTime() - date.getTime();
-        if (diff > 0) {
+
+        let selectedDate = moment(date, 'YYYY-MM-DDTHH:mm:ssZ').format('YYYY-MM-DD')
+        let nowOnlyDate = moment(new Date(), 'YYYY-MM-DDTHH:mm:ssZ').format('YYYY-MM-DD')
+
+        if (nowOnlyDate > selectedDate) {
             setError({ state: true, message: 'Η ημερομηνία που επιλέξατε είναι περασμένη' })
             return
         }
 
+        const differenceInDays = moment(selectedDate).diff(nowOnlyDate, 'days');
 
-        if (post.startdate !== constVar.initialDate) {
-            let dateArray = post.startdate.split("/")
-            let year = dateArray[2]
-            let month = dateArray[1]
-            let day = dateArray[0]
+        if (differenceInDays > 30) {
+            setError({ state: true, message: 'Μπορείς να επιλέξεις ημερομηνία μέχρι και 30 μέρες απο σήμερα!' })
+            return
+        }
 
 
-            let initial = new Date(year + "/" + month + "/" + day, date.toString())
+        switch (post.radioSelected) {
+            case 0: {
+                if (post.enddate !== constVar.endDate) {
+                    let endDate = moment(post.enddate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                    if (endDate <= selectedDate) {
+                        setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της τελικής!' })
+                        return
+                    }
+                }
+                if (post.returnStartDate !== constVar.returnStartDate) {
+                    let returnStartDate = moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                    if (selectedDate >= returnStartDate) {
+                        setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της αρχικής της επιστροφής!' })
+                        return
+                    }
+                }
+                break
+            }
+            case 1: { //εχω επιλεξει την τελικη αφετηριας
+                if (post.startdate !== constVar.initialDate) {
+                    let startdate = moment(post.startdate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                    console.log(startdate)
+                    if (startdate >= selectedDate) {
+                        setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της τελικής!' })
+                        return
+                    }
+                }
+                if (post.returnStartDate !== constVar.returnStartDate) {
+                    let returnStartdate = moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                    console.log(selectedDate, returnStartdate, selectedDate >= returnStartdate)
+                    if (selectedDate >= returnStartdate) {
+                        setError({ state: true, message: 'Η τελική ημερομηνία αφετηρίας πρέπει να προηγείται της αρχικής της επιστροφής!' })
+                        return
+                    }
+                }
+                break
+            }
+            case 2: { //εχω επιλεξει την τελικη αφετηριας
+                if (post.enddate !== constVar.endDate) {
+                    let endDate = moment(post.enddate, 'DD/MM/YYYY').format('YYYY-MM-DD')
 
-            if (initial.getTime() > date.getTime()) {
-                setError({ state: true, message: 'Η τελική ημερομηνία προηγείται της αρχικής' })
-                return
+                    if (endDate >= selectedDate) {
+                        setError({ state: true, message: 'Η τελική ημερομηνία αφετηρίας πρέπει να προηγείται της αρχικής της επιστροφής!' })
+                        return
+                    }
+                }
+                if (post.returnEndDate !== constVar.returnEndDate) {
+                    let returnEndDate = moment(post.returnEndDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+
+                    if (selectedDate >= returnEndDate) {
+                        setError({ state: true, message: 'Η αρχική ημερομηνία επιστροφής πρέπει να προηγείται της τελικής της επιστροφής!' })
+                        return
+                    }
+                }
+                break
+            }
+            case 3: {
+                if (post.returnStartDate !== constVar.returnStartDate) {
+                    let returnStartDate = moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+
+                    if (returnStartDate >= selectedDate) {
+                        setError({ state: true, message: 'Η αρχική ημερομηνία επιστροφής πρέπει να προηγείται της τελικής της επιστροφής!' })
+                        return
+                    }
+                }
+                break
+
             }
         }
 
-        if (post.enddate !== constVar.endDate) {
-            let dateArray = post.startdate.split("/")
-            let year = dateArray[2]
-            let month = dateArray[1]
-            let day = dateArray[0]
-            console.log(year + "/" + month + "/" + day, date.toString())
 
-            let end = new Date(year + "/" + month + "/" + day)
 
-            if (end.getTime() > date.getTime()) {
-                setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της τελικής' })
-                return
-            }
-        }
-        let year = date.getFullYear()
-        let day = date.getDate()
-        let month = date.getMonth() + 1
-
-        addToReducer(post.radioSelected, year, day, month)
+        addToReducer(post.radioSelected, date)
 
 
         buttonPress(1)
     }
 
 
-    const addToReducer = (selectedValue, year, day, month) => {
-
-        if (selectedValue === 0 && dispatch({ type: ADD_START_DATE, payload: day + "/" + month + "/" + year }))
+    const addToReducer = (selectedValue, date) => {
+        let selectedDate = moment(date, 'YYYY-MM-DDTHH:mm:ssZ').format('DD/MM/YYYY')
+        if (selectedValue === 0 && dispatch({ type: ADD_START_DATE, payload: selectedDate }))
             return
-        if (selectedValue === 1 && dispatch({ type: ADD_END_DATE, payload: day + "/" + month + "/" + year }))
+        if (selectedValue === 1 && dispatch({ type: ADD_END_DATE, payload: selectedDate }))
             return
-        if (selectedValue === 2 && dispatch({ type: ADD_RETURN_START_DATE, payload: day + "/" + month + "/" + year }))
+        if (selectedValue === 2 && dispatch({ type: ADD_RETURN_START_DATE, payload: selectedDate }))
             return
-        if (selectedValue === 3 && dispatch({ type: ADD_RETURN_END_DATE, payload: day + "/" + month + "/" + year }))
+        if (selectedValue === 3 && dispatch({ type: ADD_RETURN_END_DATE, payload: selectedDate }))
             return
 
     }

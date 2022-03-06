@@ -23,7 +23,7 @@ export const rateUser = async ({ email, emailreviewer, rating, text, successCall
 
     await instance.post(`/createreview`, send, config)
         .then(res => {
-            console.log(res.data)
+
             successCallback(res.data.message, res.data.average)
         }).catch(function (error) {
             console.log("error ", error.response.data)
@@ -57,10 +57,10 @@ export const searchUser = async ({ email, successCallback, errorCallback }) => {
             "email": email,
         }
     }
-    console.log("send ", send)
+
     await instance.post(`/searchuser`, send, config)
         .then(res => {
-
+            console.log(res.data)
             successCallback(res.data)
         }).catch(function (error) {
             console.log("error ", error.response.status, error.response.data)
@@ -189,6 +189,21 @@ export const deletePost = async ({ postID, successCallback, errorCallback }) => 
         });
 }
 
+export const createPost = async ({ data, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+
+    console.log(data)
+    await instance.post(`/createpost`, data, config)
+        .then(res => {
+
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            console.log(error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
 export const getInterestedPerPost = async ({ postId, page, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
 
@@ -218,7 +233,7 @@ export const deleteInterested = async ({ piid, successCallback, errorCallback })
             "piid": piid
         }
     }
-    console.log("deleteInterested ", send)
+
     await instance.post(`/deleteInterested`, send, config)
         .then(res => {
 
@@ -250,6 +265,33 @@ export const verInterested = async ({ postid, piid, successCallback, errorCallba
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+
+export const getAutoComplete = async ({ value, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+
+    await instance.get(`/autocomplete/json?input=${value}`, config)
+        .then(res => {
+
+            successCallback(res.data.predictions)
+        }).catch(function (error) {
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+export const getPlaceInfo = async ({ place_id, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+
+    await instance.get(`/details/json?place_id=${place_id}`, config)
+        .then(res => {
+
+            successCallback(res.data.result.geometry.location.lat + "," + res.data.result.geometry.location.lng)
+        }).catch(function (error) {
+            console.log(error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
 
 
 export const resetValues = (callback) => {

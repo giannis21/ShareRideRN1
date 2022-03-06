@@ -7,14 +7,15 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Spacer } from '../layout/Spacer';
 import { constVar } from '../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
-import { SET_RADIO_SELECTED } from '../actions/types';
+import { REMOVE_DATES, SET_RADIO_SELECTED } from '../actions/types';
 import { CheckBox } from 'react-native-elements';
 
 
 export function CustomRadioButton({
     onPress,
     selectedOption,
-
+    rangeRadioSelected,
+    returnedDate
 }) {
 
     let dispatch = useDispatch()
@@ -27,14 +28,31 @@ export function CustomRadioButton({
     let backgroundColorRight = selected !== "one" ? colors.colorPrimary : 'white'
     let opacityRight = selected === "one" ? 0.2 : null
 
+    const clearDates = () => {
+        dispatch({
+            type: REMOVE_DATES,
+            payload: {}
+        })
+    }
     const setOption = (option) => {
         setSelected(option)
+        rangeRadioSelected(option)
     }
 
     const setSelectedDate = (dateIndicator) => {
         selectedOption(dateIndicator)
     }
 
+    const resetIcon = () => {
+        if (post.startdate !== constVar.initialDate ||
+            post.enddate !== constVar.endDate ||
+            post.returnStartDate !== constVar.returnStartDate ||
+            post.returnEndDate !== constVar.returnEndDate
+        )
+            return true
+
+        return false
+    }
     const DateInput = ({ date, selection, opacity, disabled }) => {
         return (
             <TouchableOpacity disabled={disabled} style={{ width: '48%' }} onPress={() => { setSelectedDate(selection) }} >
@@ -50,7 +68,8 @@ export function CustomRadioButton({
         switch (option) {
             case 0: return post.startdate === constVar.initialDate ? '#8b9cb5' : 'black'
             case 1: return post.enddate === constVar.endDate ? '#8b9cb5' : 'black'
-            case 2, 3: return 'black'
+            case 2: return post.returnStartDate === constVar.returnStartDate ? '#8b9cb5' : 'black'
+            case 3: return post.returnEndDate === constVar.returnEndDate ? '#8b9cb5' : 'black'
         }
 
     }
@@ -71,8 +90,16 @@ export function CustomRadioButton({
                     <Text style={selected !== "one" ? styles.selectedText : styles.unSelectedText}>εύρος</Text>
                 </TouchableOpacity>
             </View>
+            {resetIcon() &&
+                <TouchableOpacity
+                    onPress={clearDates}
+                    style={{ alignItems: 'flex-end', marginTop: 10 }}>
 
-            <Spacer height={20} />
+                    <Icon name="close" color='black' size={18} />
+                </TouchableOpacity>
+            }
+
+            <Spacer height={10} />
 
             <View style={{ flexDirection: 'row', }}>
                 <DateInput date={post?.startdate} selection={0} />
@@ -83,7 +110,7 @@ export function CustomRadioButton({
 
             </View>
 
-            <TouchableWithoutFeedback onPress={() => { setHasReturnDate(!hasReturnDate) }} style={{ alignItems: 'center', marginTop: 13, }}>
+            <TouchableWithoutFeedback onPress={() => { returnedDate(!hasReturnDate); setHasReturnDate(!hasReturnDate) }} style={{ alignItems: 'center', marginTop: 13, }}>
                 <Text style={{ color: '#8b9cb5', }}>με επιστροφη; {hasReturnDate ? "👍" : "👎"}</Text>
 
             </TouchableWithoutFeedback>
@@ -99,6 +126,7 @@ export function CustomRadioButton({
                         <DateInput date={post?.returnEndDate} selection={3} />
 
                     </View>
+                    <Text style={{ color: '#8b9cb5', fontSize: 10, marginTop: 4 }}>*μπορείς να επιλέξεις μόνο μία</Text>
                 </View>
             }
 
