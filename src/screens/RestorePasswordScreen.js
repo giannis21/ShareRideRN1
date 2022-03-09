@@ -18,6 +18,7 @@ import { InfoPopupModal } from '../utils/InfoPopupModal';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { getValue, setValue } from '../utils/Storage';
 import { constVar } from '../utils/constStr'
+import { CloseIconComponent } from '../components/CloseIconComponent';
 let hasErrors = false
 const RestorePasswordScreen = ({ navigation, route }) => {
   var _ = require('lodash');
@@ -110,7 +111,8 @@ const RestorePasswordScreen = ({ navigation, route }) => {
 
 
   return (
-    <BaseView statusBarColor={colors.colorPrimary}>
+    <BaseView statusBarColor={colors.colorPrimary} removePadding>
+
       <Loader isLoading={isLoading} />
       <CustomInfoLayout
         isVisible={showInfoModal}
@@ -126,54 +128,55 @@ const RestorePasswordScreen = ({ navigation, route }) => {
         bounces={true}
         keyboardShouldPersistTaps={'handled'}>
         <View style={styles.topContainer}>
-          <TouchableWithoutFeedback onPress={() => { route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack() }}>
-            <Feather style={{ alignSelf: 'flex-start' }} name="chevron-left" size={30} color='black' />
-          </TouchableWithoutFeedback>
 
+          <CloseIconComponent onPress={() => { route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack() }} />
           <Text style={styles.header}>{constVar.newPass}</Text>
         </View>
+        <View style={{ paddingHorizontal: 16 }}>
 
-        <Spacer height={80} />
-        {
-          !route.params.isRestore &&
+
+          <Spacer height={80} />
+          {
+            !route.params.isRestore &&
+            <CustomInput
+              text={"δώσε τον τωρινό κωδικό"}
+              secureTextEntry={data.secureTextEntryCurrent ? true : false}
+              onChangeText={oncurrentPasswordChanged}
+              onIconPressed={updateSecureTextEntryCurrent}
+              hasIcon={true}
+              value={data.currentPassword}
+            />
+          }
+
+
           <CustomInput
-            text={"δώσε τον τωρινό κωδικό"}
-            secureTextEntry={data.secureTextEntryCurrent ? true : false}
-            onChangeText={oncurrentPasswordChanged}
-            onIconPressed={updateSecureTextEntryCurrent}
+            text={constVar.givePass}
+            secureTextEntry={data.secureTextEntry ? true : false}
+            onChangeText={onPasswordChanged}
+            onIconPressed={updateSecureTextEntry}
             hasIcon={true}
-            value={data.currentPassword}
+            value={data.password}
           />
-        }
 
+          <CustomInput
+            text={constVar.confirmPass}
+            secureTextEntry={data.secureTextEntryConfirmed ? true : false}
+            onChangeText={onPasswordConfirmedChanged}
+            onIconPressed={updateSecureTextEntryConfirmed}
+            hasIcon={true}
+            value={data.passwordConfirm}
+          />
+          <Spacer height={5} />
 
-        <CustomInput
-          text={constVar.givePass}
-          secureTextEntry={data.secureTextEntry ? true : false}
-          onChangeText={onPasswordChanged}
-          onIconPressed={updateSecureTextEntry}
-          hasIcon={true}
-          value={data.password}
-        />
+          <Text style={{ fontSize: 13, color: '#8b9cb5' }}>{constVar.passLengthNote}</Text>
+          <Spacer height={30} />
 
-        <CustomInput
-          text={constVar.confirmPass}
-          secureTextEntry={data.secureTextEntryConfirmed ? true : false}
-          onChangeText={onPasswordConfirmedChanged}
-          onIconPressed={updateSecureTextEntryConfirmed}
-          hasIcon={true}
-          value={data.passwordConfirm}
-        />
-        <Spacer height={5} />
-
-        <Text style={{ fontSize: 13, color: '#8b9cb5' }}>{constVar.passLengthNote}</Text>
-        <Spacer height={30} />
-
-        <RoundButton
-          text={constVar.go}
-          backgroundColor={colors.colorPrimary}
-          onPress={onButtonPressed}
-        />
+          <RoundButton
+            text={constVar.go}
+            backgroundColor={colors.colorPrimary}
+            onPress={onButtonPressed}
+          />
+        </View>
       </KeyboardAwareScrollView>
     </BaseView >
   );
@@ -195,7 +198,7 @@ const styles = StyleSheet.create({
   },
   topContainer: {
     flexDirection: 'row',
-    marginTop: 16,
-
+    marginTop: 10,
+    marginStart: 10
   },
 })      

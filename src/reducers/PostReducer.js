@@ -1,4 +1,4 @@
-import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_END_POINT, ADD_MIDDLE_STOP, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, CLEAR_SEARCH_VALUES, DELETE_ACTIVE_USER, LOGIN_USER, LOGOUT, REMOVE_DATES, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS, SET_RADIO_SELECTED, SIGNUP_CHECK } from '../actions/types';
+import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_END_POINT, ADD_MIDDLE_STOP, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, CLEAR_SEARCH_VALUES, DELETE_ACTIVE_USER, LOGIN_USER, LOGOUT, REMOVE_DATES, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS, SET_RADIO_SELECTED, SET_RADIO_SELECTED_FILTERS, SIGNUP_CHECK } from '../actions/types';
 import { constVar } from '../utils/constStr';
 
 
@@ -94,12 +94,7 @@ export function PostReducer(state = intialState, action) {
                 moreplaces: moreplacesNew
             };
         }
-        case ADD_START_DATE:
 
-            return {
-                ...state,
-                startdate: state.startdate = action.payload
-            };
         case ADD_START_POINT:
 
             return {
@@ -131,7 +126,12 @@ export function PostReducer(state = intialState, action) {
                 searchEndcoord: state.searchEndcoord = action.payload[1]
 
             };
+        case ADD_START_DATE:
 
+            return {
+                ...state,
+                startdate: state.startdate = action.payload
+            };
         case ADD_END_DATE:
             return {
                 ...state,
@@ -154,6 +154,11 @@ export function PostReducer(state = intialState, action) {
             return {
                 ...state,
                 radioSelected: state.radioSelected = action.payload
+            };
+        case SET_RADIO_SELECTED_FILTERS:
+            return {
+                ...state,
+                radioSelectedFilters: state.radioSelectedFilters = action.payload
             };
         case ADD_ACTIVE_POST:
             return {

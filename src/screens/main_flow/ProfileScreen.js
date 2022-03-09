@@ -70,6 +70,9 @@ const ProfileScreen = ({ navigation, route }) => {
     const goBack = () => {
         navigation.goBack()
     }
+    React.useEffect(async () => {
+        console.log(await getValue(keyNames.email))
+    }, [])
 
     const Tab = createMaterialTopTabNavigator();
 

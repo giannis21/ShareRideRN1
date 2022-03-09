@@ -28,6 +28,10 @@ export function PostLayoutComponent({
     const [isSafeClick, setSafeClick] = useState(true)
 
     const myUser = useSelector(state => state.authReducer.user)
+
+    const addHeight = () => {
+        return (<Spacer height={12} />)
+    }
     function getMiddle() {
 
 
@@ -122,7 +126,7 @@ export function PostLayoutComponent({
                                 </View>
 
 
-                                {item.post.moreplaces && item.post.moreplaces.length > 0 && getMiddle()}
+                                {(item.post.moreplaces && item.post.moreplaces.length > 0) ? getMiddle() : addHeight()}
 
                                 <View style={{ flexDirection: 'row' }}>
                                     <Entypo name="location-pin" size={20} color={colors.colorPrimary} />
@@ -143,7 +147,7 @@ export function PostLayoutComponent({
                             }
 
                             <View style={{ marginTop: showMenu ? 25 : 44 }}>
-                                <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.enddate ? 'Ημερομηνίες αναχώρησης' : 'Ημερομηνία αναχώρησης'} </Text>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.enddate !== item.post.startdate ? 'Ημερομηνίες αναχώρησης' : 'Ημερομηνία Αναχώρησης'} </Text>
                                 <Spacer height={10} />
                                 <Text style={styles.date}>{item.post.startdate}</Text>
                                 <Spacer height={3} />

@@ -15,6 +15,7 @@ import PreviewInterestedInMeScreen from '../screens/profile_tabs/PreviewInterest
 import RegisterScreen from '../screens/RegisterScreen';
 import SettingsScreen from '../screens/main_flow/SettingsScreen';
 import RestorePasswordScreen from '../screens/RestorePasswordScreen';
+import FiltersScreen from '../screens/main_flow/FiltersScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -43,6 +44,10 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.RESTORE_PASSWORD_SCREEN}
             component={RestorePasswordScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.FILTERS_SCREEN}
+            component={FiltersScreen} />
 
 
     </Stack.Navigator>

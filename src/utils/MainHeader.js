@@ -41,15 +41,7 @@ export function MainHeader({
                 }}>
                     <Text style={{ color: 'white', alignSelf: 'center', flexWrap: 'wrap', fontSize: 19, marginStart: 14 }}>{title}</Text>
                     <View style={{ flexDirection: 'row' }}>
-                        <TouchableWithoutFeedback onPress={onLogout}>
-                            <AntDesign name="logout" color='white' size={23} style={{ alignSelf: 'center' }} />
-                        </TouchableWithoutFeedback>
 
-                        <Spacer width={10} />
-                        <TouchableWithoutFeedback onPress={onFilterPress}>
-                            <Icon name="filter" color='white' size={23} style={{ alignSelf: 'center' }} />
-
-                        </TouchableWithoutFeedback>
                         <Spacer width={10} />
                         <TouchableWithoutFeedback onPress={onSettingsPress}>
                             <Icon name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />

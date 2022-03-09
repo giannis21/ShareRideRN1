@@ -1,8 +1,8 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
-import { getAutoComplete, getPlaceInfo } from '../services/MainServices';
+import { getAutoComplete, getPlaceInfo, showInterest } from '../services/MainServices';
 import { colors } from '../utils/Colors';
 import { CustomInput } from '../utils/CustomInput';
 import Entypo from 'react-native-vector-icons/Entypo';
@@ -10,14 +10,16 @@ import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityI
 import { Spacer } from '../layout/Spacer';
 import { useSelector, useDispatch } from 'react-redux';
 import { ADD_MIDDLE_STOP, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS } from '../actions/types';
+import { PostLayoutComponent } from './PostLayoutComponent';
+import { CustomInfoLayout } from '../utils/CustomInfoLayout';
+import { useIsFocused } from '@react-navigation/native';
 
 
 export function SearchedPostsComponent({
-    onPress,
-    from,
-    addStops,
-    isStartPoint,
-    showMessage
+    offset,
+    total_pages,
+    data,
+
 }) {
     var _ = require('lodash');
 
@@ -25,10 +27,79 @@ export function SearchedPostsComponent({
     const [dataSource, setDataSource] = useState([])
     const [isRender, setIsRender] = useState(false)
     const [selectionEnabled, setSelectionEnabled] = useState(true)
+    const [isLoading, setLoading] = useState(false)
+    const [showInfoModal, setShowInfoModal] = useState(false);
+    const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const post = useSelector(state => state.postReducer)
+    const myUser = useSelector(state => state.authReducer.user)
     const dispatch = useDispatch();
+    const isFocused = useIsFocused()
+    useEffect(() => {
+        if (isFocused)
+            setDataSource(data)
+    }, [isFocused])
+
+    const showCustomLayout = (callback) => {
+        setShowInfoModal(true)
+        setTimeout(function () {
+            setShowInfoModal(false)
+            if (callback)
+                callback()
+        }, 2000);
+    }
+
+    const onLikeClick = (postId, index) => {
+        setLoading(true)
+        showInterest({
+            email: myUser.email,
+            postId,
+            successCallback: ((message) => {
+                setLoading(false)
+                let likedPost = dataSource.find((item) => item.post.postid === postId)
 
 
+                likedPost.interested = !likedPost.interested
+                dataSource[index] = likedPost
+                setDataSource(dataSource)
+                setIsRender(!isRender)
+                setInfoMessage({ info: message, success: true })
+                showCustomLayout()
+            }),
+            errorCallback: ((message) => {
+                setLoading(false)
+                setInfoMessage({ info: message, success: false })
+                showCustomLayout()
+            })
+        })
+    }
+    const renderFooter = () => {
+        return (
+            !_.isEmpty(dataSource) && (offset <= total_pages) ?
+                (
+                    <View style={styles.footer}>
+                        <TouchableOpacity
+                            activeOpacity={0.9}
+                            onPress={() => {
+                                setIsLoading(true)
+                                getPostsUser({
+                                    email: email,
+                                    page: offset,
+                                    successCallback,
+                                    errorCallback
+                                })
+                            }}
+
+                            style={styles.loadMoreBtn}>
+                            <Text style={styles.btnText}>Φόρτωσε Περισσότερα...</Text>
+                        </TouchableOpacity>
+                    </View>
+                ) : null
+
+        );
+    };
+    const onProfileClick = (email) => {
+        navigation.push(routes.PROFILE_SCREEN, { email: email })
+    }
     return (
 
         <View style={{ width: '100%', height: '100%', paddingHorizontal: 8 }}>
@@ -41,18 +112,28 @@ export function SearchedPostsComponent({
                 ItemSeparatorComponent={() => (
                     <View style={{ height: 10 }} />
                 )}
-                extraData={isRender}
                 keyExtractor={(item, index) => index}
+                extraData={isRender}
                 enableEmptySections={true}
                 renderItem={(item) => {
 
-                    return (
-                        <View></View>
-                    )
+                    return <PostLayoutComponent
+                        showFavoriteIcon={true}
+                        showMenu={false}
+                        item={item.item}
+                        onLikeClick={onLikeClick}
+                        onProfileClick={onProfileClick}
+
+                    />
                 }}
-
+                ListFooterComponent={renderFooter}
             />
-
+            <CustomInfoLayout
+                isVisible={showInfoModal}
+                title={infoMessage.info}
+                icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
+                success={infoMessage.success}
+            />
         </View>
 
 

@@ -12,15 +12,14 @@ export function CloseIconComponent({
 
 
     return (
+
         <TouchableOpacity
             activeOpacity={1}
             onPress={onPress}
-            style={styles.container}>
-            <View style={styles.circleContainer}>
-                <Icon name="close" color='black' size={18} />
-            </View>
-
+            style={styles.circleContainer}>
+            <Icon name="close" color='black' size={18} />
         </TouchableOpacity>
+
 
 
     );

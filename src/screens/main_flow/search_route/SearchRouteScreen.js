@@ -2,11 +2,11 @@ import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
-import { getPlaceInfo, resetValues } from '../../../services/MainServices';
+import { getPlaceInfo, resetValues, searchForPosts } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
-import { getValue, keyNames } from '../../../utils/Storage';
+import { filterKeys, getValue, keyNames } from '../../../utils/Storage';
 import { BackHandler } from 'react-native';
 import { useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
@@ -21,14 +21,20 @@ import { Spacer } from '../../../layout/Spacer';
 import { RoundButton } from '../../../Buttons/RoundButton';
 import { SearchedPostsComponent } from '../../../components/SearchedPostsComponent';
 import { CustomInfoLayout } from '../../../utils/CustomInfoLayout';
+import moment from 'moment';
 
 const SearchRouteScreen = ({ navigation, route }) => {
+    var _ = require('lodash');
     const [isLoading, setIsLoading] = useState(false)
     const [openSearch, setOpenSearch] = useState({ from: true, open: false })
     const [openSearchedPost, setOpenSearchedPosts] = useState(false)
     const [isModalVisible, setIsModalVisible] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
+    const [total_pages, setTotalPages] = useState(1);
+
+    const [dataSource, setDataSource] = useState([]);
+    const [offset, setOffset] = useState(1);
     let scaleValue = new Animated.Value(0); // declare an animated value
     const isFocused = useIsFocused()
     const cardScale = scaleValue.interpolate({
@@ -85,56 +91,143 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 callback()
         }, 2000);
     }
-    const searchPosts = () => {
-        //  setOpenSearchedPosts(true)
+    const searchPosts = async () => {
+
         if (post.searchStartplace === '' || post.searchEndplace === '') {
             setInfoMessage({ info: "Συμπλήρωσε και τα δύο πεδία πρώτα!", success: false })
             showCustomLayout()
             return
         }
 
-        let send = {
+        let sendObj = {
             data: {
                 email: myUser.email,
                 startplace: post.searchStartplace,
                 startcoord: post.searchStartcoord,
                 endplace: post.searchEndplace,
                 endcoord: post.searchEndcoord,
-                startdate: "2021-10-05",
-                enddate: "2022-12-19",
+                startdate: '2022-03-09',// await getStartDate(),
+                enddate: '2024-03-19', //await getEndDate(),
                 page: 1,
-                cost: 100,
-                age: null,
-                age_end: null,
-                car: null,
-                cardate: null,
-                gender: null,
-                withReturn: true,
-                petAllowed: true,
-                returnStartDate: "2022-12-19",
-                returnEndDate: "2022-12-20"
+                cost: await getValue(filterKeys.maxCost) ?? '100',
+                age: await getStartAge(),
+                age_end: await getEndAge(),
+                car: await getValue(filterKeys.carMark) ?? null,
+                cardate: await getValue(filterKeys.carAge) ?? null,
+                gender: await getGender(),
+                withReturn: await hasReturnDate(),
+                petAllowed: await getValue(filterKeys.allowPet) ? true : null,
+                returnStartDate: await getReturnStartDate(),
+                returnEndDate: await getReturnEndDate()
             }
         }
+        console.log(sendObj)
+        searchForPosts({
+            sendObj,
+            successCallback: ((data) => {
+                setOpenSearchedPosts(true)
+
+                setIsLoading(false)
+                setDataSource([...dataSource, ...data.body.postUser]);
+                setTotalPages(data.totalPages)
+                setOffset(offset + 1)
+            }),
+            errorCallback: ((errorMessage) => {
+                setInfoMessage({ info: errorMessage, success: false })
+                showCustomLayout()
+            })
+        })
+
     }
 
+    const getGender = async () => {
+        let gender = await getValue(filterKeys.showMe)
+
+        if (gender) {
+            switch (gender) {
+                case 'όλους': return null
+                case 'άνδρες': return 'male'
+                default: return 'female'
+            }
+        }
+
+        return null
+
+    }
+    const getStartAge = async () => {
+        let ageRange = await getValue(filterKeys.ageRange)
+        if (ageRange) {
+            return ageRange.split('-')[0]
+        }
+        return null
+    }
+
+    const getEndAge = async () => {
+        let ageRange = await getValue(filterKeys.ageRange)
+        if (ageRange) {
+            return parseInt(ageRange.split('-')[1])
+        }
+        return null
+    }
+
+    const hasReturnDate = async () => {
+
+        let returnStartDate = await getValue(filterKeys.returnStartDate)
+        if (returnStartDate && returnStartDate !== constVar.returnStartDate) {
+            return true
+        }
+        return null
+
+    }
+    const getReturnStartDate = async () => {
+        let returnStartDate = await getValue(filterKeys.returnStartDate)
+        if (returnStartDate && returnStartDate !== constVar.returnStartDate) {
+            return moment(returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+        }
+        return null
+    }
+    const getReturnEndDate = async () => {
+        let returnEndDate = await getValue(filterKeys.returnEndDate)
+        if (returnEndDate && returnEndDate !== constVar.returnEndDate) {
+            return moment(returnEndDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+        }
+        return null
+    }
+    const getStartDate = async () => {
+        let startDate = await getValue(filterKeys.startDate)
+        if (startDate && startDate !== constVar.initialDate) {
+            return moment(startDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+        }
+        return null
+    }
+
+    const getEndDate = async () => {
+        let endDate = await getValue(filterKeys.endDate)
+        if (endDate && endDate !== constVar.endDate) {
+            return moment(endDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+        }
+        return null
+    }
     function getType(isStartPoint) {
         return isStartPoint ? ADD_SEARCH_START_POINT : ADD_SEARCH_END_POINT
     }
 
-
+    let resetArray = () => {
+        setDataSource([]);
+        setOpenSearchedPosts(false)
+    }
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <Loader isLoading={isLoading} />
             <MainHeader
-                onClose={() => { openSearchedPost ? setOpenSearchedPosts(false) : setOpenSearch({ from: true, open: false }) }}
+                onClose={() => { openSearchedPost ? resetArray() : setOpenSearch({ from: true, open: false }) }}
                 title={"Αναζήτηση διαδρομής"}
                 showX={openSearch.open === true || openSearchedPost === true}
                 onSettingsPress={() => {
                     navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email })
                 }}
                 onLogout={() => {
-                    navigation.removeListener('beforeRemove')
                     resetValues(() => {
                         navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
                     })
@@ -154,8 +247,8 @@ const SearchRouteScreen = ({ navigation, route }) => {
 
                     }} />
             }
-            {openSearchedPost &&
-                <SearchedPostsComponent
+            {openSearchedPost && !_.isEmpty(dataSource) &&
+                <SearchedPostsComponent data={dataSource} offset={offset} total_pages={total_pages}
                 />
             }
             <View style={{ paddingHorizontal: 16, marginTop: 15 }}>

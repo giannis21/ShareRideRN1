@@ -7,6 +7,7 @@ export const routes = {
     SEARCH_ROUTE_SCREEN: 'searchRouteScreen',
     CREATE_POST_SCREEN: 'createPostScreen',
     RESTORE_PASSWORD_SCREEN: 'RestorePassword',
+    FILTERS_SCREEN: 'FILTERS_SCREEN',
     AUTHSTACK: 'AUTHSTACK',
     HOMESTACK: 'HOMESTACK',
     MAIN_TAB_STACK: 'MAIN_TAB_STACK',

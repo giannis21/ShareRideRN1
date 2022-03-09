@@ -4,15 +4,13 @@ import { createLogger } from 'redux-logger';
 
 import { PostReducer } from './reducers/PostReducer';
 import { AuthReducer } from './reducers/AuthReducer';
+import { FiltersReducer } from './reducers/FiltersReducer';
 
 const AppReducers = combineReducers({
     authReducer: AuthReducer,
-    postReducer: PostReducer
+    postReducer: PostReducer,
+    filtersReducer: FiltersReducer
 })
-// const AppReducers = combineReducers(
-//     { authReducer: AuthReducer },
-//     { postReducer: PostReducer },
-
 
 const rootReducer = (state, action) => {
     return AppReducers(state, action)

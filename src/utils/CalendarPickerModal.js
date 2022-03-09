@@ -9,9 +9,10 @@ import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import DatePicker from 'react-native-date-picker';
 import { constVar } from './constStr';
 import { useSelector, useDispatch } from 'react-redux';
-import { ADD_END_DATE, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_START_DATE } from '../actions/types';
+import { ADD_END_DATE, ADD_END_DATE_FILTERS, ADD_RETURN_END_DATE, ADD_RETURN_END_DATE_FILTERS, ADD_RETURN_START_DATE, ADD_RETURN_START_DATE_FILTERS, ADD_START_DATE, ADD_START_DATE_FILTERS } from '../actions/types';
 import moment from 'moment';
 export function CalendarPickerModal({
+    isFiltersScreen,
     closeAction,
     title,
     titleType,
@@ -27,9 +28,24 @@ export function CalendarPickerModal({
     const [error, setError] = useState({ state: false, message: '' })
 
     const post = useSelector(state => state.postReducer)
+    const filtersReducer = useSelector(state => state.filtersReducer)
     let dispatch = useDispatch()
 
 
+    const getEndDate = () => {
+        return isFiltersScreen ? filtersReducer.enddate : post.enddate
+    }
+
+    const getStartDate = () => {
+        return isFiltersScreen ? filtersReducer.startdate : post.startdate
+    }
+
+    const getReturnStartDate = () => {
+        return isFiltersScreen ? filtersReducer.returnStartDate : post.returnStartDate
+    }
+    const getReturnEndDate = () => {
+        return isFiltersScreen ? filtersReducer.returnEndDate : post.returnEndDate
+    }
     const checkDate = () => {
 
         let selectedDate = moment(date, 'YYYY-MM-DDTHH:mm:ssZ').format('YYYY-MM-DD')
@@ -47,18 +63,19 @@ export function CalendarPickerModal({
             return
         }
 
+        let dateInputSelection = isFiltersScreen ? filtersReducer.radioSelected : post.radioSelected
 
-        switch (post.radioSelected) {
+        switch (dateInputSelection) {
             case 0: {
-                if (post.enddate !== constVar.endDate) {
-                    let endDate = moment(post.enddate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                if (getEndDate() !== constVar.endDate) {
+                    let endDate = moment(getEndDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
                     if (endDate <= selectedDate) {
                         setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της τελικής!' })
                         return
                     }
                 }
-                if (post.returnStartDate !== constVar.returnStartDate) {
-                    let returnStartDate = moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                if (getReturnStartDate() !== constVar.returnStartDate) {
+                    let returnStartDate = moment(getReturnStartDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
                     if (selectedDate >= returnStartDate) {
                         setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της αρχικής της επιστροφής!' })
                         return
@@ -67,35 +84,33 @@ export function CalendarPickerModal({
                 break
             }
             case 1: { //εχω επιλεξει την τελικη αφετηριας
-                if (post.startdate !== constVar.initialDate) {
-                    let startdate = moment(post.startdate, 'DD/MM/YYYY').format('YYYY-MM-DD')
-                    console.log(startdate)
+                if (getStartDate() !== constVar.initialDate) {
+                    let startdate = moment(getStartDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
                     if (startdate >= selectedDate) {
                         setError({ state: true, message: 'Η αρχική ημερομηνία πρέπει να προηγείται της τελικής!' })
                         return
                     }
                 }
-                if (post.returnStartDate !== constVar.returnStartDate) {
-                    let returnStartdate = moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
-                    console.log(selectedDate, returnStartdate, selectedDate >= returnStartdate)
+                if (getReturnStartDate() !== constVar.returnStartDate) {
+                    let returnStartdate = moment(getReturnStartDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
                     if (selectedDate >= returnStartdate) {
-                        setError({ state: true, message: 'Η τελική ημερομηνία αφετηρίας πρέπει να προηγείται της αρχικής της επιστροφής!' })
+                        setError({ state: true, message: 'Η τελική ημερομηνία αναχώρησης πρέπει να προηγείται της αρχικής της επιστροφής!' })
                         return
                     }
                 }
                 break
             }
             case 2: { //εχω επιλεξει την τελικη αφετηριας
-                if (post.enddate !== constVar.endDate) {
-                    let endDate = moment(post.enddate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                if (getEndDate() !== constVar.endDate) {
+                    let endDate = moment(getEndDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
 
                     if (endDate >= selectedDate) {
-                        setError({ state: true, message: 'Η τελική ημερομηνία αφετηρίας πρέπει να προηγείται της αρχικής της επιστροφής!' })
+                        setError({ state: true, message: 'Η τελική ημερομηνία αναχώρησης πρέπει να προηγείται της αρχικής της επιστροφής!' })
                         return
                     }
                 }
-                if (post.returnEndDate !== constVar.returnEndDate) {
-                    let returnEndDate = moment(post.returnEndDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                if (getReturnEndDate() !== constVar.returnEndDate) {
+                    let returnEndDate = moment(getReturnEndDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
 
                     if (selectedDate >= returnEndDate) {
                         setError({ state: true, message: 'Η αρχική ημερομηνία επιστροφής πρέπει να προηγείται της τελικής της επιστροφής!' })
@@ -105,8 +120,8 @@ export function CalendarPickerModal({
                 break
             }
             case 3: {
-                if (post.returnStartDate !== constVar.returnStartDate) {
-                    let returnStartDate = moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD')
+                if (getReturnStartDate() !== constVar.returnStartDate) {
+                    let returnStartDate = moment(getReturnStartDate(), 'DD/MM/YYYY').format('YYYY-MM-DD')
 
                     if (returnStartDate >= selectedDate) {
                         setError({ state: true, message: 'Η αρχική ημερομηνία επιστροφής πρέπει να προηγείται της τελικής της επιστροφής!' })
@@ -120,7 +135,7 @@ export function CalendarPickerModal({
 
 
 
-        addToReducer(post.radioSelected, date)
+        addToReducer(dateInputSelection, date)
 
 
         buttonPress(1)
@@ -129,15 +144,29 @@ export function CalendarPickerModal({
 
     const addToReducer = (selectedValue, date) => {
         let selectedDate = moment(date, 'YYYY-MM-DDTHH:mm:ssZ').format('DD/MM/YYYY')
-        if (selectedValue === 0 && dispatch({ type: ADD_START_DATE, payload: selectedDate }))
+        if (selectedValue === 0 && dispatch({ type: getType(0), payload: selectedDate }))
             return
-        if (selectedValue === 1 && dispatch({ type: ADD_END_DATE, payload: selectedDate }))
+        if (selectedValue === 1 && dispatch({ type: getType(1), payload: selectedDate }))
             return
-        if (selectedValue === 2 && dispatch({ type: ADD_RETURN_START_DATE, payload: selectedDate }))
+        if (selectedValue === 2 && dispatch({ type: getType(2), payload: selectedDate }))
             return
-        if (selectedValue === 3 && dispatch({ type: ADD_RETURN_END_DATE, payload: selectedDate }))
+        if (selectedValue === 3 && dispatch({ type: getType(3), payload: selectedDate }))
             return
 
+    }
+
+    const getType = (selection) => {
+        switch (selection) {
+            case 0:
+                return isFiltersScreen ? ADD_START_DATE_FILTERS : ADD_START_DATE
+            case 1:
+                return isFiltersScreen ? ADD_END_DATE_FILTERS : ADD_END_DATE
+            case 2:
+                return isFiltersScreen ? ADD_RETURN_START_DATE_FILTERS : ADD_RETURN_START_DATE
+            case 3:
+                return isFiltersScreen ? ADD_RETURN_END_DATE_FILTERS : ADD_RETURN_END_DATE
+
+        }
     }
     const closeModal = () => {
         setError({ state: false, message: '' })

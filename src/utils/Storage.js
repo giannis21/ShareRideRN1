@@ -41,5 +41,10 @@ export const filterKeys = {
   maxCost: 'maxCost',
   carAge: 'carAge',
   carMark: 'carMark',
+  allowPet: 'allowPet',
+  startDate: 'startDate',
+  endDate: 'endDate',
+  returnStartDate: 'returnStartDate',
+  returnEndDate: 'returnEndDate'
 
 }

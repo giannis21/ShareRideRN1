@@ -7,11 +7,12 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { Spacer } from '../layout/Spacer';
 import { constVar } from '../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
-import { REMOVE_DATES, SET_RADIO_SELECTED } from '../actions/types';
+import { REMOVE_DATES, REMOVE_DATES_FILTERS, SET_RADIO_SELECTED } from '../actions/types';
 import { CheckBox } from 'react-native-elements';
 
 
 export function CustomRadioButton({
+    isFiltersScreen,
     onPress,
     selectedOption,
     rangeRadioSelected,
@@ -22,6 +23,7 @@ export function CustomRadioButton({
     const [selected, setSelected] = useState("one")
     const [hasReturnDate, setHasReturnDate] = useState(false)
     const post = useSelector(state => state.postReducer)
+    const filtersReducer = useSelector(state => state.filtersReducer)
 
 
     let backgroundColorLeft = selected == "one" ? colors.colorPrimary : 'white'
@@ -29,10 +31,15 @@ export function CustomRadioButton({
     let opacityRight = selected === "one" ? 0.2 : null
 
     const clearDates = () => {
-        dispatch({
-            type: REMOVE_DATES,
-            payload: {}
-        })
+        isFiltersScreen ?
+            dispatch({
+                type: REMOVE_DATES_FILTERS,
+                payload: {}
+            }) :
+            dispatch({
+                type: REMOVE_DATES,
+                payload: {}
+            })
     }
     const setOption = (option) => {
         setSelected(option)
@@ -44,6 +51,17 @@ export function CustomRadioButton({
     }
 
     const resetIcon = () => {
+        if (isFiltersScreen) {
+            if (filtersReducer.startdate !== constVar.initialDate ||
+                filtersReducer.enddate !== constVar.endDate ||
+                filtersReducer.returnStartDate !== constVar.returnStartDate ||
+                filtersReducer.returnEndDate !== constVar.returnEndDate
+            )
+                return true
+
+            return false
+        }
+
         if (post.startdate !== constVar.initialDate ||
             post.enddate !== constVar.endDate ||
             post.returnStartDate !== constVar.returnStartDate ||
@@ -52,6 +70,10 @@ export function CustomRadioButton({
             return true
 
         return false
+
+
+
+
     }
     const DateInput = ({ date, selection, opacity, disabled }) => {
         return (
@@ -66,12 +88,26 @@ export function CustomRadioButton({
 
     const getColor = (option) => {
         switch (option) {
-            case 0: return post.startdate === constVar.initialDate ? '#8b9cb5' : 'black'
-            case 1: return post.enddate === constVar.endDate ? '#8b9cb5' : 'black'
-            case 2: return post.returnStartDate === constVar.returnStartDate ? '#8b9cb5' : 'black'
-            case 3: return post.returnEndDate === constVar.returnEndDate ? '#8b9cb5' : 'black'
+            case 0: return getStartDate() === constVar.initialDate ? '#8b9cb5' : 'black'
+            case 1: return getEndDate() === constVar.endDate ? '#8b9cb5' : 'black'
+            case 2: return getReturnStartDate() === constVar.returnStartDate ? '#8b9cb5' : 'black'
+            case 3: return getReturnEndDate() === constVar.returnEndDate ? '#8b9cb5' : 'black'
         }
 
+    }
+    const getEndDate = () => {
+        return isFiltersScreen ? filtersReducer.enddate : post.enddate
+    }
+
+    const getStartDate = () => {
+        return isFiltersScreen ? filtersReducer.startdate : post.startdate
+    }
+
+    const getReturnStartDate = () => {
+        return isFiltersScreen ? filtersReducer.returnStartDate : post.returnStartDate
+    }
+    const getReturnEndDate = () => {
+        return isFiltersScreen ? filtersReducer.returnEndDate : post.returnEndDate
     }
     return (
         <View
@@ -102,11 +138,11 @@ export function CustomRadioButton({
             <Spacer height={10} />
 
             <View style={{ flexDirection: 'row', }}>
-                <DateInput date={post?.startdate} selection={0} />
+                <DateInput date={getStartDate()} selection={0} />
 
                 <View style={{ width: '4%' }} />
 
-                <DateInput date={post?.enddate} selection={1} opacity={opacityRight} disabled={selected === "one"} />
+                <DateInput date={getEndDate()} selection={1} opacity={opacityRight} disabled={selected === "one"} />
 
             </View>
 
@@ -119,11 +155,11 @@ export function CustomRadioButton({
                 hasReturnDate && <View style={{ marginTop: 15 }}>
                     <Text style={{ color: '#8b9cb5' }}>Σκέφτομαι να επιστρέψω..</Text>
                     <View style={{ flexDirection: 'row' }}>
-                        <DateInput date={post?.returnStartDate} selection={2} />
+                        <DateInput date={getReturnStartDate()} selection={2} />
 
                         <View style={{ width: '4%' }} />
 
-                        <DateInput date={post?.returnEndDate} selection={3} />
+                        <DateInput date={getReturnEndDate()} selection={3} />
 
                     </View>
                     <Text style={{ color: '#8b9cb5', fontSize: 10, marginTop: 4 }}>*μπορείς να επιλέξεις μόνο μία</Text>

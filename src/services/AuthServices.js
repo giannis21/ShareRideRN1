@@ -21,7 +21,7 @@ export const createToken = async ({ email, password, successCallBack, errorCallb
     .then(res => {
 
       let token = res.data.accessToken
-      console.log({ token })
+
       if (res.data?.otp) {
         errorCallback(res.data.message ?? constVar.sthWentWrong, res.data?.otp, res.data.email)
         return

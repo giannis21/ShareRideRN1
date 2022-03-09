@@ -48,11 +48,12 @@ const CreatePostScreen = ({ navigation, route }) => {
     const [initialDate, setInitialDate] = useState(constVar.initialDate)
     const [endDate, setEndDate] = useState(constVar.endDate)
     const [hasReturnDate, setHasReturnDate] = useState(false)
+    const [rangeDate, setRangeDate] = useState(false)
     const [isPickerVisible, setIsPickerVisible] = useState(false)
     const [openSearch, setOpenSearch] = useState({ from: true, open: false, addStops: false })
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-    const [rangeDate, setRangeDate] = useState(false)
+
     const [allowPet, setAllowPet] = useState(false)
     const renderThumb = useCallback(() => <Thumb />, []);
     const renderRail = useCallback(() => <Rail />, []);
@@ -174,7 +175,8 @@ const CreatePostScreen = ({ navigation, route }) => {
                 costperseat: cost,
                 comment: comment,
                 petAllowed: allowPet,
-                moreplaces: post.moreplaces
+                moreplaces: post.moreplaces,
+                isFavourite: 0
 
             }
         }
@@ -365,12 +367,8 @@ const CreatePostScreen = ({ navigation, route }) => {
                 showX={openSearch.open === true}
                 title={openSearch.open === true ? "Αναζήτηση" : "Δημιουργία Post"}
                 onLogout={() => {
-                    //  navigation.removeListener('beforeRemove')
                     resetValues(() => {
                         navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
-                        // navigation.popToTop();
-
-
                     })
 
                 }}

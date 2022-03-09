@@ -197,6 +197,7 @@ export const createPost = async ({ data, successCallback, errorCallback }) => {
     await instance.post(`/createpost`, data, config)
         .then(res => {
 
+            console.log(res.data)
             successCallback(res.data.message)
         }).catch(function (error) {
             console.log(error)
@@ -221,6 +222,20 @@ export const getInterestedPerPost = async ({ postId, page, successCallback, erro
             successCallback(res.data)
         }).catch(function (error) {
             console.log("getIntPost", error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+export const searchForPosts = async ({ sendObj, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    await instance.post(`/searchposts`, sendObj, config)
+        .then(res => {
+            let itemStringified = JSON.stringify(res.data.body.postUser)
+            let itemStringified1 = JSON.parse(itemStringified)
+            //console.log("searchposts ", res.data)
+            successCallback(res.data)
+        }).catch(function (error) {
+            console.log("searchposts", error)
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
@@ -254,7 +269,7 @@ export const verInterested = async ({ postid, piid, successCallback, errorCallba
             "piid": piid
         }
     }
-    console.log("verInterested ", send)
+
     await instance.post(`/verInterested`, send, config)
         .then(res => {
 
@@ -269,10 +284,8 @@ export const verInterested = async ({ postid, piid, successCallback, errorCallba
 export const getAutoComplete = async ({ value, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
 
-
     await instance.get(`/autocomplete/json?input=${value}`, config)
         .then(res => {
-
             successCallback(res.data.predictions)
         }).catch(function (error) {
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
@@ -280,7 +293,6 @@ export const getAutoComplete = async ({ value, successCallback, errorCallback })
 }
 export const getPlaceInfo = async ({ place_id, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
-
 
     await instance.get(`/details/json?place_id=${place_id}`, config)
         .then(res => {

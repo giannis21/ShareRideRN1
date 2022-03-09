@@ -11,7 +11,9 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import { PictureComponent } from '../../components/PictureComponent';
 import { routes } from '../../navigation/RouteNames';
+import Icon from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'rn-fetch-blob';
+import { resetValues } from '../../services/MainServices';
 const SettingsScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false }
@@ -62,6 +64,15 @@ const SettingsScreen = ({ navigation, route }) => {
         navigation.navigate(routes.RESTORE_PASSWORD_SCREEN, { email: myUser.email, isRestore: false })
     }
 
+    const goToFiltersScreen = () => {
+        navigation.navigate(routes.FILTERS_SCREEN)
+    }
+
+    const onLogout = () => {
+        resetValues(() => {
+            navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
+        })
+    }
     const retrieveImage = async () => {
         const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
 
@@ -116,9 +127,13 @@ const SettingsScreen = ({ navigation, route }) => {
 
                 <TouchableOpacity onPress={goToChangePass} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <Entypo style={{ alignSelf: 'flex-start' }} name="lock" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>αλλαγή κωδικού</Text>
+                    <Text style={titleStyle}>Αλλαγή κωδικού</Text>
                 </TouchableOpacity>
 
+                <TouchableOpacity onPress={goToFiltersScreen} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
+                    <Icon name="filter" size={27} color={'#2175D3'} />
+                    <Text style={titleStyle}>Φίλτρα</Text>
+                </TouchableOpacity>
                 <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <Entypo style={{ alignSelf: 'flex-start' }} name="message" size={27} color={'#2175D3'} />
                     <Text style={titleStyle}>Φόρμα επικοινωνίας</Text>
@@ -126,11 +141,18 @@ const SettingsScreen = ({ navigation, route }) => {
 
                 <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <AntDesign style={{ alignSelf: 'flex-start' }} name="exception1" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>όροι και Προϋποθέσεις</Text>
+                    <Text style={titleStyle}>'Οροι και Προϋποθέσεις</Text>
                 </TouchableOpacity>
 
                 <View style={{ backgroundColor: colors.CoolGray1, height: 1, width: '100%', marginTop: 20 }} />
-                <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6 }}>App version: 1.0.1</Text>
+                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
+                    <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6 }}>App version: 1.0.1</Text>
+                    <TouchableOpacity onPress={onLogout} style={{ flexDirection: 'row', marginTop: 1 }}>
+                        <AntDesign name="logout" color='#595959' size={13} style={{ alignSelf: 'center', marginEnd: 5 }} />
+                        <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6 }}>Έξοδος</Text>
+                    </TouchableOpacity>
+                </View>
+
 
             </View>
 
