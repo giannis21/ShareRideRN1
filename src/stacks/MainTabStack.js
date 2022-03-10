@@ -16,6 +16,11 @@ import RegisterScreen from '../screens/RegisterScreen';
 import SettingsScreen from '../screens/main_flow/SettingsScreen';
 import RestorePasswordScreen from '../screens/RestorePasswordScreen';
 import FiltersScreen from '../screens/main_flow/FiltersScreen';
+import RatingsProfileScreen from '../screens/profile_tabs/RatingsProfileScreen';
+import MyPostsProfileScreen from '../screens/profile_tabs/MyPostsProfileScreen';
+import PostsInterestedProfileScreen from '../screens/profile_tabs/PostsInterestedProfileScreen';
+import InterestedInMeProfileScreen from '../screens/profile_tabs/InterestedInMeProfileScreen';
+import RequestsProfileScreen from '../screens/profile_tabs/RequestsProfileScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -48,6 +53,26 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.FILTERS_SCREEN}
             component={FiltersScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.RATINGS_PROFILE_SCREEN}
+            component={RatingsProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.MYPOSTS_PROFILE_SCREEN}
+            component={MyPostsProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.POSTS_INTERESTED_PROFILE_SCREEN}
+            component={PostsInterestedProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.POSTS_INTERESTED_IN_ME_PROFILE_SCREEN}
+            component={InterestedInMeProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.REQUESTS_PROFILE_SCREEN}
+            component={RequestsProfileScreen} />
 
 
     </Stack.Navigator>

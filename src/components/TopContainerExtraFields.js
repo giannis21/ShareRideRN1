@@ -19,14 +19,11 @@ export function TopContainerExtraFields({
 
         <View style={{ height: 'auto', width: '100%', backgroundColor: 'white' }}>
             <Spacer height={5} />
-            <View style={{ flexDirection: 'row', paddingBottom: 2, }}>
+            <View style={{ flexDirection: 'row', paddingBottom: 2 }}>
+                <View style={{ marginTop: 5, marginStart: 1 }}>
+                    <CloseIconComponent onPress={onCloseContainer} />
+                </View>
 
-
-                <TouchableOpacity activeOpacity={1} style={styles.circleContainer} onPress={onCloseContainer}>
-
-
-                    <Icon name="close" color='black' size={18} style={{ color: colors.colorPrimary }} />
-                </TouchableOpacity>
 
 
                 <View style={{ justifyContent: 'center' }}>

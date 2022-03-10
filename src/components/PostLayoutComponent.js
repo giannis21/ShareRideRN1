@@ -32,17 +32,25 @@ export function PostLayoutComponent({
     const addHeight = () => {
         return (<Spacer height={12} />)
     }
-    function getMiddle() {
 
+    function getMiddle() {
+        if (_.isUndefined(item?.post?.moreplaces) || !item?.post?.moreplaces || _.isEmpty(item?.post?.moreplaces))
+            return
+
+        let array = item?.post.moreplaces
+        if (typeof (item?.post?.moreplaces) === 'string') {
+            array = [...Array.from(JSON.parse(item?.post?.moreplaces))]
+        }
 
         return (
             <View style={{ marginStart: 16, marginVertical: 8, justifyContent: 'flex-start' }}>
 
-                {JSON.parse(item.post.moreplaces).map((item1, index) => {
+                {array.map((item1, index) => {
+
                     return (
                         <View style={{ flexDirection: 'row' }}>
                             <Entypo name="location-pin" size={20} color={colors.colorPrimary} />
-                            <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item1.place}</Text>
+                            <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item1?.place}</Text>
                             <Spacer height={3} />
                         </View>
                     )
@@ -96,7 +104,7 @@ export function PostLayoutComponent({
 
                 <View style={rightContainer}>
                     <View style={rightContainerView}>
-                        <View style={{ width: '55%' }}>
+                        <View style={{ width: '48%' }}>
                             <TouchableOpacity onPress={goToProfile}>
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
                             </TouchableOpacity>
@@ -138,7 +146,7 @@ export function PostLayoutComponent({
                             <Spacer height={15} />
 
                         </View>
-                        <View style={{ width: '45%' }}>
+                        <View style={{ width: '49%' }}>
                             {showMenu &&
                                 <TouchableOpacity onPress={() => onMenuClicked(item)}>
                                     <Entypo name="dots-three-horizontal" size={20} color='black' style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
@@ -147,13 +155,40 @@ export function PostLayoutComponent({
                             }
 
                             <View style={{ marginTop: showMenu ? 25 : 44 }}>
-                                <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.enddate !== item.post.startdate ? 'Ημερομηνίες αναχώρησης' : 'Ημερομηνία Αναχώρησης'} </Text>
-                                <Spacer height={10} />
-                                <Text style={styles.date}>{item.post.startdate}</Text>
-                                <Spacer height={3} />
-                                <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginStart: 30 }}>έως</Text>
-                                <Spacer height={3} />
-                                <Text style={styles.date}>{item.post.enddate}</Text>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold', alignSelf: 'center' }}>Αναχώρηση</Text>
+
+                                <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'center', alignItems: 'center' }}>
+                                    <Text style={styles.date}>{item.post.startdate}</Text>
+                                    {item.post.startdate !== item.post.enddate &&
+                                        <View style={{ flexDirection: 'row' }}>
+                                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginHorizontal: 5 }}>έως</Text>
+
+                                            <Text style={styles.date}>{item.post.enddate}</Text>
+                                        </View>
+
+                                    }
+
+                                </View>
+                                {item.post.returnStartDate &&
+                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                                        <Text style={{ fontSize: 13, fontWeight: 'bold', marginTop: 8 }}>επιστροφή</Text>
+                                        <View style={{ flexDirection: 'row', marginTop: 10 }}>
+                                            <Text style={styles.date}>{item.post.returnStartDate}</Text>
+                                            {item.post.returnStartDate !== item.post.returnEndDate &&
+                                                <View style={{ flexDirection: 'row' }}>
+                                                    <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginHorizontal: 5 }}>έως</Text>
+
+                                                    <Text style={styles.date}>{item.post.returnEndDate}</Text>
+                                                </View>
+
+                                            }
+
+                                        </View>
+
+
+                                    </View>
+                                }
+
                             </View>
                         </View>
 
@@ -294,11 +329,11 @@ const styles = StyleSheet.create({
         color: 'white',
         borderRadius: 22,
         paddingVertical: 2,
-        paddingHorizontal: 8,
+        fontSize: 10,
         width: 'auto',
         justifyContent: 'center',
         alignItems: 'center',
-        alignSelf: 'baseline',
+        paddingHorizontal: 4,
         backgroundColor: colors.colorPrimary,
     },
     container: {

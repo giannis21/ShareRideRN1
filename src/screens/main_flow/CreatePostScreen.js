@@ -144,7 +144,7 @@ const CreatePostScreen = ({ navigation, route }) => {
     }
 
     const getHasReturnDate = () => {
-        if (!hasReturnDate) {
+        if (post.returnStartDate === constVar.returnStartDate && post.returnEndDate === constVar.returnEndDate) {
             return false
         }
 

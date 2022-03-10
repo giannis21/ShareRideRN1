@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { colors } from '../../utils/Colors';
@@ -35,6 +35,7 @@ import { ADD_AVERAGE } from '../../actions/types';
 import { TextInput } from 'react-native-gesture-handler';
 import { onLaunchCamera, onLaunchGallery } from '../../utils/Functions';
 import { OpenImageModal } from '../../utils/OpenImageModal';
+import { routes } from '../../navigation/RouteNames';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -66,6 +67,37 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
     const scrollRef = useRef();
+    const closeTab = () => {
+        handlerAnimation(false)
+        setHeaderVisible(true);
+        // if (openPostsInterested) {
+        setOpenPostsInterested(false)
+        // } else if (openRatings) {
+        setOpenRatings(false)
+        //} else if (openMyPosts) {
+        setOpenMyPosts(false)
+        // } else if (openRequests) {
+        setOpenRequests(false)
+        // } else if (openPostsInterestedInMe) {
+        setOpenPostsInterestedInMe(false)
+        //}
+
+
+    }
+    useEffect(() => {
+        const backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
+            // if (hasOpenTab) {
+            // closeTab()
+            // } else {
+            goBack()
+            //}
+
+            return true;
+        });
+        return () => {
+            backhandler.remove();
+        };
+    }, []);
 
     const goBack = () => {
         navigation.goBack()
@@ -281,6 +313,11 @@ const ProfileScreen = ({ navigation, route }) => {
             setIsLoading(false)
         }, 3000)
     }
+    const hasOpenTab = () => {
+        if (openRequests || openPostsInterestedInMe || openPostsInterested || openMyPosts || openRatings)
+            return true
+        return false
+    }
     const { tabsStyle } = styles
     return (
 
@@ -304,11 +341,13 @@ const ProfileScreen = ({ navigation, route }) => {
 
             />
 
-            <View style={{ position: 'absolute', marginTop: 10, marginStart: 10, zIndex: 1 }}>
-                <CloseIconComponent onPress={() => { console.log("dsdsd"); openTabs ? setOpenTabs(false) : navigation.goBack() }} />
+            <View style={{ position: 'absolute', zIndex: hasOpenTab() ? -1 : 1, marginTop: 10, marginStart: 10 }}>
+                <CloseIconComponent onPress={() => { navigation.goBack() }} />
             </View>
 
-            <TouchableOpacity
+
+
+            {!hasOpenTab() && <TouchableOpacity
                 style={{ justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16, zIndex: 1, position: 'absolute' }}
                 activeOpacity={1}
                 onPress={() => { setEditProfile(!editProfile) }}>
@@ -317,8 +356,8 @@ const ProfileScreen = ({ navigation, route }) => {
                 }
 
             </TouchableOpacity>
-
-
+            }
+            {console.log("aaaaaa", data.email)}
             {
                 data.email !== '' &&
 
@@ -432,10 +471,10 @@ const ProfileScreen = ({ navigation, route }) => {
                                 {data.hasReviews &&
                                     <TouchableOpacity
                                         onPress={() => {
-                                            setHeaderVisible(false);
-                                            setOpenRatings(true)
-                                            handlerAnimation(true)
-
+                                            // setHeaderVisible(false);
+                                            // setOpenRatings(true)
+                                            // handlerAnimation(true)
+                                            navigation.navigate(routes.RATINGS_PROFILE_SCREEN, { email: data.email })
                                         }
                                         }
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
@@ -447,9 +486,10 @@ const ProfileScreen = ({ navigation, route }) => {
                                 {data.hasPosts && myUser.email === data.email &&
                                     <TouchableOpacity
                                         onPress={() => {
-                                            setHeaderVisible(false);
-                                            setOpenMyPosts(true)
-                                            handlerAnimation(true)
+                                            // setHeaderVisible(false);
+                                            // setOpenMyPosts(true)
+                                            // handlerAnimation(true)
+                                            navigation.navigate(routes.MYPOSTS_PROFILE_SCREEN)
                                         }
                                         }
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
@@ -462,9 +502,10 @@ const ProfileScreen = ({ navigation, route }) => {
                                     <TouchableOpacity
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}
                                         onPress={() => {
-                                            setHeaderVisible(false);
-                                            setOpenPostsInterested(true)
-                                            handlerAnimation(true)
+                                            // setHeaderVisible(false);
+                                            // setOpenPostsInterested(true)
+                                            // handlerAnimation(true)
+                                            navigation.navigate(routes.POSTS_INTERESTED_PROFILE_SCREEN, { email: data.email })
                                         }
                                         }
                                     >
@@ -476,11 +517,8 @@ const ProfileScreen = ({ navigation, route }) => {
                                 {data.interestedForYourPosts && myUser.email === data.email &&
                                     <TouchableOpacity
                                         onPress={() => {
-                                            setHeaderVisible(false);
-                                            setOpenPostsInterestedInMe(true)
-                                            handlerAnimation(true)
-                                        }
-                                        }
+                                            navigation.navigate(routes.POSTS_INTERESTED_IN_ME_PROFILE_SCREEN, { email: data.email })
+                                        }}
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
 
                                         <Text style={styles.rates} >Ενδιαφερόμενοι</Text>
@@ -490,11 +528,9 @@ const ProfileScreen = ({ navigation, route }) => {
                                 {data.hasRequests && myUser.email === data.email &&
                                     <TouchableOpacity
                                         onPress={() => {
-                                            setHeaderVisible(false);
-                                            setOpenRequests(true)
-                                            handlerAnimation(true)
-                                        }
-                                        }
+                                            navigation.navigate(routes.REQUESTS_PROFILE_SCREEN, { email: data.email })
+                                        }}
+
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
 
                                         <Text style={styles.rates} >Αιτήματα για λήψη ειδοποιήσεων</Text>
@@ -503,10 +539,6 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
                             </View>
-
-                            {/* <View style={styles.footerBtn}>
-                                <Text style={{ color: 'white', fontSize: 15 }}>Περισσότερα στοιχεία</Text>
-                            </View> */}
                         </View>
                     }
 
@@ -606,6 +638,7 @@ const ProfileScreen = ({ navigation, route }) => {
             }
             {
                 openPostsInterested &&
+
                 <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
                     <PostsInterestedTabScreen
                         email={data.email}

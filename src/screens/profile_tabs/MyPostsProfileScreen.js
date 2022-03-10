@@ -15,8 +15,9 @@ import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
+import { useSelector } from 'react-redux';
 
-const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
+const MyPostsProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
@@ -30,16 +31,20 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
     const [showContent, setShowContent] = React.useState(true)
     const { height, width } = Dimensions.get("window");
     let isFocused = useIsFocused()
+    const myUser = useSelector(state => state.authReducer.user)
     useEffect(() => {
-        if (email)
+        if (myUser.email)
             getPostsUser({
-                email: email,
+                email: myUser.email,
                 page: offset,
                 successCallback,
                 errorCallback
             })
     }, []);
 
+    const goBack = () => {
+        navigation.goBack()
+    }
     const successCallback = (data) => {
         setIsLoading(false)
         setDataSource([...dataSource, ...data.postUser]);
@@ -108,7 +113,7 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
                             onPress={() => {
                                 setIsLoading(true)
                                 getPostsUser({
-                                    email: email,
+                                    email: myUser.email,
                                     page: offset,
                                     successCallback,
                                     errorCallback
@@ -124,9 +129,9 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
         );
     };
     return (
-        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
+        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 8, backgroundColor: 'white' }}>
             <View style={styles.container}>
-                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Τα post μου'} />
+                <TopContainerExtraFields onCloseContainer={goBack} title={'Τα post μου'} />
 
                 {showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
 
@@ -143,7 +148,7 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
                             renderItem={(item) => {
 
                                 return <PostLayoutComponent
-                                    showMenu={email === item.item.post.email}
+                                    showMenu={true}
                                     item={item.item}
                                     onMenuClicked={onMenuClicked}
                                     onProfileClick={onProfileClick}
@@ -186,7 +191,7 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
 }
 
-export default MyPostsTabScreen
+export default MyPostsProfileScreen
 
 const styles = StyleSheet.create({
     timer: {

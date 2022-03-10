@@ -1,11 +1,12 @@
 
+
 import React, { useState, useEffect } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { deletePost, getPostsUser } from '../../services/MainServices';
+import { addActivePost, deletePost, getInterestedInMe, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -14,12 +15,15 @@ import { useIsFocused } from '@react-navigation/native';
 import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
+import { useSelector, useDispatch } from 'react-redux';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
+import { ADD_ACTIVE_POST } from '../../actions/types';
 
-const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
+const InterestedInMeProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
-    const [isLoading, setIsLoading] = useState(false);
+    const [email1, setEmail] = useState(route.params.email);
+    const [isLoading, setIsLoading] = useState(true);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [isModalVisible, setIsModalVisible] = useState(false)
@@ -27,29 +31,41 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
     const [isRender, setIsRender] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-    const [showContent, setShowContent] = React.useState(true)
+    const [showPlaceholder, setShowPlaceholder] = React.useState(true)
     const { height, width } = Dimensions.get("window");
+    let navigation1 = useNavigation()
     let isFocused = useIsFocused()
+    const dispatch = useDispatch()
+    const myUser = useSelector(state => state.authReducer.user)
+    //const users = useSelector(state => state.postReducer.activePost.users)
     useEffect(() => {
-        if (email)
-            getPostsUser({
-                email: email,
-                page: offset,
-                successCallback,
-                errorCallback
-            })
-    }, []);
+
+        setIsLoading(false)
+
+        getInterestedInMe({
+            email: email1,
+            page: offset,
+            successCallback,
+            errorCallback
+        })
+
+        if (!isFocused) {
+            setOffset(1)
+        }
+    }, [isFocused]);
 
     const successCallback = (data) => {
+
         setIsLoading(false)
         setDataSource([...dataSource, ...data.postUser]);
         setTotalPages(data.totalPages)
         setOffset(offset + 1)
-        setShowContent(false)
+        setIsLoading(false)
+        setShowPlaceholder(false)
     }
     const errorCallback = () => {
         setIsLoading(false)
-        setShowContent(false)
+        setShowPlaceholder(false)
     }
 
 
@@ -63,15 +79,38 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
     }
 
     const onProfileClick = (email) => {
-        navigation.push(routes.PROFILE_SCREEN, { email: email })
+        navigation1.push(routes.PROFILE_SCREEN, { email: email })
     }
-
     const onMenuClicked = (item1, index) => {
         let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
         setDeletedPost(postToBeDeleted)
         setIsModalVisible(true)
     }
 
+    const deleteInterested = (fullname, postid) => {
+        try {
+            console.log(fullname, postid)
+            // let postToBeDeleted = dataSource.find((item) => item?.post?.postid === postid)
+
+            // let deletedUser = postToBeDeleted?.users.find((user) => user.fullname === fullname)
+
+            // let updatedPostList = postToBeDeleted.users.filter((obj) => obj !== deletedUser)
+            // let index = dataSource.indexOf(postToBeDeleted);
+            // let tempData = dataSource
+            // if (index > 0) {
+            //     tempData[index] = updatedPostList
+            //     setDataSource(tempData)
+            //     setIsRender(!isRender)
+            // }
+
+        } catch (err) {
+
+        }
+
+
+
+
+    }
     const onActionSheet = (index) => {
         setIsLoading(true)
 
@@ -100,14 +139,14 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
     const renderFooter = () => {
         return (
-            !_.isEmpty(dataSource) && (offset <= total_pages) ?
+            (offset <= total_pages) && !_.isEmpty(dataSource) ?
                 (
                     <View style={styles.footer}>
                         <TouchableOpacity
                             activeOpacity={0.9}
                             onPress={() => {
                                 setIsLoading(true)
-                                getPostsUser({
+                                getInterestedInMe({
                                     email: email,
                                     page: offset,
                                     successCallback,
@@ -123,31 +162,51 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
         );
     };
+
+
+
+
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
             <View style={styles.container}>
-                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Τα post μου'} />
 
-                {showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
+                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Ενδιαφερόμενοι'} />
+
+
+                {showPlaceholder ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
 
                     <Text>Περιμένετε..</Text>
                 </View> : (
                     <View style={styles.container}>
+                        <Spacer height={15} />
                         <FlatList
+                            initialNumToRender={5}
+                            removeClippedSubviews={true}
                             data={dataSource}
                             ItemSeparatorComponent={() => (
                                 <View style={{ height: 10 }} />
                             )}
                             keyExtractor={(item, index) => index}
                             enableEmptySections={true}
-                            renderItem={(item) => {
+                            renderItem={(item, index) => {
 
                                 return <PostLayoutComponent
-                                    showMenu={email === item.item.post.email}
+
+                                    showMenu={true}
                                     item={item.item}
                                     onMenuClicked={onMenuClicked}
                                     onProfileClick={onProfileClick}
+                                    showInterested={true}
+                                    deleteInterested={deleteInterested}
+                                    showMoreUsers={(post) => {
+                                        //console.log("post", post)
+                                        navigation1.navigate(routes.PREVIEW_INTERESTED_IN_ME_SCREEN)
+                                        dispatch({
+                                            type: ADD_ACTIVE_POST,
+                                            payload: post
+                                        })
 
+                                    }}
                                 />
                             }}
                             ListFooterComponent={renderFooter}
@@ -173,6 +232,12 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
                 )
                 }
 
+
+
+
+
+
+
             </View>
             <CustomInfoLayout
                 isVisible={showInfoModal}
@@ -186,7 +251,7 @@ const MyPostsTabScreen = ({ navigation, route, email, onCloseContainer }) => {
 
 }
 
-export default MyPostsTabScreen
+export default InterestedInMeProfileScreen
 
 const styles = StyleSheet.create({
     timer: {
