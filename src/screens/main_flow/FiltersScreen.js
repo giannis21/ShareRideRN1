@@ -9,7 +9,7 @@ import Rail from '../../components/rangePicker/Rail';
 import RailSelected from '../../components/rangePicker/RailSelected';
 import Label from '../../components/rangePicker/Label';
 import Notch from '../../components/rangePicker/Notch';
-import { carBrands } from '../../utils/Functions';
+import { carBrands, newCarBrands, range } from '../../utils/Functions';
 import { colors } from '../../utils/Colors';
 import DropDownPicker from 'react-native-dropdown-picker';
 import { RoundButton } from '../../Buttons/RoundButton';
@@ -21,6 +21,9 @@ import { ADD_DATES_FILTERS, REMOVE_DATES_FILTERS, SET_RADIO_SELECTED_FILTERS } f
 import { useSelector, useDispatch } from 'react-redux';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
+import { DataSlotPickerModal } from '../../utils/DataSlotPickerModal';
+import AntDesign from 'react-native-vector-icons/AntDesign'
+import moment from 'moment'
 const FiltersScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const renderThumb = useCallback(() => <Thumb />, []);
@@ -47,7 +50,9 @@ const FiltersScreen = ({ navigation, route }) => {
     const [isPickerVisible, setIsPickerVisible] = useState(false)
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [showInfoModal, setShowInfoModal] = useState(false);
-
+    const [pickerData, setPickerData] = useState([])
+    const [dataSlotPickerVisible, setDataSlotPickerVisible] = useState(false);
+    const [dataSlotPickerTitle, setDataSlotPickerTitle] = useState(constVar.selectAge);
     let dispatch = useDispatch()
     let isFocused = useIsFocused()
     useEffect(async () => {
@@ -57,6 +62,23 @@ const FiltersScreen = ({ navigation, route }) => {
         resetValues()
 
     }, [isFocused])
+
+    const openPicker = (option) => {
+
+        if (option === 1) {
+            setPickerData(range(18, 70))
+            setDataSlotPickerTitle(constVar.selectAge)
+            setDataSlotPickerVisible(true)
+        } else if (option === 2) {
+            setPickerData(_.tail(newCarBrands))
+            setDataSlotPickerTitle(constVar.selectCar)
+            setDataSlotPickerVisible(true)
+        } else {
+            setPickerData(range(2000, parseInt(moment().format('YYYY'))))
+            setDataSlotPickerTitle(constVar.selectCarAge)
+            setDataSlotPickerVisible(true)
+        }
+    }
 
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
@@ -90,7 +112,15 @@ const FiltersScreen = ({ navigation, route }) => {
     let goBack = () => {
         navigation.goBack()
     }
-
+    const getInitialValue = () => {
+        if (dataSlotPickerTitle === constVar.selectAge) {
+            return ' data.age'
+        } else if (dataSlotPickerTitle === constVar.selectCar) {
+            return 'data.carBrand'
+        } else {
+            return 'data.carDate'
+        }
+    }
     const addToStorage = async () => {
         if (filtersReducer?.returnStartDate !== constVar.returnStartDate ||
             filtersReducer?.startdate !== constVar.initialDate ||
@@ -319,42 +349,16 @@ const FiltersScreen = ({ navigation, route }) => {
                     <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
 
 
-                    <View style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 'auto', marginTop: 16 }}>
+                    <TouchableOpacity onPress={() => { openPicker(3) }} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 'auto', marginTop: 16 }}>
 
-                        <Text style={{ fontSize: 15 }}>Χρονολογια <Text style={{ fontSize: 12 }}>{'(>)'}</Text></Text>
-                        <TextInput
-                            style={{ fontSize: 20 }}
-                            maxLength={4}
-                            placeholder={'ex 2018'}
-                            value={carDate}
-                            keyboardType='numeric'
-                            onChangeText={(val) => { setCarDate(val) }}
-                        />
-
-                    </View>
+                        <Text style={{ fontSize: 15 }}>Χρονολογία <Text style={{ fontSize: 12 }}>{'(>)'}</Text></Text>
+                        <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                    </TouchableOpacity>
                     <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
-                    <View style={[item, { marginBottom: 16 }]}>
+                    <TouchableOpacity onPress={() => { openPicker(2) }} style={item}>
                         <Text style={{ fontSize: 15, width: '50%' }}>μάρκα αυτοκινήτου</Text>
-                    </View>
-                    <View style={open ? { height: 244 } : { height: 44 }}>
-                        <DropDownPicker
-                            onOpen={() => setAllowScroll(false)}
-                            onClose={() => setAllowScroll(true)}
-                            containerStyle={{ height: 'auto' }}
-                            zIndex={3000}
-                            zIndexInverse={1000}
-
-                            open={open}
-                            value={carValue}
-                            items={items}
-                            setOpen={setOpen}
-                            setValue={(val) => setCarValue(val)}
-                            setItems={setItems}
-                        />
-                    </View>
-
-
-
+                        <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                    </TouchableOpacity>
 
                     <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
 
@@ -384,7 +388,25 @@ const FiltersScreen = ({ navigation, route }) => {
                     setIsPickerVisible(false);
 
                 }}
+            />
 
+            <DataSlotPickerModal
+                data={pickerData}
+                title={dataSlotPickerTitle}
+                isVisible={dataSlotPickerVisible}
+                onClose={() => {
+                    setDataSlotPickerVisible(false);
+                }}
+                onConfirm={(selectedValue, secValue, thirdValue) => {
+
+                    if (dataSlotPickerTitle === constVar.selectCar) {
+                        setData({ ...data, carBrand: selectedValue })
+                    } else {
+                        setCarValue(selectedValue)
+                    }
+                    setDataSlotPickerVisible(false);
+                }}
+                initialValue1={getInitialValue()}
             />
         </View>
     )

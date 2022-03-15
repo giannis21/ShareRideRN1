@@ -9,17 +9,18 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Spacer } from '../layout/Spacer';
 import { useSelector, useDispatch } from 'react-redux';
-import { ADD_MIDDLE_STOP, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS } from '../actions/types';
+import { ADD_ACTIVE_POST, ADD_MIDDLE_STOP, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS } from '../actions/types';
 import { PostLayoutComponent } from './PostLayoutComponent';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { useIsFocused } from '@react-navigation/native';
+import { routes } from '../navigation/RouteNames';
 
 
 export function SearchedPostsComponent({
     offset,
     total_pages,
     data,
-
+    navigation
 }) {
     var _ = require('lodash');
 
@@ -98,7 +99,8 @@ export function SearchedPostsComponent({
         );
     };
     const onProfileClick = (email) => {
-        navigation.push(routes.PROFILE_SCREEN, { email: email })
+
+        navigation.navigate(routes.PROFILE_SCREEN, { email: email })
     }
     return (
 
@@ -123,7 +125,13 @@ export function SearchedPostsComponent({
                         item={item.item}
                         onLikeClick={onLikeClick}
                         onProfileClick={onProfileClick}
-
+                        onPress={(post) => {
+                            navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: true })
+                            dispatch({
+                                type: ADD_ACTIVE_POST,
+                                payload: post
+                            })
+                        }}
                     />
                 }}
                 ListFooterComponent={renderFooter}

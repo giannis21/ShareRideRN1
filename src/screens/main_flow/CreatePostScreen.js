@@ -25,7 +25,7 @@ import { CommentInputComponent } from '../../components/CommentInputComponent';
 import { constVar } from '../../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
 import { CalendarPickerModal } from '../../utils/CalendarPickerModal';
-import { ADD_END_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, REMOVE_MIDDLE_STOP, SET_RADIO_SELECTED } from '../../actions/types';
+import { ADD_END_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, IS_SEARCH_OPEN, REMOVE_MIDDLE_STOP, SET_RADIO_SELECTED } from '../../actions/types';
 
 import { createPost, getPlaceInfo, resetValues } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
@@ -34,6 +34,9 @@ import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { FiltersModal } from '../../utils/FiltersModal';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import moment from 'moment';
+import { usePreventGoBack } from '../../customHooks/usePreventGoBack';
+import { InfoPopupModal } from '../../utils/InfoPopupModal';
+import { getValue, keyNames, setValue } from '../../utils/Storage';
 
 const CreatePostScreen = ({ navigation, route }) => {
 
@@ -53,7 +56,7 @@ const CreatePostScreen = ({ navigation, route }) => {
     const [openSearch, setOpenSearch] = useState({ from: true, open: false, addStops: false })
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-
+    const [modalCloseVisible, setModalCloseVisible] = useState(false)
     const [allowPet, setAllowPet] = useState(false)
     const renderThumb = useCallback(() => <Thumb />, []);
     const renderRail = useCallback(() => <Rail />, []);
@@ -72,7 +75,11 @@ const CreatePostScreen = ({ navigation, route }) => {
 
     const post = useSelector(state => state.postReducer)
     const myUser = useSelector(state => state.authReducer.user)
+    //usePreventGoBack(handleBackButtonClick)
 
+    useEffect(() => {
+        setValue(keyNames.isSearchOpenPost, openSearch.open.toString())
+    }, [openSearch.open])
 
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
@@ -90,26 +97,22 @@ const CreatePostScreen = ({ navigation, route }) => {
         setAllowPet(false)
         dispatch({ type: CLEAR_ALL, payload: {} })
     }
+    useFocusEffect(useCallback(() => {
+        BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
+        return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
+    }, []));
 
-    function handleBackButtonClick() {
-
-        if (isFocused)
-            BackHandler.exitApp()
-        else {
-            navigation.goBack()
+    const handleBackButtonClick = async () => {
+        console.log(isFocused, await getValue(keyNames.isSearchOpenPost))
+        if (await getValue(keyNames.isSearchOpenPost) === 'true') {
+            setOpenSearch({ from: true, open: false, addStops: false })
+        } else {
+            setModalCloseVisible(true)
         }
+
         return true;
     }
 
-    useEffect(() => {
-        const backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            handleBackButtonClick()
-            return true;
-        });
-        return () => {
-            backhandler.remove();
-        };
-    }, []);
 
     const valid = () => {
         if (post.startplace === '' || post.endplace === '') {
@@ -170,7 +173,7 @@ const CreatePostScreen = ({ navigation, route }) => {
                 startdate: startDate,
                 enddate: post.enddate === constVar.endDate ? startDate : moment(post.enddate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
                 returnStartDate: post.returnStartDate === constVar.returnStartDate ? null : moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
-                returnEndDate: post.returnEndDate === constVar.returnEndDate ? moment(post.returnStartDate, 'DD/MM/YYYY').format('YYYY-MM-DD') : moment(post.returnEndDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
+                returnEndDate: post.returnEndDate === constVar.returnEndDate ? null : moment(post.returnEndDate, 'DD/MM/YYYY').format('YYYY-MM-DD'),
                 withReturn: getHasReturnDate(),
                 costperseat: cost,
                 comment: comment,
@@ -201,19 +204,7 @@ const CreatePostScreen = ({ navigation, route }) => {
         setData({ ...data, startPoint: value })
     }
 
-    let addStopStyle = {
-        borderRadius: 22,
-        paddingVertical: 3,
-        paddingHorizontal: 10,
-        alignSelf: 'baseline',
-        flexDirection: 'row',
-        justifyContent: 'center',
-        alignItems: 'center',
-        borderColor: colors.colorPrimary,
-        borderWidth: 1,
-        alignItems: 'center',
-        justifyContent: 'center'
-    }
+
 
     const getPlace = (place_id, place, isStartPoint) => {
         getPlaceInfo({
@@ -334,14 +325,14 @@ const CreatePostScreen = ({ navigation, route }) => {
                         ))
                     }
                 </View>
-                <View style={{ alignItems: 'center', justifyContent: 'center' }} >
-                    <RoundButton
-                        containerStyle={addStopStyle}
-                        leftIcon={true}
-                        text={'Προσθήκη'}
-                        onPress={() => { setOpenSearch({ from: true, open: true, addStops: true }) }}
-                        backgroundColor={colors.colorPrimary} />
-                </View>
+
+                <RoundButton
+                    containerStyle={[addStopStyle, { alignSelf: 'center', justifyContent: 'center' }]}
+                    leftIcon={true}
+                    text={'Προσθήκη'}
+                    onPress={() => { setOpenSearch({ from: true, open: true, addStops: true }) }}
+                    backgroundColor={colors.colorPrimary} />
+
 
             </View>
 
@@ -356,14 +347,17 @@ const CreatePostScreen = ({ navigation, route }) => {
             payload: option
         })
     }
-    const { leftAddSeat, rightAddSeat, amountLabel } = styles
+    const { leftAddSeat, rightAddSeat, amountLabel, addStopStyle } = styles
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
 
             <MainHeader
                 onSettingsPress={() => { navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email }) }}
-                onClose={() => { setOpenSearch({ from: true, open: false, addStops: false }) }}
+                onClose={() => {
+                    setOpenSearch({ from: true, open: false, addStops: false })
+
+                }}
                 showX={openSearch.open === true}
                 title={openSearch.open === true ? "Αναζήτηση" : "Δημιουργία Post"}
                 onLogout={() => {
@@ -386,6 +380,7 @@ const CreatePostScreen = ({ navigation, route }) => {
                     <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
 
                         <SelectLocationComponent
+
                             titleStart={constVar.startDestination}
                             titleEnd={constVar.endDestination}
                             isPostScreen={true}
@@ -504,6 +499,19 @@ const CreatePostScreen = ({ navigation, route }) => {
                 icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                 success={infoMessage.success}
             />
+            <InfoPopupModal
+                preventAction={true}
+                preventActionText={'Όχι'}
+                buttonText={'Έξοδος'}
+                isVisible={modalCloseVisible}
+                description={'Είσαι σίγουρος θέλεις να κλείσεις την εφαρμογή;'}
+
+                closeAction={() => {
+                    setModalCloseVisible(false);
+                }}
+                buttonPress={() => { BackHandler.exitApp() }}
+                descrStyle={true}
+            />
         </BaseView >
 
     );
@@ -524,6 +532,19 @@ const styles = StyleSheet.create({
         borderRadius: 20,
         flexDirection: 'row',
         alignSelf: 'center'
+    },
+    addStopStyle: {
+        borderRadius: 22,
+        paddingVertical: 3,
+        paddingHorizontal: 10,
+        alignSelf: 'baseline',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: colors.colorPrimary,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     leftAddSeat: {
         height: 45,

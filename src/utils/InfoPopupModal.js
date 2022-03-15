@@ -16,7 +16,9 @@ export function InfoPopupModal({
   buttonPress,
   isVisible,
   descrStyle,
-  onChangeText
+  onChangeText,
+  preventAction,
+  preventActionText
 }) {
   const { modal, container } = styles;
 
@@ -34,14 +36,20 @@ export function InfoPopupModal({
           <View style={styles.topLine} />
           <Spacer height={20} />
           <Text style={{ alignSelf: 'center', textAlign: 'center' }}>{description}</Text>
-
-          <CustomInput
-            text='εδώ, δίνεις το email σου'
-            keyboardType="email-address"
-            onChangeText={onChangeText}
-          />
+          {!preventAction &&
+            <CustomInput
+              text='εδώ, δίνεις το email σου'
+              keyboardType="email-address"
+              onChangeText={onChangeText}
+            />
+          }
           <Spacer height={16} />
+
+
           <RoundButton text={buttonText} onPress={buttonPress} backgroundColor={colors.colorPrimary} />
+          {preventAction &&
+            <RoundButton containerStyle={{ marginTop: 10 }} text={preventActionText} textColor={colors.colorPrimary} onPress={closeAction} />
+          }
           <Spacer height={26} />
         </View>
       </Modal>

@@ -5,40 +5,61 @@ import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 
 import { routes } from '../../navigation/RouteNames';
-import { getInterested, getInterestedPerUser, showInterest } from '../../services/MainServices';
+import { deleteRequest, getInterested, getInterestedPerUser, getRequests, showInterest } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { Loader } from '../../utils/Loader';
 import { OpenImageModal } from '../../utils/OpenImageModal';
 import { useNavigation } from '@react-navigation/native';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
-
-
+import { useDispatch, useSelector } from 'react-redux';
+import { ViewRow } from '../../components/HOCS/ViewRow';
+import { PictureComponent } from '../../components/PictureComponent';
+import { BASE_URL } from '../../constants/Constants';
+import RNFetchBlob from 'rn-fetch-blob';
+import { StarsRating } from '../../utils/StarsRating';
+import { DestinationsComponent } from '../../components/DestinationsComponent'
+import { InfoPopupModal } from '../../utils/InfoPopupModal';
+import { DELETE_REQUEST } from '../../actions/types';
 const RequestsProfileScreen = ({ navigation, route }) => {
 
     const [total_pages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [dataSource, setDataSource] = useState([]);
-    const [isRender, setIsRender] = useState(false)
+
+    const [modalCloseVisible, setModalCloseVisible] = useState(false)
+    const [isLoading, setIsLoading] = useState(true)
+    const [isSafeClick, setSafeClick] = useState(true)
+    const [showContent, setShowContent] = React.useState(true)
+    const [singleFile, setSingleFile] = useState(null);
+    const [itemToBeDeleted, setItemToBeDeleted] = useState(null)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-    const [isModalVisible, setIsModalVisible] = useState(false)
-    const [deletedPost, setDeletedPost] = useState(null);
-    const [showPlaceholder, setShowPlaceholder] = React.useState(true)
-    const { height, width } = Dimensions.get("window");
     const navigation1 = useNavigation();
-
+    const requestsReducer = useSelector(state => state.requestsReducer)
+    const myUser = useSelector(state => state.authReducer.user)
     const goBack = () => {
         navigation.goBack()
     }
+    let dispatch = useDispatch()
+    const retrieveImage = async () => {
+        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
+        try {
+            const data = await RNFetchBlob.fs.readFile(path, 'base64');
+            setSingleFile(data)
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
     useEffect(() => {
-        if (route.params.email)
-            getInterestedPerUser({
-                email: route.params.email,
-                successCallback,
-                errorCallback
-            })
-    }, []);
+        retrieveImage()
+    }, [])
+
+    useEffect(() => {
+        console.log(requestsReducer.requests)
+        setDataSource(requestsReducer.requests)
+    }, [requestsReducer.requests]);
 
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
@@ -48,136 +69,140 @@ const RequestsProfileScreen = ({ navigation, route }) => {
                 callback()
         }, 2000);
     }
-
-    const successCallback = (data) => {
-        setDataSource(data.postUser);
-        setTotalPages(data.totalPages)
-        setLoading(false)
-        setShowPlaceholder(false)
-    }
-    const errorCallback = () => {
-        setLoading(false)
-        setShowPlaceholder(false)
-    }
-
-
-    const onProfileClick = (email) => {
-        console.log("adasdasdsdsa ", email)
-        try {
-            navigation1.push(routes.PROFILE_SCREEN, { email: email })
-        } catch (err) {
-            console.log("dadsa", err)
+    const deleteCurrentRequest = () => {
+        let data = {
+            data: {
+                postSearchId: itemToBeDeleted
+            }
         }
 
-    }
-    const onLikeClick = (postId, index) => {
-        setLoading(true)
-        showInterest({
-            email: route.params.email,
-            postId,
+        setModalCloseVisible(false)
+        deleteRequest({
+            data,
             successCallback: ((message) => {
-                setLoading(false)
-                let likedPost = dataSource.find((item) => item.post.postid === postId)
-
-
-                likedPost.interested = !likedPost.interested
-                dataSource[index] = likedPost
-                setDataSource(dataSource)
-                setIsRender(!isRender)
+                dispatch({
+                    type: DELETE_REQUEST,
+                    payload: itemToBeDeleted
+                })
                 setInfoMessage({ info: message, success: true })
                 showCustomLayout()
             }),
             errorCallback: ((message) => {
-                setLoading(false)
                 setInfoMessage({ info: message, success: false })
                 showCustomLayout()
             })
         })
     }
-    const onMenuClicked = (item1, index) => {
-        let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
-        setDeletedPost(postToBeDeleted)
-        setIsModalVisible(true)
-
-        //   console.log(item.post.postid, item.user.fullname)
+    const openDeleteModal = (postSearchId) => {
+        setItemToBeDeleted(postSearchId);
+        setModalCloseVisible(true)
     }
-    const showMoreUsers = (post) => {
 
-        console.log(post)
+    const successCallback = (data) => {
+
+        // setDataSource(data);
+        // setLoading(false)
+        // setShowPlaceholder(false)
     }
-    const onActionSheet = (index) => {
-        let newData = dataSource.filter((obj) => obj !== deletedPost)
-        setDataSource(newData)
-        setIsRender(!isRender)
-        // likedPost.interested = !likedPost.interested
-        // dataSource[index] = likedPost
-        // setDataSource(dataSource)
+    const errorCallback = () => {
+        setLoading(false)
+        setShowPlaceholder(false)
+    }
+    const ItemView = ({ item }) => {
 
-    };
-    return (
-        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 8, backgroundColor: 'white' }}>
-            <View style={styles.container}>
-                <TopContainerExtraFields onCloseContainer={goBack} title={'Post που ενδιαφέρομαι'} />
+        return (
 
-                {showPlaceholder ? (
-                    <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
-                        <Text>Περιμένετε..</Text>
+            <View style={{ height: 'auto', backgroundColor: 'white', borderRadius: 5, marginHorizontal: 5 }}>
+
+
+                <Spacer height={5} />
+
+                <ViewRow>
+                    <View style={{ width: '15%', marginStart: 6 }}>
+                        <PictureComponent
+                            isLocal={true}
+                            singleFile={singleFile}
+                            imageSize={"small"} />
+                        <Spacer width={15} />
                     </View>
-                ) : (
-                    <View style={styles.container}>
-                        <Spacer height={15} />
-                        <FlatList
-                            data={dataSource}
-                            ItemSeparatorComponent={() => (
-                                <View style={{ height: 10 }} />
-                            )}
-                            extraData={isRender}
-                            keyExtractor={(item, index) => 'item' + index}
-                            //   enableEmptySections={true}
-                            renderItem={(item, index) => {
 
-                                return <PostLayoutComponent
-                                    showFavoriteIcon={true}
-                                    showMenu={false}
-                                    item={item.item}
-                                    index
-                                    onMenuClicked={onMenuClicked}
-                                    onProfileClick={onProfileClick}
-                                    onLikeClick={onLikeClick}
 
-                                />
-                            }}
+                    <View style={{ marginTop: 3, width: '85%' }}>
+                        <ViewRow style={{ justifyContent: 'space-between' }}>
 
-                        />
+                            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{myUser.fullName}</Text>
+
+                            <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6, marginEnd: 10 }}> {item.created_at}</Text>
+                        </ViewRow>
+
+                        <Spacer height={10} />
+                        <View style={{ alignItems: 'flex-start' }}>
+                            <StarsRating rating={3} size="small" />
+                        </View>
+                        <Spacer height={5} />
+
+
+                        <ViewRow style={{ justifyContent: 'space-between' }}>
+                            <DestinationsComponent
+                                containerStyle={{ marginTop: 10, marginBottom: 15 }}
+                                startplace={item.startplace}
+                                endplace={item.endplace} />
+
+                            <TouchableOpacity onPress={() => openDeleteModal(item.postSearchId)} style={{ alignItems: 'flex-end', justifyContent: 'flex-end' }}>
+                                <Text style={remove}>Αφαίρεση</Text>
+                            </TouchableOpacity>
+                        </ViewRow>
+
+                        <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
+
+
                     </View>
-                )
-
-
-
-                }
-
-                <CustomInfoLayout
-                    isVisible={showInfoModal}
-                    title={infoMessage.info}
-                    icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
-                    success={infoMessage.success}
-                />
-                <OpenImageModal
-                    isVisible={isModalVisible}
-                    isPost={true}
-                    closeAction={() => {
-                        setIsModalVisible(false);
-                        setDeletedPost(null)
-                    }}
-                    buttonPress={(index) => {
-                        setIsModalVisible(false);
-                        onActionSheet(index)
-                    }}
-
-                />
-                <Loader isLoading={loading} />
+                </ViewRow>
             </View>
+        );
+    };
+
+    const { remove } = styles
+
+    return (
+        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
+
+            <View style={styles.container}>
+                <TopContainerExtraFields addMarginStart={true} onCloseContainer={goBack} title={'Τα αιτήματα μου'} />
+                <Spacer height={5} />
+
+                <View style={styles.container}>
+                    <FlatList
+                        data={dataSource}
+                        ItemSeparatorComponent={() => (
+                            <View style={{ height: 10 }} />
+                        )}
+                        keyExtractor={(item, index) => 'item' + index}
+                        renderItem={ItemView}
+                    />
+
+                </View>
+            </View>
+            <CustomInfoLayout
+                isVisible={showInfoModal}
+                title={infoMessage.info}
+                icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
+                success={infoMessage.success}
+            />
+            <InfoPopupModal
+                preventActionText={'Άκυρο'}
+                preventAction={true}
+                isVisible={modalCloseVisible}
+                description={'Είσαι σίγουρος/η θέλεις να σταματήσεις να λαμβάνεις ειδοποιήσεις για αυτό το ride;'}
+                buttonText={'Ναι, σίγουρος/η'}
+                closeAction={() => {
+                    setModalCloseVisible(false);
+                }}
+                buttonPress={deleteCurrentRequest}
+                descrStyle={true}
+            />
         </BaseView >
+
 
     );
 
@@ -186,6 +211,18 @@ const RequestsProfileScreen = ({ navigation, route }) => {
 export default RequestsProfileScreen
 
 const styles = StyleSheet.create({
+    remove: {
+        color: 'white',
+        borderRadius: 4,
+        paddingVertical: 2,
+        marginEnd: 10,
+        marginBottom: 10,
+        width: 'auto',
+        justifyContent: 'center',
+        alignItems: 'center',
+        paddingHorizontal: 4,
+        backgroundColor: 'red',
+    },
     timer: {
         fontSize: 17,
         fontWeight: '900',

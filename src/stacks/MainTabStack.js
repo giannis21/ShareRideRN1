@@ -21,6 +21,7 @@ import MyPostsProfileScreen from '../screens/profile_tabs/MyPostsProfileScreen';
 import PostsInterestedProfileScreen from '../screens/profile_tabs/PostsInterestedProfileScreen';
 import InterestedInMeProfileScreen from '../screens/profile_tabs/InterestedInMeProfileScreen';
 import RequestsProfileScreen from '../screens/profile_tabs/RequestsProfileScreen';
+import PostPreviewScreen from '../screens/main_flow/PostPreviewScreen';
 
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
@@ -73,6 +74,10 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.REQUESTS_PROFILE_SCREEN}
             component={RequestsProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.POST_PREVIEW_SCREEN}
+            component={PostPreviewScreen} />
 
 
     </Stack.Navigator>

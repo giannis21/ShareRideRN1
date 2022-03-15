@@ -10,6 +10,9 @@ import { colors } from '../utils/Colors';
 import { PictureComponent } from './PictureComponent';
 import { useSelector, useDispatch } from 'react-redux';
 import { StarsRating } from '../utils/StarsRating';
+import { DestinationsComponent } from './DestinationsComponent';
+import { ViewRow } from './HOCS/ViewRow';
+import { DatesPostComponent } from './DatesPostComponent';
 
 export function PostLayoutComponent({
     onPress,
@@ -29,37 +32,6 @@ export function PostLayoutComponent({
 
     const myUser = useSelector(state => state.authReducer.user)
 
-    const addHeight = () => {
-        return (<Spacer height={12} />)
-    }
-
-    function getMiddle() {
-        if (_.isUndefined(item?.post?.moreplaces) || !item?.post?.moreplaces || _.isEmpty(item?.post?.moreplaces))
-            return
-
-        let array = item?.post.moreplaces
-        if (typeof (item?.post?.moreplaces) === 'string') {
-            array = [...Array.from(JSON.parse(item?.post?.moreplaces))]
-        }
-
-        return (
-            <View style={{ marginStart: 16, marginVertical: 8, justifyContent: 'flex-start' }}>
-
-                {array.map((item1, index) => {
-
-                    return (
-                        <View style={{ flexDirection: 'row' }}>
-                            <Entypo name="location-pin" size={20} color={colors.colorPrimary} />
-                            <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item1?.place}</Text>
-                            <Spacer height={3} />
-                        </View>
-                    )
-                })}
-            </View>
-        )
-    }
-
-
     const safeClickListener = (callback) => {
         setSafeClick(false)
         setTimeout(function () {
@@ -76,126 +48,57 @@ export function PostLayoutComponent({
             }
         }
     }
-    const goToUsersProfile = (email) => {
 
-        if (isSafeClick) {
-            onProfileClick(email)
-            safeClickListener()
-
-        }
-    }
     const { addMoreUsers, userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
     let url = (BASE_URL + item.imagepath).toString()
 
     return (
 
-        <TouchableOpacity opacity={0.9} onPress={onPress} style={container}>
-
+        <TouchableOpacity opacity={0.9} onPress={() => { onPress(item) }} style={container}>
             <Spacer height={5} />
-
-            <View style={{ flexDirection: 'row' }}>
+            <ViewRow>
                 <View style={leftContainer}>
-                    <TouchableOpacity onPress={goToProfile}>
-                        <PictureComponent imageSize="small" url={BASE_URL + item.imagePath} />
-                    </TouchableOpacity>
-
-                    <Spacer width={15} />
+                    <PictureComponent onPress={goToProfile} imageSize="small" url={BASE_URL + item.imagePath} />
                 </View>
 
                 <View style={rightContainer}>
                     <View style={rightContainerView}>
                         <View style={{ width: '48%' }}>
-                            <TouchableOpacity onPress={goToProfile}>
-                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
-                            </TouchableOpacity>
+                            <Text onPress={goToProfile} style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
 
                             {((item?.user?.count && item?.user?.count > 0) || (myUser.count > 0) && _.isUndefined(item?.user?.email)) &&
-                                <View style={{ alignItems: 'center', flexDirection: 'row' }}>
-
+                                <ViewRow style={{ alignItems: 'center' }}>
                                     <StarsRating rating={item?.user?.average ?? myUser.average} size="small" />
                                     <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({item?.user?.count ?? myUser.count})</Text>
-
-
-                                </View>
+                                </ViewRow>
                             }
 
                             <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginTop: 4 }}>{item?.post?.date} - {item?.post?.postid}</Text>
 
-
-                            <Spacer height={10} />
-
-                            {/* locations view   */}
-                            <View style={{ height: 'auto' }} >
-
-                                <View style={locationsLine} />
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Entypo name="location-pin" size={20} color={colors.colorPrimary} />
-                                    <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.startplace}</Text>
-                                </View>
-
-
-                                {(item.post.moreplaces && item.post.moreplaces.length > 0) ? getMiddle() : addHeight()}
-
-                                <View style={{ flexDirection: 'row' }}>
-                                    <Entypo name="location-pin" size={20} color={colors.colorPrimary} />
-                                    <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.endplace}</Text>
-                                </View>
-
-
-                            </View>
-                            <Spacer height={15} />
+                            <DestinationsComponent
+                                containerStyle={{ marginTop: 10, marginBottom: 15 }}
+                                moreplaces={item?.post?.moreplaces}
+                                startplace={item.post.startplace}
+                                endplace={item.post.endplace} />
 
                         </View>
                         <View style={{ width: '49%' }}>
                             {showMenu &&
-                                <TouchableOpacity onPress={() => onMenuClicked(item)}>
-                                    <Entypo name="dots-three-horizontal" size={20} color='black' style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
+                                <Entypo
+                                    onPress={() => { onMenuClicked(item) }}
+                                    name="dots-three-horizontal" size={20}
+                                    color='black'
+                                    style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
 
-                                </TouchableOpacity>
                             }
+                            <DatesPostComponent style={{ marginTop: showMenu ? 25 : 44 }} item={item} />
 
-                            <View style={{ marginTop: showMenu ? 25 : 44 }}>
-                                <Text style={{ fontSize: 13, fontWeight: 'bold', alignSelf: 'center' }}>Αναχώρηση</Text>
-
-                                <View style={{ flexDirection: 'row', marginTop: 10, justifyContent: 'center', alignItems: 'center' }}>
-                                    <Text style={styles.date}>{item.post.startdate}</Text>
-                                    {item.post.startdate !== item.post.enddate &&
-                                        <View style={{ flexDirection: 'row' }}>
-                                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginHorizontal: 5 }}>έως</Text>
-
-                                            <Text style={styles.date}>{item.post.enddate}</Text>
-                                        </View>
-
-                                    }
-
-                                </View>
-                                {item.post.returnStartDate &&
-                                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
-                                        <Text style={{ fontSize: 13, fontWeight: 'bold', marginTop: 8 }}>επιστροφή</Text>
-                                        <View style={{ flexDirection: 'row', marginTop: 10 }}>
-                                            <Text style={styles.date}>{item.post.returnStartDate}</Text>
-                                            {item.post.returnStartDate !== item.post.returnEndDate &&
-                                                <View style={{ flexDirection: 'row' }}>
-                                                    <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginHorizontal: 5 }}>έως</Text>
-
-                                                    <Text style={styles.date}>{item.post.returnEndDate}</Text>
-                                                </View>
-
-                                            }
-
-                                        </View>
-
-
-                                    </View>
-                                }
-
-                            </View>
                         </View>
 
                     </View>
 
                     <View style={bottomContainer}>
-                        <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                        <ViewRow style={{ alignItems: 'center' }}>
                             {showFavoriteIcon &&
                                 <TouchableOpacity style={heartContainer} onPress={() => {
                                     if (isSafeClick) {
@@ -211,7 +114,7 @@ export function PostLayoutComponent({
                                 <Text style={seats}> {item.post.numseats} </Text>
                             </Text>
 
-                        </View>
+                        </ViewRow>
                         <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.costperseat}€/Θέση</Text>
 
                     </View>
@@ -219,7 +122,7 @@ export function PostLayoutComponent({
                 </View>
 
 
-            </View>
+            </ViewRow>
 
             {showInterested &&
                 <View>
@@ -312,8 +215,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold', marginStart: 10
     },
     leftContainer: {
-        width: '16%',
-
+        width: '12%'
     },
     rightContainer: {
         width: '84%'

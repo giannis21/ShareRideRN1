@@ -1,4 +1,4 @@
-import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_END_POINT, ADD_MIDDLE_STOP, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, CLEAR_SEARCH_VALUES, DELETE_ACTIVE_USER, LOGIN_USER, LOGOUT, REMOVE_DATES, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS, SET_RADIO_SELECTED, SET_RADIO_SELECTED_FILTERS, SIGNUP_CHECK } from '../actions/types';
+import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_END_POINT, ADD_MIDDLE_STOP, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, CLEAR_SEARCH_VALUES, DELETE_ACTIVE_USER, IS_SEARCH_OPEN, LOGIN_USER, LOGOUT, REMOVE_DATES, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS, SET_RADIO_SELECTED, SET_RADIO_SELECTED_FILTERS, SIGNUP_CHECK } from '../actions/types';
 import { constVar } from '../utils/constStr';
 
 
@@ -28,17 +28,25 @@ const intialState = {
     returnStartDate: constVar.returnStartDate,
     returnEndDate: constVar.returnEndDate,
     activePost: {},
-    moreplaces: []
+    moreplaces: [],
+    isSearchOpened: true
 };
 
 export function PostReducer(state = intialState, action) {
-    console.log(action.type)
+    console.log(action.type, action.payload)
     switch (action.type) {
         case ADD_MIDDLE_STOP: {
 
             return {
                 ...state,
                 moreplaces: [...state.moreplaces, action.payload]
+            };
+        }
+        case IS_SEARCH_OPEN: {
+            console.log("dadadkasdksadksa", action.payload)
+            return {
+                ...state,
+                isSearchOpened: action.payload
             };
         }
         case CLEAR_ALL: {
@@ -108,7 +116,6 @@ export function PostReducer(state = intialState, action) {
                 ...state,
                 endplace: state.endplace = action.payload[0],
                 endcoord: state.endcoord = action.payload[1]
-
             };
         case ADD_SEARCH_START_POINT:
 

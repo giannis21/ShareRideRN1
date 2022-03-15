@@ -54,6 +54,10 @@ const InterestedInMeProfileScreen = ({ navigation, route }) => {
         }
     }, [isFocused]);
 
+    const goBack = () => {
+        navigation.goBack()
+    }
+
     const successCallback = (data) => {
 
         setIsLoading(false)
@@ -167,10 +171,10 @@ const InterestedInMeProfileScreen = ({ navigation, route }) => {
 
 
     return (
-        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
+        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 8, backgroundColor: 'white' }}>
             <View style={styles.container}>
 
-                <TopContainerExtraFields onCloseContainer={onCloseContainer} title={'Ενδιαφερόμενοι'} />
+                <TopContainerExtraFields onCloseContainer={goBack} title={'Ενδιαφερόμενοι'} />
 
 
                 {showPlaceholder ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
@@ -199,13 +203,18 @@ const InterestedInMeProfileScreen = ({ navigation, route }) => {
                                     showInterested={true}
                                     deleteInterested={deleteInterested}
                                     showMoreUsers={(post) => {
-                                        //console.log("post", post)
                                         navigation1.navigate(routes.PREVIEW_INTERESTED_IN_ME_SCREEN)
                                         dispatch({
                                             type: ADD_ACTIVE_POST,
                                             payload: post
                                         })
-
+                                    }}
+                                    onPress={(post) => {
+                                        navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: false })
+                                        dispatch({
+                                            type: ADD_ACTIVE_POST,
+                                            payload: post
+                                        })
                                     }}
                                 />
                             }}

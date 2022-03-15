@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image, FlatList, ScrollView } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
@@ -9,7 +9,8 @@ import Entypo from 'react-native-vector-icons/Entypo';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons';
 import { Spacer } from '../layout/Spacer';
 import { useSelector, useDispatch } from 'react-redux';
-import { ADD_MIDDLE_STOP, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS } from '../actions/types';
+import { ADD_MIDDLE_STOP, IS_SEARCH_OPEN, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS } from '../actions/types';
+import { useIsFocused } from '@react-navigation/native';
 
 
 export function SearchLocationComponent({
@@ -27,6 +28,7 @@ export function SearchLocationComponent({
     const [selectionEnabled, setSelectionEnabled] = useState(true)
     const post = useSelector(state => state.postReducer)
     const dispatch = useDispatch();
+
 
     let getLocation = (value) => {
         setValue(value)

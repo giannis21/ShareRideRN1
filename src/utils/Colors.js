@@ -23,5 +23,6 @@ export const colors = {
     infoColor: '#5BC0DE',
     grey100: '#FAFAFA',
     grey200: '#EEEEEE',
-    blue50: '#e5f5fa'
+    blue50: '#e5f5fa',
+    title_grey: '#595959'
 }

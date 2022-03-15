@@ -11,7 +11,8 @@ import { CloseIconComponent } from './CloseIconComponent';
 
 export function TopContainerExtraFields({
     onCloseContainer,
-    title
+    title,
+    addMarginStart
 }) {
 
 
@@ -19,7 +20,7 @@ export function TopContainerExtraFields({
 
         <View style={{ height: 'auto', width: '100%', backgroundColor: 'white' }}>
             <Spacer height={5} />
-            <View style={{ flexDirection: 'row', paddingBottom: 2 }}>
+            <View style={{ flexDirection: 'row', paddingBottom: 2, marginStart: addMarginStart ? 10 : 0 }}>
                 <View style={{ marginTop: 5, marginStart: 1 }}>
                     <CloseIconComponent onPress={onCloseContainer} />
                 </View>

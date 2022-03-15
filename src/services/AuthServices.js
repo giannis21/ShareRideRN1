@@ -45,7 +45,6 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
 
   await instance.post(`/login`, send, config)
     .then(res => {
-      console.log(res.data)
       storeInfoLocally(res.data, send.data.pass)
       successCallBack(res.data.message, getUser(res.data, send.data.pass))
 
@@ -67,7 +66,6 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
 
   await instance.post(`/passotp`, send, config)
     .then(res => {
-      console.log("passotp called ", res.data)
       successCallBack(res.data.otp, email, res.data.message)
 
 
@@ -93,7 +91,6 @@ export const restorePassword = async ({ email, password, successCallBack, errorC
 
   await instance.post(`/updateUserPass`, send, config)
     .then(res => {
-      console.log("user updated ", res.data)
       successCallBack(res.data.message)
     }).catch(function (error) {
       console.log("user updated not", error.response.data)
@@ -144,7 +141,6 @@ export const registerUser = async (data, successCallBack, errorCallback) => {
   }
   await instance.post(`/register`, send, config)
     .then(res => {
-      console.log("data ", res.data.body.message, res.data.body.otp)
       successCallBack(res.data.body.message, res.data.body.otp)
     }).catch(function (error) {
       errorCallback(error.response.data.message ?? constVar.sthWentWrong)

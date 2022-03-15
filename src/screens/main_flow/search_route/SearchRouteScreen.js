@@ -1,27 +1,30 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
-import { getPlaceInfo, resetValues, searchForPosts } from '../../../services/MainServices';
+import { createRequest, getPlaceInfo, getRequests, resetValues, searchForPosts } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
-import { filterKeys, getValue, keyNames } from '../../../utils/Storage';
+import { filterKeys, getValue, keyNames, setValue } from '../../../utils/Storage';
 import { BackHandler } from 'react-native';
-import { useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
 import { CustomInput } from '../../../utils/CustomInput';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 import { FiltersModal } from '../../../utils/FiltersModal';
 import { constVar } from '../../../utils/constStr';
-import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES } from '../../../actions/types';
+import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_REQUESTS } from '../../../actions/types';
 import { SelectLocationComponent } from '../../../components/SelectLocationComponent';
 import { Spacer } from '../../../layout/Spacer';
 import { RoundButton } from '../../../Buttons/RoundButton';
 import { SearchedPostsComponent } from '../../../components/SearchedPostsComponent';
 import { CustomInfoLayout } from '../../../utils/CustomInfoLayout';
 import moment from 'moment';
+import { usePreventGoBack } from '../../../customHooks/usePreventGoBack';
+import { InfoPopupModal } from '../../../utils/InfoPopupModal';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const SearchRouteScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -32,47 +35,95 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [total_pages, setTotalPages] = useState(1);
-
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
-    let scaleValue = new Animated.Value(0); // declare an animated value
+    const [modalCloseVisible, setModalCloseVisible] = useState(false)
     const isFocused = useIsFocused()
-    const cardScale = scaleValue.interpolate({
-        inputRange: [0, 0.5, 1],
-        outputRange: [4, 1.1, 1.2]
-    });
 
     const myUser = useSelector(state => state.authReducer.user)
     const post = useSelector(state => state.postReducer)
+    // usePreventGoBack(handleBackButtonClick)
 
     const dispatch = useDispatch()
 
+    useEffect(() => {
+        setValue(keyNames.isSearchOpen, openSearch.open.toString())
+    }, [openSearch.open])
+
+    useEffect(() => {
+        getRequests1()
+        //dispatch(getRequests())
+    }, [myUser.email])
+
+
+    useFocusEffect(useCallback(() => {
+        BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
+        return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
+    }, []));
+
+
+    const getRequests1 = () => {
+        getRequests({
+            successCallback: ((data) => {
+                dispatch({
+                    type: GET_REQUESTS,
+                    payload: data
+                })
+            }),
+            errorCallback: ((message) => {
+
+            })
+        })
+    }
     const resetValues = () => {
         dispatch({ type: CLEAR_SEARCH_VALUES, payload: {} })
     }
-    function handleBackButtonClick() {
-        BackHandler.exitApp()
+
+    const handleBackButtonClick = async () => {
+        if (!isFocused) return true
+
+        if (await getValue(keyNames.isSearchOpen) === 'true') {
+            setOpenSearch({ from: true, open: false })
+        } else {
+            if (isFocused)
+                setModalCloseVisible(true)
+
+        }
+
         return true;
     }
 
+    // useFocusEffect(() => {
+    //     let backBtnListener = BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
+
+    //     return () => {
+    //         backBtnListener.remove()
+    //     };
+    // }, []);
     const showFavorite = () => {
         if (post.searchStartplace !== '' && post.searchEndplace !== '')
             return true
 
         return false
     }
-    useEffect(() => {
 
-        BackHandler.addEventListener('hardwareBackPress', handleBackButtonClick);
-        return () => {
-            BackHandler.removeEventListener('hardwareBackPress', handleBackButtonClick);
-        };
-    }, []);
     const getPlace = (place_id, place, isStartPoint) => {
 
         getPlaceInfo({
             place_id,
             successCallback: ((coordinates) => {
+                if (openSearch.from !== true && post.searchStartcoord === coordinates) {
+
+                    setInfoMessage({ info: "Έχεις ήδη προσθέσει αυτή την τοποθεσία ως αρχικό προορισμό!", success: false })
+                    showCustomLayout()
+                    return
+                }
+
+                if (openSearch.from === true && post.searchEndcoord === coordinates) {
+                    setInfoMessage({ info: "Έχεις ήδη προσθέσει αυτή την τοποθεσία ως τελικό προορισμό!", success: false })
+                    showCustomLayout()
+                    return
+                }
 
                 dispatch({
                     type: getType(isStartPoint),
@@ -106,8 +157,8 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 startcoord: post.searchStartcoord,
                 endplace: post.searchEndplace,
                 endcoord: post.searchEndcoord,
-                startdate: '2022-03-09',// await getStartDate(),
-                enddate: '2024-03-19', //await getEndDate(),
+                startdate: await getStartDate(),
+                enddate: await getEndDate(),
                 page: 1,
                 cost: await getValue(filterKeys.maxCost) ?? '100',
                 age: await getStartAge(),
@@ -121,7 +172,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 returnEndDate: await getReturnEndDate()
             }
         }
-        console.log(sendObj)
+
         searchForPosts({
             sendObj,
             successCallback: ((data) => {
@@ -216,12 +267,42 @@ const SearchRouteScreen = ({ navigation, route }) => {
         setDataSource([]);
         setOpenSearchedPosts(false)
     }
+
+    let receiveNotification = () => {
+        let data =
+        {
+            data: {
+                startplace: post.searchStartplace,
+                startcoord: post.searchStartcoord,
+                endplace: post.searchEndplace,
+                endcoord: post.searchEndcoord,
+                startdate: "2022-12-20",
+                enddate: "2029-12-22"
+            }
+        }
+
+        createRequest({
+            data,
+            successCallback: ((message) => {
+                getRequests1()
+                setInfoMessage({ info: message, success: true })
+                showCustomLayout()
+            }),
+            errorCallback: ((errorMessage) => {
+                setInfoMessage({ info: errorMessage, success: false })
+                showCustomLayout()
+            })
+        })
+    }
+    const { addΤοFav, addStopStyle } = styles
     return (
 
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
             <Loader isLoading={isLoading} />
             <MainHeader
-                onClose={() => { openSearchedPost ? resetArray() : setOpenSearch({ from: true, open: false }) }}
+                onClose={() => {
+                    openSearchedPost ? resetArray() : setOpenSearch({ from: true, open: false });
+                }}
                 title={"Αναζήτηση διαδρομής"}
                 showX={openSearch.open === true || openSearchedPost === true}
                 onSettingsPress={() => {
@@ -248,7 +329,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                     }} />
             }
             {openSearchedPost && !_.isEmpty(dataSource) &&
-                <SearchedPostsComponent data={dataSource} offset={offset} total_pages={total_pages}
+                <SearchedPostsComponent navigation={navigation} data={dataSource} offset={offset} total_pages={total_pages}
                 />
             }
             <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
@@ -266,6 +347,29 @@ const SearchRouteScreen = ({ navigation, route }) => {
                     onPress={searchPosts}
                     backgroundColor={colors.colorPrimary} />
             </View>
+
+            {(post.searchStartplace !== '' && post.searchEndplace !== '') &&
+                <View View style={{ marginTop: 14 }}>
+                    <View style={addΤοFav} >
+                        <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Προσθήκη αναζήτησης στα αγαπημένα</Text>
+                        <TouchableOpacity
+                            onPress={() => { }}
+                            style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
+                            <Ionicons name="add" size={15} color='white' />
+
+                        </TouchableOpacity>
+                    </View>
+                    <Spacer height={10} />
+
+                    <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginHorizontal: 40, marginVertical: 10, alignSelf: 'center' }}>Θες να λαμβάνεις ειδοποίηση όταν δημιουργείται αντίστοιχο post;</Text>
+                    <RoundButton
+                        containerStyle={[addStopStyle, { alignSelf: 'center' }]}
+                        leftIcon={true}
+                        text={'Αίτημα λήψης ειδοποίησης'}
+                        onPress={receiveNotification}
+                        backgroundColor={colors.colorPrimary} />
+                </View>
+            }
             <CustomInfoLayout
                 isVisible={showInfoModal}
                 title={infoMessage.info}
@@ -284,7 +388,19 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 descrStyle={true}
                 onChangeText={() => { }}
             />
-        </BaseView>
+            <InfoPopupModal
+                preventAction={true}
+                preventActionText={'Έξοδος'}
+                isVisible={modalCloseVisible}
+                description={'Είσαι σίγουρος θέλεις να κλείσεις την εφαρμογή;'}
+                buttonText={'Όχι'}
+                closeAction={() => {
+                    setModalCloseVisible(false);
+                }}
+                buttonPress={() => { BackHandler.exitApp() }}
+                descrStyle={true}
+            />
+        </BaseView >
 
     );
 
@@ -293,6 +409,18 @@ const SearchRouteScreen = ({ navigation, route }) => {
 export default SearchRouteScreen
 
 const styles = StyleSheet.create({
+    addΤοFav: {
+        paddingHorizontal: 13,
+        justifyContent: 'space-around',
+        flexDirection: 'row',
+        alignItems: 'center',
+        width: '100%',
+        alignSelf: 'baseline',
+
+        borderRadius: 13,
+        marginEnd: 10,
+
+    },
     timer: {
         fontSize: 17,
         fontWeight: '900',
@@ -320,6 +448,19 @@ const styles = StyleSheet.create({
     container: {
         padding: 16,
         flexGrow: 1
+    },
+    addStopStyle: {
+        borderRadius: 22,
+        paddingVertical: 3,
+        paddingHorizontal: 10,
+        alignSelf: 'baseline',
+        flexDirection: 'row',
+        justifyContent: 'center',
+        alignItems: 'center',
+        borderColor: colors.colorPrimary,
+        borderWidth: 1,
+        alignItems: 'center',
+        justifyContent: 'center'
     },
     input: {
         height: 40,

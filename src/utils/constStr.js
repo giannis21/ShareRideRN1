@@ -52,5 +52,10 @@ export const constVar = {
 
     startDestination: 'Αφετηρία προορισμού',
     endDestination: 'Τελικός προορισμός',
+    phoneIncorrect: 'Ο αριθμός δεν αντιστοιχεί σε κάποιο νούμερο',
+    instagramIncorrect: 'Ο λογαριασμός δεν είναι έγκυρος',
+    selectAge: 'Επιλογή ηλικίας',
+    selectCar: 'Επιλογή μάρκας',
+    selectCarAge: 'Επιλογή χρονολογίας',
 
 }

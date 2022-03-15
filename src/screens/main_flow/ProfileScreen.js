@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-
+import moment from 'moment';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
@@ -12,34 +12,32 @@ import MaterialIcons from 'react-native-vector-icons/MaterialIcons'
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { StarsRating } from '../../utils/StarsRating';
 import MaterialCommunityIcons from 'react-native-vector-icons/MaterialCommunityIcons'
+import AntDesign from 'react-native-vector-icons/AntDesign'
 import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { PictureComponent } from '../../components/PictureComponent';
 import { getValue, keyNames } from '../../utils/Storage';
 import { RatingDialog } from '../../utils/RatingDialog';
-import { getInterestedInMe, rateUser, searchUser } from '../../services/MainServices';
+import { getInterestedInMe, rateUser, searchUser, updateProfile } from '../../services/MainServices';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { BASE_URL } from '../../constants/Constants';
 import { constVar } from '../../utils/constStr';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import RatingTabScreen from '../profile_tabs/RatingTabScreen';
-import MyPostsTabScreen from '../profile_tabs/MyPostsTabScreen';
-import ActiveRequestsScreen from '../profile_tabs/ActiveRequestsScreen'
 import { NavigationContainer } from '@react-navigation/native';
-import PostsInterestedTabScreen from '../profile_tabs/PostsInterestedTabScreen';
-import InterestedInMeScreen from '../profile_tabs/InterestedInMeScreen';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { Animated, Easing } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
 import { RoundButton } from '../../Buttons/RoundButton';
 import { ADD_AVERAGE } from '../../actions/types';
 import { TextInput } from 'react-native-gesture-handler';
-import { onLaunchCamera, onLaunchGallery } from '../../utils/Functions';
+import { carBrands, newCarBrands, onLaunchCamera, onLaunchGallery, range } from '../../utils/Functions';
 import { OpenImageModal } from '../../utils/OpenImageModal';
 import { routes } from '../../navigation/RouteNames';
+import { DATA_USER_TYPE, regex } from '../../utils/Regex';
+import { DataSlotPickerModal } from '../../utils/DataSlotPickerModal';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
-    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false, hasRequests: false }
+    let initalData = { email: '', facebook: '', initialFacebook: '', instagram: '', initialInstagram: '', carBrand: 'ΟΛΑ', initialCarBrand: 'ΟΛΑ', carDate: '', initialCarDate: '', fullName: '', phone: '', initialPhone: '', age: '', initialAge: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false, hasRequests: false }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
@@ -47,85 +45,127 @@ const ProfileScreen = ({ navigation, route }) => {
     const [rating, setCurrentRating] = useState(null);
 
     const [isRatingDialogOpened, setRatingDialogOpened] = useState(false);
+    const [dataSlotPickerVisible, setDataSlotPickerVisible] = useState(false);
+    const [dataSlotPickerTitle, setDataSlotPickerTitle] = useState(constVar.selectAge);
     const [userViewRate, setUserViewRate] = useState(true);
     const [headerVisible, setHeaderVisible] = useState(false);
-    const [initialReviews, setInitialReviews] = useState();
-    const [openTabs, setOpenTabs] = useState(false)
     const { height, width } = Dimensions.get("window");
-    const [openRatings, setOpenRatings] = useState(false)
-    const [openMyPosts, setOpenMyPosts] = useState(false)
-    const [openPostsInterested, setOpenPostsInterested] = useState(false)
-    const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
-    const [openRequests, setOpenRequests] = useState(false)
+
     const [editProfile, setEditProfile] = useState(false)
     const [singleFile, setSingleFile] = useState(null);
     const [isImageModalVisible, setImageModalVisible] = useState(false)
+    const [phoneNumber, setPhoneNumber] = useState('')
+    const [pickerData, setPickerData] = useState([])
     const dispatch = useDispatch()
-    let heightValue = useState(new Animated.Value(height))[0]
-    let heightValue1 = useState(new Animated.Value(height))[0]
+
     const myUser = useSelector(state => state.authReducer.user)
 
-
     const scrollRef = useRef();
-    const closeTab = () => {
-        handlerAnimation(false)
-        setHeaderVisible(true);
-        // if (openPostsInterested) {
-        setOpenPostsInterested(false)
-        // } else if (openRatings) {
-        setOpenRatings(false)
-        //} else if (openMyPosts) {
-        setOpenMyPosts(false)
-        // } else if (openRequests) {
-        setOpenRequests(false)
-        // } else if (openPostsInterestedInMe) {
-        setOpenPostsInterestedInMe(false)
-        //}
-
-
-    }
-    useEffect(() => {
-        const backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            // if (hasOpenTab) {
-            // closeTab()
-            // } else {
-            goBack()
-            //}
-
-            return true;
-        });
-        return () => {
-            backhandler.remove();
-        };
-    }, []);
-
-    const goBack = () => {
-        navigation.goBack()
-    }
-    React.useEffect(async () => {
-        console.log(await getValue(keyNames.email))
-    }, [])
 
     const Tab = createMaterialTopTabNavigator();
 
+    const onTextsChanged = (val, icon) => {
+        switch (icon) {
+            case 'phone': {
+                setData({ ...data, phone: val })
+                break
+            }
+            case 'age': {
+                setData({ ...data, age: val })
+                break
+            }
+            case 'facebook': {
+                setData({ ...data, facebook: val })
+                break
+            }
+            case 'instagram': {
+                setData({ ...data, instagram: val })
+                break
+            }
+        }
+    }
     function userInfo(icon, title, subTitle, editable, keyboardType) {
         return (
             <View style={{ flexDirection: 'row', marginStart: 16, marginEnd: 16 }}>
                 <MaterialCommunityIcons name={icon} size={32} color={colors.colorPrimary} />
                 <Spacer width={16} />
                 <View>
-                    <Spacer height={3} />
-                    <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6 }}>{title}</Text>
-                    <Spacer height={5} />
-                    <TextInput keyboardType={keyboardType ? 'numeric' : 'default'} editable={editable} style={{ fontSize: 15, fontWeight: 'bold', color: 'black', width }}>{subTitle}</TextInput>
-                    {editable &&
-                        <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '80%' }} />
+
+                    <Text style={{ marginVertical: 6, fontSize: 13, fontWeight: 'bold', color: getColorOrTitle(icon, DATA_USER_TYPE.TITLE_COLOR, title), opacity: 0.6 }}>{getColorOrTitle(icon, DATA_USER_TYPE.TITLE, title)}</Text>
+                    <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && icon === 'account-details' && openPicker(1) }} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }} >
+                        <TextInput
+                            maxLength={icon === 'age' ? 2 : icon === 'phone' ? 10 : null}
+                            onChangeText={(val) => onTextsChanged(val, icon)}
+                            keyboardType={keyboardType ? 'numeric' : 'default'}
+                            editable={editable}
+                            style={{ fontSize: 15, fontWeight: 'bold', color: 'black', width: '100%' }}>{subTitle}</TextInput>
+
+                        {editProfile && icon === 'account-details' &&
+                            <View style={{ position: 'absolute', right: '23%' }}>
+                                <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+
+                            </View>
+                        }
+                    </TouchableOpacity>
+
+                    {editProfile && icon !== 'email' &&
+                        < View style={{ backgroundColor: getColorOrTitle(icon, DATA_USER_TYPE.LINE_COLOR, title), height: 1, width: '80%' }} />
                     }
 
                 </View>
             </View>
         )
     }
+
+    const getColorOrTitle = (icon, type, title) => {
+        switch (icon) {
+            case 'phone': {
+                switch (type) {
+                    case DATA_USER_TYPE.LINE_COLOR:
+                        return regex.phoneNumber.test(data.phone) ? colors.colorPrimary : 'red'
+                    case DATA_USER_TYPE.TITLE_COLOR:
+                        return regex.phoneNumber.test(data.phone) ? colors.title_grey : 'red'
+                    case DATA_USER_TYPE.TITLE:
+                        return regex.phoneNumber.test(data.phone) ? title : constVar.phoneIncorrect
+                }
+            }
+            case 'facebook': {
+                switch (type) {
+                    case DATA_USER_TYPE.LINE_COLOR:
+                        return data.facebook.length >= 3 || data.facebook === '-' ? colors.colorPrimary : 'red'
+                    case DATA_USER_TYPE.TITLE_COLOR:
+                        return data.facebook.length >= 3 || data.facebook === '-' ? colors.title_grey : 'red'
+                    case DATA_USER_TYPE.TITLE:
+                        return data.facebook.length >= 3 || data.facebook === '-' ? title : constVar.instagramIncorrect
+                }
+            }
+            case 'instagram': {
+                switch (type) {
+                    case DATA_USER_TYPE.LINE_COLOR:
+                        return regex.instagram.test(data.instagram) || data.instagram === '-' ? colors.colorPrimary : 'red'
+                    case DATA_USER_TYPE.TITLE_COLOR:
+                        return regex.instagram.test(data.instagram) || data.instagram === '-' ? colors.title_grey : 'red'
+                    case DATA_USER_TYPE.TITLE:
+                        return regex.instagram.test(data.instagram) || data.instagram === '-' ? title : constVar.instagramIncorrect
+                }
+            }
+            default: {
+                switch (type) {
+                    case DATA_USER_TYPE.LINE_COLOR:
+                        return colors.colorPrimary
+                    case DATA_USER_TYPE.TITLE_COLOR:
+                        return colors.title_grey
+                    case DATA_USER_TYPE.TITLE:
+                        return title
+                }
+
+            }
+
+        }
+        return title
+    }
+
+
     function renderTopContainer() {
         return (
             <View style={{ position: 'absolute', height: 'auto', width: '100%', backgroundColor: 'white' }}>
@@ -155,7 +195,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
                 {
                     route.params?.email === myUser.email &&
-                    <TouchableOpacity activeOpacity={1} onPress={() => { setEditProfile(!editProfile) }} style={{ position: 'absolute', justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16 }}>
+                    <TouchableOpacity activeOpacity={1} onPress={resetToInitialState} style={{ position: 'absolute', justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16 }}>
                         {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
                             <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
                         }
@@ -166,6 +206,19 @@ const ProfileScreen = ({ navigation, route }) => {
 
             </View>
         )
+    }
+    const resetToInitialState = () => {
+        setEditProfile(!editProfile)
+        setData({
+            ...data,
+            phone: data.initialPhone,
+            facebook: data.initialFacebook,
+            instagram: data.initialInstagram,
+            age: data.initialAge,
+            carBrand: data.initialCarBrand,
+            carDate: data.initialCarDate
+
+        })
     }
 
     const onActionSheet = (index) => {
@@ -187,6 +240,8 @@ const ProfileScreen = ({ navigation, route }) => {
     };
 
     const setUserData = async (data) => {
+        if (route.params?.email === myUser.email || data.reviewAble === false) //this is my profile
+            setUserViewRate(false)
 
         if (!_.isNull(data.average))
             setCurrentRating(data.average.toString())
@@ -196,11 +251,17 @@ const ProfileScreen = ({ navigation, route }) => {
         setData({
             email: data?.user?.email,
             phone: data.user.mobile ?? '-',
+            initialPhone: data.user.mobile ?? '-',
             age: data.user.age,
+            initialAge: data.user.age,
             facebook: data.user.facebook ?? '-',
+            initialFacebook: data.user.facebook ?? '-',
             instagram: data.user.instagram ?? '-',
+            initialInstagram: data.user.instagram ?? '-',
             carBrand: data.user.car ?? '-',
+            initialCarBrand: data.user.car ?? '-',
             carDate: data.user.cardate ?? '-',
+            initialCarDate: data.user.cardate ?? '-',
             fullName: data.user.fullname ?? '-',
             image: BASE_URL + data.image ?? '-',
             hasInterested: data.hasInterested,
@@ -214,6 +275,7 @@ const ProfileScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
+
         searchUser({
             email: route.params.email,
             successCallback: searchUserSuccessCallback,
@@ -223,18 +285,30 @@ const ProfileScreen = ({ navigation, route }) => {
     }, [])
 
     const searchUserSuccessCallback = async (data) => {
-        if (route.params?.email === myUser.email || data.reviewAble === false) //this is my profile
-            setUserViewRate(false)
-
         setUserData(data)
     }
     const searchUserErrorCallback = () => {
 
     }
-
+    const getInitialValue = () => {
+        if (dataSlotPickerTitle === constVar.selectAge) {
+            return data.age
+        } else if (dataSlotPickerTitle === constVar.selectCar) {
+            return data.carBrand
+        } else {
+            return data.carDate
+        }
+    }
+    const setDatePickerValues = (selectedValue) => {
+        if (dataSlotPickerTitle === constVar.selectAge) {
+            setData({ ...data, age: selectedValue })
+        } else if (dataSlotPickerTitle === constVar.selectCar) {
+            setData({ ...data, carBrand: selectedValue })
+        } else {
+            setData({ ...data, carDate: selectedValue })
+        }
+    }
     const rate = (rating, text) => {
-
-
         rateUser({
             email: data.email,
             emailreviewer: myUser.email,
@@ -245,8 +319,6 @@ const ProfileScreen = ({ navigation, route }) => {
         })
     }
     const ratingSuccessCallback = (message, average) => {
-
-
         setUserViewRate(false)
         setInfoMessage({ info: message, success: true })
         showCustomLayout(() => {
@@ -254,6 +326,51 @@ const ProfileScreen = ({ navigation, route }) => {
             if (!_.isNull(average))
                 setCurrentRating(average.toString())
         })
+    }
+
+    const openPicker = (option) => {
+
+        if (option === 1) {
+            setPickerData(range(18, 70))
+            setDataSlotPickerTitle(constVar.selectAge)
+            setDataSlotPickerVisible(true)
+        } else if (option === 2) {
+            setPickerData(_.tail(newCarBrands))
+            setDataSlotPickerTitle(constVar.selectCar)
+            setDataSlotPickerVisible(true)
+        } else {
+            setPickerData(range(2000, parseInt(moment().format('YYYY'))))
+            setDataSlotPickerTitle(constVar.selectCarAge)
+            setDataSlotPickerVisible(true)
+        }
+    }
+    const updateProfile1 = () => {
+
+        let sendObj = {
+            data: {
+                mobile: data.phone,
+                age: data.age,
+                facebook: data.facebook,
+                instagram: data.instagram,
+                car: data.carBrand,
+                cardate: data.carDate
+            }
+        }
+        console.log(sendObj)
+        updateProfile({
+            sendObj,
+            successCallback: ((message) => {
+                setEditProfile(false)
+                setInfoMessage({ info: message, success: true })
+                showCustomLayout()
+            }),
+            errorCallback: ((errorMessage) => {
+                setEditProfile(false)
+                setInfoMessage({ info: errorMessage, success: false })
+                showCustomLayout()
+            })
+        })
+
     }
     const ratingErrorCallback = (message) => {
         setInfoMessage({ info: message, success: false })
@@ -282,28 +399,6 @@ const ProfileScreen = ({ navigation, route }) => {
 
     }
 
-    const handlerAnimation = (open) => {
-        if (!open) {
-
-            heightValue.setValue(0)
-            Animated.timing(heightValue, {
-                toValue: height,
-                duration: 350,
-                easing: Easing.linear,
-                useNativeDriver: true
-            }).start();
-        } else {
-
-
-            heightValue.setValue(height)
-            Animated.timing(heightValue, {
-                toValue: 0,
-                duration: 350,
-                easing: Easing.linear,
-                useNativeDriver: true
-            }).start();
-        }
-    }
     let style1 = { flex: 1, backgroundColor: 'white' }
     let style2 = { flex: 1, backgroundColor: 'black', opacity: 0.5 }
 
@@ -313,11 +408,25 @@ const ProfileScreen = ({ navigation, route }) => {
             setIsLoading(false)
         }, 3000)
     }
-    const hasOpenTab = () => {
-        if (openRequests || openPostsInterestedInMe || openPostsInterested || openMyPosts || openRatings)
-            return true
-        return false
+
+    const addPickerData = () => {
+
+
     }
+    const validFields = () => {
+        return (((data.facebook.length >= 3 || data.facebook === '-')
+            && (regex.instagram.test(data.instagram)
+                || data.instagram === '-')
+            && regex.phoneNumber.test(data.phone))
+            && (data.phone !== data.initialPhone
+                || data.age !== data.initialAge
+                || data.facebook !== data.initialFacebook
+                || data.instagram !== data.initialInstagram
+                || data.carBrand !== data.initialCarBrand
+                || data.carDate !== data.initialCarDate
+            ))
+    }
+
     const { tabsStyle } = styles
     return (
 
@@ -341,23 +450,18 @@ const ProfileScreen = ({ navigation, route }) => {
 
             />
 
-            <View style={{ position: 'absolute', zIndex: hasOpenTab() ? -1 : 1, marginTop: 10, marginStart: 10 }}>
-                <CloseIconComponent onPress={() => { navigation.goBack() }} />
-            </View>
+            <CloseIconComponent onPress={() => { navigation.goBack() }} containerStyle={{ position: 'absolute', zIndex: 1, marginTop: 10, marginStart: 10 }} />
 
-
-
-            {!hasOpenTab() && <TouchableOpacity
+            <TouchableOpacity
                 style={{ justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16, zIndex: 1, position: 'absolute' }}
                 activeOpacity={1}
-                onPress={() => { setEditProfile(!editProfile) }}>
+                onPress={resetToInitialState}>
                 {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
                     <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
                 }
 
             </TouchableOpacity>
-            }
-            {console.log("aaaaaa", data.email)}
+
             {
                 data.email !== '' &&
 
@@ -365,9 +469,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
                     <Loader isLoading={isLoading} />
-
-                    <Spacer height={35} />
-                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 35 }}>
                         <PictureComponent
                             singleFile={singleFile}
                             onPress={() => { editProfile && setImageModalVisible(true) }}
@@ -375,13 +477,9 @@ const ProfileScreen = ({ navigation, route }) => {
                             url={singleFile ? null : data.image}
                             imageSize={"big"} />
 
+                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
+                            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>{data.fullName}</Text>
 
-                        <Spacer height={10} />
-
-
-                        <View style={{ alignItems: 'center', justifyContent: 'center' }}>
-                            <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{data.fullName}</Text>
-                            <Spacer height={20} />
 
                             {data.count > 0 &&
                                 <View>
@@ -398,8 +496,6 @@ const ProfileScreen = ({ navigation, route }) => {
                             <Text style={{ fontSize: 13, backgroundColor: '#F0AD4E', fontWeight: 'bold', color: 'white', textAlign: 'center', marginTop: 5, width: 'auto', paddingHorizontal: 5, borderRadius: 6, paddingVertical: 1 }}>{data.count === 1 ? data.count + ` Ψήφος` : data.count + ` Ψήφοι`} </Text>
                         }
 
-
-
                         <Spacer height={20} />
 
                         {userViewRate &&
@@ -411,9 +507,7 @@ const ProfileScreen = ({ navigation, route }) => {
                         <Spacer height={20} />
                         <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{constVar.personalInfo}</Text>
                         <Spacer height={10} />
-                        <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
-
-
+                        <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1 }} />
 
                     </View>
 
@@ -422,12 +516,11 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Spacer height={28} />
                     {userInfo('phone', constVar.mobile, data.phone, editProfile ? true : false, "numeric")}
                     <Spacer height={28} />
-                    {userInfo('phone', constVar.age, data.age, editProfile ? true : false, "numeric")}
+                    {userInfo('account-details', constVar.age, data.age, false, "numeric")}
                     <Spacer height={28} />
-
                     <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.socialTitle}</Text>
                     <Spacer height={10} />
-                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
+                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1 }} />
 
                     <Spacer height={28} />
 
@@ -442,23 +535,28 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Spacer height={28} />
                     <View style={{ flexDirection: 'row', marginHorizontal: 16 }}>
 
-                        <View style={{ flex: 1 }}>
+                        <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && openPicker(2) }} style={{ flex: 1 }}>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{constVar.carBrand}</Text>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <TextInput editable={false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', width: '80%', textAlign: 'center' }}>{data.carBrand}</TextInput>
+                                {editProfile && <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />}
+                            </View>
 
-                            <TextInput editable={editProfile ? true : false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', width: '100%', textAlign: 'center' }}>{data.carBrand}</TextInput>
                             {editProfile &&
                                 <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '100%' }} />
                             }
-                        </View>
+                        </TouchableOpacity>
 
-                        <View style={{ flex: 1 }}>
+                        <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && openPicker(3) }} style={{ flex: 1 }}>
                             <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{constVar.carAgeTitle}</Text>
-
-                            <TextInput keyboardType='numeric' editable={editProfile ? true : false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', textAlign: 'center', width: '100%' }}>{data.carDate}</TextInput>
+                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
+                                <TextInput keyboardType='numeric' editable={false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', textAlign: 'center', width: '80%' }}>{data.carDate}</TextInput>
+                                {editProfile && <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />}
+                            </View>
                             {editProfile &&
                                 <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '100%' }} />
                             }
-                        </View>
+                        </TouchableOpacity>
 
                     </View>
 
@@ -471,12 +569,8 @@ const ProfileScreen = ({ navigation, route }) => {
                                 {data.hasReviews &&
                                     <TouchableOpacity
                                         onPress={() => {
-                                            // setHeaderVisible(false);
-                                            // setOpenRatings(true)
-                                            // handlerAnimation(true)
                                             navigation.navigate(routes.RATINGS_PROFILE_SCREEN, { email: data.email })
-                                        }
-                                        }
+                                        }}
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
 
                                         <Text style={styles.rates} >Αξιολογήσεις</Text>
@@ -486,12 +580,8 @@ const ProfileScreen = ({ navigation, route }) => {
                                 {data.hasPosts && myUser.email === data.email &&
                                     <TouchableOpacity
                                         onPress={() => {
-                                            // setHeaderVisible(false);
-                                            // setOpenMyPosts(true)
-                                            // handlerAnimation(true)
                                             navigation.navigate(routes.MYPOSTS_PROFILE_SCREEN)
-                                        }
-                                        }
+                                        }}
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
 
                                         <Text style={styles.rates} >τα Post μου</Text>
@@ -502,13 +592,8 @@ const ProfileScreen = ({ navigation, route }) => {
                                     <TouchableOpacity
                                         style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}
                                         onPress={() => {
-                                            // setHeaderVisible(false);
-                                            // setOpenPostsInterested(true)
-                                            // handlerAnimation(true)
                                             navigation.navigate(routes.POSTS_INTERESTED_PROFILE_SCREEN, { email: data.email })
-                                        }
-                                        }
-                                    >
+                                        }}>
 
                                         <Text style={styles.rates} >Post που ενδιαφέρομαι</Text>
                                     </TouchableOpacity>
@@ -607,79 +692,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 </View>
             } */}
 
-            {
-                openRatings &&
 
-                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
-                    <RatingTabScreen
-                        email={data.email}
-                        onCloseContainer={() => {
-                            handlerAnimation(false)
-                            setHeaderVisible(true);
-                            setOpenRatings(false)
-                        }}
-                    />
-                </Animated.View>
-            }
-
-            {
-                openMyPosts &&
-                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
-                    <MyPostsTabScreen
-                        navigation={navigation}
-                        email={data.email}
-                        onCloseContainer={() => {
-                            handlerAnimation(false)
-                            setHeaderVisible(true);
-                            setOpenMyPosts(false)
-                        }}
-                    />
-                </Animated.View>
-            }
-            {
-                openPostsInterested &&
-
-                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
-                    <PostsInterestedTabScreen
-                        email={data.email}
-                        onCloseContainer={() => {
-                            handlerAnimation(false)
-                            setHeaderVisible(true);
-                            setOpenPostsInterested(false)
-                        }}
-                    />
-                </Animated.View>
-            }
-
-            {
-                openPostsInterestedInMe &&
-                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
-                    <InterestedInMeScreen
-                        email={data.email}
-                        onCloseContainer={() => {
-                            handlerAnimation(false)
-                            setHeaderVisible(true);
-                            setOpenPostsInterestedInMe(false)
-                        }}
-                    />
-                </Animated.View>
-
-            }
-
-            {
-                openRequests &&
-                <Animated.View style={[{ transform: [{ translateY: heightValue }] }, tabsStyle]}>
-                    <ActiveRequestsScreen
-                        email={data.email}
-                        onCloseContainer={() => {
-                            handlerAnimation(false)
-                            setHeaderVisible(true);
-                            setOpenPostsInterestedInMe(false)
-                        }}
-                    />
-                </Animated.View>
-
-            }
             <RatingDialog
                 onSubmit={(rating, text) => rate(rating, text)}
                 isVisible={isRatingDialogOpened}
@@ -687,11 +700,31 @@ const ProfileScreen = ({ navigation, route }) => {
                     setRatingDialogOpened(false)
                 }} />
 
-            {
-                data.image !== '' && headerVisible && !openTabs &&
-                renderTopContainer()
+
+            {data.image !== '' && headerVisible && renderTopContainer()}
+
+            {editProfile &&
+                <RoundButton
+                    disabled={!validFields()}
+                    containerStyle={{ bottom: 10, marginHorizontal: 10 }}
+                    text={'Ενημέρωση'}
+                    onPress={updateProfile1}
+                    backgroundColor={colors.colorPrimary} />
             }
 
+            <DataSlotPickerModal
+                data={pickerData}
+                title={dataSlotPickerTitle}
+                isVisible={dataSlotPickerVisible}
+                onClose={() => {
+                    setDataSlotPickerVisible(false);
+                }}
+                onConfirm={(selectedValue, secValue, thirdValue) => {
+                    setDatePickerValues(selectedValue)
+                    setDataSlotPickerVisible(false);
+                }}
+                initialValue1={getInitialValue()}
+            />
         </BaseView >
 
     );

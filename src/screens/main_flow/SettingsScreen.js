@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from 'react';
+import React, { useState, useEffect, useRef, useCallback } from 'react';
 
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
 import { useDispatch, useSelector } from 'react-redux';
@@ -14,6 +14,8 @@ import { routes } from '../../navigation/RouteNames';
 import Icon from 'react-native-vector-icons/Ionicons';
 import RNFetchBlob from 'rn-fetch-blob';
 import { resetValues } from '../../services/MainServices';
+import { usePreventGoBack } from '../../customHooks/usePreventGoBack';
+import { useFocusEffect } from '@react-navigation/native';
 const SettingsScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false }
@@ -39,22 +41,23 @@ const SettingsScreen = ({ navigation, route }) => {
     const dispatch = useDispatch()
 
     const myUser = useSelector(state => state.authReducer.user)
-
+    usePreventGoBack(goBack)
 
     const scrollRef = useRef();
 
     const goBack = () => {
         navigation.goBack()
     }
-    useEffect(() => {
-        const backhandler = BackHandler.addEventListener('hardwareBackPress', () => {
-            goBack()
-            return true;
-        });
-        return () => {
-            backhandler.remove();
-        };
-    }, []);
+    useFocusEffect(useCallback(() => {
+        BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
+        return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
+    }, []));
+
+    const handleBackButtonClick = async () => {
+        navigation.goBack()
+        return true;
+    }
+
 
     const goToProfile = () => {
         navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email })
@@ -75,17 +78,14 @@ const SettingsScreen = ({ navigation, route }) => {
     }
     const retrieveImage = async () => {
         const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
-
         try {
             const data = await RNFetchBlob.fs.readFile(path, 'base64');
             setSingleFile(data)
         } catch (error) {
             console.log(error.message);
         }
-
-
-
     }
+
     useEffect(() => {
         retrieveImage()
     }, [])

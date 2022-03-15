@@ -25,14 +25,15 @@ export function RoundButton({
           container,
           containerStyle,
           {
-            backgroundColor: backgroundColor ? backgroundColor
+
+            backgroundColor: disabled ? '#6d9fd6' : backgroundColor ? backgroundColor
               : colors.transparent
           }
         ]}
         onPress={onPress}
         disabled={disabled}
       >
-        <View style={{ flexDirection: 'row' }}>
+        <View style={{ flexDirection: 'row', }}>
           {leftIcon && <Ionicons name="add" size={20} color='white' />}
           <Text style={{ textAlign: 'center', color: textColor ? textColor : 'white' }}>{text}</Text>
 

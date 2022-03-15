@@ -1,6 +1,6 @@
 
 import React, { useEffect, useRef, useState } from 'react';
-import { View, Text, StyleSheet, Button, Platform, TextInput, Image, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Button, Platform, TextInput, Image, BackHandler, Keyboard } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { BaseView } from '../layout/BaseView';
 import { Spacer } from '../layout/Spacer';
@@ -31,6 +31,7 @@ const LoginScreen = ({ navigation, route }) => {
   const [isUserLoggedIn, setUserIsLoggedIn] = useState(null)
 
   const isFocused = useIsFocused()
+  let passwordRef = useRef()
   let dispatch = useDispatch()
 
   useEffect(() => {
@@ -41,10 +42,6 @@ const LoginScreen = ({ navigation, route }) => {
 
     return unsubscribe;
   }, [navigation]);
-
-  useEffect(() => {
-    console.log("mpike login")
-  }, [])
 
   useEffect(() => {
     const unsubscribe = navigation.addListener('focus', () => {
@@ -136,12 +133,8 @@ const LoginScreen = ({ navigation, route }) => {
     })
   }
   const userSuccessCallback = (message, user) => {
-
     setIsLoading(false)
-
     dispatch({ type: LOGIN_USER, payload: user })
-
-
     navigation.navigate(routes.HOMESTACK, { screen: routes.SEARCH_ROUTE_SCREEN })
   }
 
@@ -216,10 +209,15 @@ const LoginScreen = ({ navigation, route }) => {
             keyboardType="email-address"
             onChangeText={onEmailChanged}
             value={data.email}
-
+            returnKeyType='next'
+            onSubmitEditing={() => {
+              passwordRef.current?.focus();
+            }}
           />
 
           <CustomInput
+
+            inputRef={passwordRef}
             text={constVar.herePass}
             keyboardType="default"
             secureTextEntry={data.secureTextEntry ? true : false}
@@ -227,6 +225,9 @@ const LoginScreen = ({ navigation, route }) => {
             onIconPressed={updateSecureTextEntry}
             hasIcon={true}
             value={data.password}
+            onSubmitEditing={() => {
+              Keyboard.dismiss()
+            }}
           />
 
           <Spacer height={6} />
@@ -247,9 +248,7 @@ const LoginScreen = ({ navigation, route }) => {
             onPress={() =>
               goToRegister()
             }
-          //navigation.navigate("RestorePassword")
-          // 
-          // navigation.navigate(routes.OTP_SCREEN, {_otp: '6234', _email: "giannisfragoulis21@gmail.com", goToRestore: false })
+
           />
         </View>
 

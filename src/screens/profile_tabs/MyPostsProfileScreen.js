@@ -15,7 +15,8 @@ import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
-import { useSelector } from 'react-redux';
+import { useDispatch, useSelector } from 'react-redux';
+import { ADD_ACTIVE_POST } from '../../actions/types';
 
 const MyPostsProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -30,9 +31,12 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [showContent, setShowContent] = React.useState(true)
     const { height, width } = Dimensions.get("window");
+
     let isFocused = useIsFocused()
+    let dispatch = useDispatch()
     const myUser = useSelector(state => state.authReducer.user)
     useEffect(() => {
+
         if (myUser.email)
             getPostsUser({
                 email: myUser.email,
@@ -152,7 +156,13 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
                                     item={item.item}
                                     onMenuClicked={onMenuClicked}
                                     onProfileClick={onProfileClick}
-
+                                    onPress={(post) => {
+                                        navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: false })
+                                        dispatch({
+                                            type: ADD_ACTIVE_POST,
+                                            payload: post
+                                        })
+                                    }}
                                 />
                             }}
                             ListFooterComponent={renderFooter}

@@ -243,6 +243,9 @@ const RegisterScreen = ({ navigation }) => {
                               value={data.phone}
                          />
                          <CustomInput
+                              onPressIn={() => { console.log("333") }}
+                              hasBottomArrow={true}
+                              disabled={true}
                               text={constVar.age}
                               keyboardType="numeric"
                               onChangeText={onAgeChanged}

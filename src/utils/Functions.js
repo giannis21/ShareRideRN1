@@ -63,7 +63,6 @@ export const getHeaderConfig = async (token) => {
       "Authorization": "Bearer " + newToken
     }
   }
-
   return config
 
 }
@@ -145,4 +144,31 @@ export const carBrands =
 
   ]
 
+export const newCarBrands =
+  [
+    'ΟΛΑ',
+    'OPEL',
+    'CITROËN',
+    'HYUNDAI',
+    'AUDI',
+    'HONDA',
+    'BMW',
+    'NISSAN',
+    'FIAT',
+    'FORD',
+    'SMART',
+    'MERCEDES-BENZ',
+    'RENAULT',
+    'MAZDA',
+    'MITSUBISHI',
+    'ALFA ROMEO',
+    'SEAT',
+    'SUZUKI',
+    'ΑΛΛΟ'
 
+  ]
+
+
+export function range(start, end) {
+  return [...Array(end + 1).keys()].filter(value => end >= value && start <= value)
+}

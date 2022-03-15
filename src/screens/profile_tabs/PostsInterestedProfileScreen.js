@@ -12,10 +12,12 @@ import { Loader } from '../../utils/Loader';
 import { OpenImageModal } from '../../utils/OpenImageModal';
 import { useNavigation } from '@react-navigation/native';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
-
+import { ADD_ACTIVE_POST } from '../../actions/types';
+import { useDispatch, useSelector } from 'react-redux';
+import { useIsFocused } from '@react-navigation/native';
 
 const PostsInterestedProfileScreen = ({ navigation, route }) => {
-
+    var _ = require('lodash');
     const [total_pages, setTotalPages] = useState(1);
     const [loading, setLoading] = useState(false);
     const [dataSource, setDataSource] = useState([]);
@@ -26,12 +28,15 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
     const [deletedPost, setDeletedPost] = useState(null);
     const [showPlaceholder, setShowPlaceholder] = React.useState(true)
     const { height, width } = Dimensions.get("window");
+    const myUser = useSelector(state => state.authReducer.user)
     const navigation1 = useNavigation();
-
+    let dispatch = useDispatch()
+    let isFocused = useIsFocused()
     const goBack = () => {
         navigation.goBack()
     }
     useEffect(() => {
+
         if (route.params.email)
             getInterestedPerUser({
                 email: route.params.email,
@@ -39,7 +44,16 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
                 errorCallback
             })
     }, []);
-
+    useEffect(() => {
+        if (isFocused && route?.params?.postId) {
+            let likedPost = dataSource.find((item) => item.post.postid === route?.params?.postId)
+            likedPost.interested = !likedPost.interested
+            dataSource[dataSource.indexOf(likedPost)] = likedPost
+            setDataSource(dataSource)
+            setIsRender(!isRender)
+            navigation.setParams({ postId: null });
+        }
+    }, [isFocused])
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
         setTimeout(function () {
@@ -73,7 +87,7 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
     const onLikeClick = (postId, index) => {
         setLoading(true)
         showInterest({
-            email: route.params.email,
+            email: myUser.email,
             postId,
             successCallback: ((message) => {
                 setLoading(false)
@@ -144,7 +158,13 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
                                     onMenuClicked={onMenuClicked}
                                     onProfileClick={onProfileClick}
                                     onLikeClick={onLikeClick}
-
+                                    onPress={(post) => {
+                                        navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: true, isPostInterested: true })
+                                        dispatch({
+                                            type: ADD_ACTIVE_POST,
+                                            payload: post
+                                        })
+                                    }}
                                 />
                             }}
 

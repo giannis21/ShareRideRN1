@@ -32,8 +32,9 @@ export const keyNames = {
   phone: 'phone',
   password: 'password',
   token: 'token',
-  carDate: 'carDate'
-
+  carDate: 'carDate',
+  isSearchOpenPost: 'isSearchOpenPost',
+  isSearchOpen: 'isSearchOpen'
 }
 export const filterKeys = {
   showMe: 'showMe',

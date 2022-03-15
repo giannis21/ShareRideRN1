@@ -7,7 +7,8 @@ import Icon from 'react-native-vector-icons/Ionicons';
 
 
 export function CloseIconComponent({
-    onPress
+    onPress,
+    containerStyle
 }) {
 
 
@@ -16,7 +17,7 @@ export function CloseIconComponent({
         <TouchableOpacity
             activeOpacity={1}
             onPress={onPress}
-            style={styles.circleContainer}>
+            style={[styles.circleContainer, containerStyle]}>
             <Icon name="close" color='black' size={18} />
         </TouchableOpacity>
 

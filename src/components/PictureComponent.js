@@ -1,6 +1,5 @@
 import React from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
-import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { colors } from '../utils/Colors';
 
@@ -11,7 +10,8 @@ export function PictureComponent({
     openCamera,
     url,
     isLocal,
-    imageSize
+    imageSize,
+    containerStyle
 }) {
     var _ = require('lodash');
     let imageWidth = 0
@@ -39,7 +39,7 @@ export function PictureComponent({
     }
     return (
 
-        <TouchableWithoutFeedback style={getStyle()} onPress={onPress} >
+        <TouchableOpacity style={[getStyle(), containerStyle]} onPress={onPress} >
             <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
 
                 <Image
@@ -66,7 +66,7 @@ export function PictureComponent({
                 </View>
             </View>
             }
-        </TouchableWithoutFeedback>
+        </TouchableOpacity>
 
 
     );

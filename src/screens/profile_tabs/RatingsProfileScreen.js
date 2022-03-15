@@ -16,6 +16,7 @@ import { useNavigation } from '@react-navigation/native';
 import { getValue, keyNames } from '../../utils/Storage';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
+import { useSelector } from 'react-redux';
 
 
 const RatingsProfileScreen = ({ navigation, route }) => {
@@ -27,21 +28,17 @@ const RatingsProfileScreen = ({ navigation, route }) => {
     const [total_pages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true)
     const [isSafeClick, setSafeClick] = useState(true)
-    const [myEmail, setMyEmail] = React.useState('')
     const [showContent, setShowContent] = React.useState(true)
     const navigation1 = useNavigation();
     let isFocused = useIsFocused()
     const { height, width } = Dimensions.get("window");
-    React.useEffect(async () => {
-        setMyEmail(await getValue(keyNames.email))
-    }, [])
+    const myUser = useSelector(state => state.authReducer.user)
 
 
     const goBack = () => {
         navigation.goBack()
     }
     useEffect(() => {
-        // setIsLoading(true)
         getReviews({
             email: route.params.email,
             page: offset,
@@ -54,11 +51,10 @@ const RatingsProfileScreen = ({ navigation, route }) => {
         setShowContent(false)
         setIsLoading(false)
         setDataSource([...dataSource, ...data.reviews]);
-        console.log(dataSource)
         setTotalPages(data.total_pages)
         setOffset(offset + 1)
-
     }
+
     const errorCallback = () => {
         setShowContent(false)
         setIsLoading(false)
@@ -98,8 +94,7 @@ const RatingsProfileScreen = ({ navigation, route }) => {
 
     const goToProfile = (email) => {
 
-        if (isSafeClick && (email !== myEmail)) {
-
+        if (isSafeClick && (email !== myUser.email)) {
             navigation1.push(routes.PROFILE_SCREEN, { email: email })
             safeClickListener()
         }
@@ -115,10 +110,7 @@ const RatingsProfileScreen = ({ navigation, route }) => {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ width: '15%', marginStart: 6 }}>
-                        <TouchableOpacity onPress={() => goToProfile(item.emailreviewer)}>
-                            <PictureComponent imageSize="small" url={BASE_URL + item.imagepath} />
-                        </TouchableOpacity>
-
+                        <PictureComponent imageSize="small" url={BASE_URL + item.imagepath} onPress={() => goToProfile(item.emailreviewer)} />
                         <Spacer width={15} />
                     </View>
 
@@ -128,7 +120,7 @@ const RatingsProfileScreen = ({ navigation, route }) => {
                             <TouchableOpacity onPress={() => goToProfile(item.emailreviewer)}>
                                 <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.fullname}</Text>
                             </TouchableOpacity>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, marginEnd: 10 }}> {item.createdAt}</Text>
+                            <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6, marginEnd: 10 }}> {item.createdAt}</Text>
                         </View>
 
                         <Spacer height={10} />
@@ -158,29 +150,28 @@ const RatingsProfileScreen = ({ navigation, route }) => {
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 0, backgroundColor: 'white' }}>
 
             <View style={styles.container}>
-                <TopContainerExtraFields onCloseContainer={goBack} title={'Αξιολογήσεις'} />
+                <TopContainerExtraFields addMarginStart={true} onCloseContainer={goBack} title={'Αξιολογήσεις'} />
                 <Spacer height={5} />
-                {showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
+                {showContent ?
+                    <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
+                        <Text>Περιμένετε..</Text>
+                    </View> : (
+                        <View style={styles.container}>
+                            <FlatList
+                                showsVerticalScrollIndicator={false}
+                                data={dataSource}
+                                ItemSeparatorComponent={() => (
+                                    <View style={{ height: 10 }} />
+                                )}
+                                keyExtractor={(item, index) => 'item' + index}
+                                renderItem={ItemView}
+                                ListFooterComponent={renderFooter}
+                            />
 
-                    <Text>Περιμένετε..</Text>
-                </View> : (
-                    <View style={styles.container}>
-                        <FlatList
-                            data={dataSource}
-                            ItemSeparatorComponent={() => (
-                                <View style={{ height: 10 }} />
-                            )}
-                            keyExtractor={(item, index) => 'item' + index}
+                            <Loader isLoading={isFocused ? isLoading : false} />
+                        </View>
 
-
-                            renderItem={ItemView}
-                            ListFooterComponent={renderFooter}
-                        />
-
-                        <Loader isLoading={isFocused ? isLoading : false} />
-                    </View>
-
-                )
+                    )
                 }
 
             </View>

@@ -216,6 +216,13 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                 {post && <PostLayoutComponent
                     showMenu={false}
                     item={post}
+                    onPress={(post) => {
+                        navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: false })
+                        dispatch({
+                            type: ADD_ACTIVE_POST,
+                            payload: post
+                        })
+                    }}
                     onMenuClicked={onMenuClicked}
                     onProfileClick={onProfileClick}
                 />}

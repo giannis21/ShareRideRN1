@@ -1,10 +1,13 @@
 import React from "react";
-import { TextInput, TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
 import { Spacer } from "../layout/Spacer";
+import { TextInput } from "react-native-gesture-handler";
 import { colors } from '../utils/Colors';
 import Feather from 'react-native-vector-icons/Feather';
+import AntDesign from 'react-native-vector-icons/AntDesign';
+import { ViewRow } from "../components/HOCS/ViewRow";
 
-export function CustomInput({ text, hasIcon, keyboardType, secureTextEntry, onChangeText, onIconPressed, value, maxLenth, extraStyle, labelNot, placeHolder, disabled }) {
+export function CustomInput({ text, onPressIn, hasBottomArrow, inputRef, onSubmitEditing, returnKeyType, hasIcon, keyboardType, secureTextEntry, onChangeText, onIconPressed, value, maxLenth, extraStyle, labelNot, placeHolder, disabled }) {
 
     return (
         <View style={[styles.SectionStyle, { extraStyle }]}>
@@ -18,18 +21,20 @@ export function CustomInput({ text, hasIcon, keyboardType, secureTextEntry, onCh
 
 
 
-            <View style={{ flexDirection: 'row' }}>
+            <ViewRow>
                 <TextInput
+                    onPressIn={() => { onPressIn && onPressIn() }}
+                    onSubmitEditing={onSubmitEditing ? onSubmitEditing : undefined}
+                    ref={inputRef}
                     editable={disabled ? false : true}
-
                     style={styles.inputStyle}
                     placeholderTextColor="#8b9cb5"
                     placeholder={placeHolder ? placeHolder : null}
                     autoCapitalize="none"
                     keyboardType={keyboardType}
                     secureTextEntry={secureTextEntry ? true : false}
-                    //  returnKeyType="next"
-                    blurOnSubmit={false}
+                    returnKeyType={returnKeyType}
+                    // blurOnSubmit={true}
                     maxLength={maxLenth}
                     onChangeText={onChangeText}
                     value={value} />
@@ -41,8 +46,10 @@ export function CustomInput({ text, hasIcon, keyboardType, secureTextEntry, onCh
                 </TouchableOpacity>
                     : null
                 }
-
-            </View>
+                {hasBottomArrow &&
+                    <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                }
+            </ViewRow>
         </View>
 
     )
