@@ -24,6 +24,7 @@ import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { DataSlotPickerModal } from '../../utils/DataSlotPickerModal';
 import AntDesign from 'react-native-vector-icons/AntDesign'
 import moment from 'moment'
+import { ViewRow } from '../../components/HOCS/ViewRow';
 const FiltersScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const renderThumb = useCallback(() => <Thumb />, []);
@@ -31,7 +32,7 @@ const FiltersScreen = ({ navigation, route }) => {
     const renderRailSelected = useCallback(() => <RailSelected />, []);
     const renderLabel = useCallback(value => <Label text={value} />, []);
     const renderNotch = useCallback(() => <Notch />, []);
-    const [carDate, setCarDate] = useState('')
+    const [carDate, setCarDate] = useState('2000')
     const [cost, setCost] = useState(0);
     const [open, setOpen] = useState(false);
     const [carValue, setCarValue] = useState('ΟΛΑ');
@@ -70,7 +71,7 @@ const FiltersScreen = ({ navigation, route }) => {
             setDataSlotPickerTitle(constVar.selectAge)
             setDataSlotPickerVisible(true)
         } else if (option === 2) {
-            setPickerData(_.tail(newCarBrands))
+            setPickerData(newCarBrands)
             setDataSlotPickerTitle(constVar.selectCar)
             setDataSlotPickerVisible(true)
         } else {
@@ -176,7 +177,7 @@ const FiltersScreen = ({ navigation, route }) => {
             setAge("18")
             setHighAge("70")
         }
-        setCarDate(await getValue(filterKeys.carAge) ?? '')
+        setCarDate(await getValue(filterKeys.carAge) ?? '2000')
 
         dispatch({
             type: ADD_DATES_FILTERS,
@@ -352,12 +353,24 @@ const FiltersScreen = ({ navigation, route }) => {
                     <TouchableOpacity onPress={() => { openPicker(3) }} style={{ flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', height: 'auto', marginTop: 16 }}>
 
                         <Text style={{ fontSize: 15 }}>Χρονολογία <Text style={{ fontSize: 12 }}>{'(>)'}</Text></Text>
-                        <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                        <ViewRow>
+                            {console.log({ carDate })}
+                            <Text style={{ fontSize: 15, marginEnd: 10 }}>{carDate}</Text>
+                            <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                        </ViewRow>
+
+
+
                     </TouchableOpacity>
                     <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
                     <TouchableOpacity onPress={() => { openPicker(2) }} style={item}>
                         <Text style={{ fontSize: 15, width: '50%' }}>μάρκα αυτοκινήτου</Text>
-                        <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                        <ViewRow>
+                            <Text style={{ fontSize: 15, marginEnd: 10 }}>{carValue}</Text>
+
+                            <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                        </ViewRow>
+
                     </TouchableOpacity>
 
                     <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
@@ -400,9 +413,9 @@ const FiltersScreen = ({ navigation, route }) => {
                 onConfirm={(selectedValue, secValue, thirdValue) => {
 
                     if (dataSlotPickerTitle === constVar.selectCar) {
-                        setData({ ...data, carBrand: selectedValue })
-                    } else {
                         setCarValue(selectedValue)
+                    } else {
+                        setCarDate(selectedValue)
                     }
                     setDataSlotPickerVisible(false);
                 }}

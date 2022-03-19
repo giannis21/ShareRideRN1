@@ -77,10 +77,6 @@ const CreatePostScreen = ({ navigation, route }) => {
     const myUser = useSelector(state => state.authReducer.user)
     //usePreventGoBack(handleBackButtonClick)
 
-    useEffect(() => {
-        setValue(keyNames.isSearchOpenPost, openSearch.open.toString())
-    }, [openSearch.open])
-
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
         setTimeout(function () {
@@ -100,11 +96,10 @@ const CreatePostScreen = ({ navigation, route }) => {
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
         return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
-    }, []));
+    }, [openSearch.open]));
 
     const handleBackButtonClick = async () => {
-        console.log(isFocused, await getValue(keyNames.isSearchOpenPost))
-        if (await getValue(keyNames.isSearchOpenPost) === 'true') {
+        if (openSearch.open) {
             setOpenSearch({ from: true, open: false, addStops: false })
         } else {
             setModalCloseVisible(true)
@@ -187,7 +182,6 @@ const CreatePostScreen = ({ navigation, route }) => {
         createPost({
             data: send,
             successCallback: ((message) => {
-                console.log("dasd")
                 setInfoMessage({ info: message, success: true })
                 showCustomLayout()
             }),

@@ -199,7 +199,7 @@ const InterestedInMeProfileScreen = ({ navigation, route }) => {
                                     showMenu={true}
                                     item={item.item}
                                     onMenuClicked={onMenuClicked}
-                                    onProfileClick={onProfileClick}
+
                                     showInterested={true}
                                     deleteInterested={deleteInterested}
                                     showMoreUsers={(post) => {

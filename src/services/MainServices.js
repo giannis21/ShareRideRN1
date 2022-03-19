@@ -134,6 +134,9 @@ export const getInterestedPerUser = async ({ email, successCallback, errorCallba
     }
     await instance.post(`/getInterestedPerUser`, send, config)
         .then(res => {
+            let itemStringified = JSON.stringify(res.data.postUser)
+            let itemStringified1 = JSON.parse(itemStringified)
+            console.log("res.data", itemStringified1)
             successCallback(res.data)
         }).catch(function (error) {
             console.log(error)
@@ -325,24 +328,16 @@ export const getRequests = async ({ successCallback, errorCallback }) => {
             console.log(error.response.data)
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
-    // return async (dispatch) => {
-
-
-
-    //     await instance.post('/getRequests', {}, config)
-    //         .then(res => {
-    //             console.log(res.data)
-    //             dispatch({
-    //                 type: types.GET_REQUESTS,
-    //                 payload: res.data
-    //             })
-
-    //         }).catch(function (error) {
-    //             console.log(error.response.data)
-    //             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
-    //         });
-    // }
-
+}
+export const sendReport = async ({ text, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+    await instance.post('/sendReport', { text: text }, config)
+        .then(res => {
+            console.log(res.data.message)
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
 }
 
 export const resetValues = (callback) => {

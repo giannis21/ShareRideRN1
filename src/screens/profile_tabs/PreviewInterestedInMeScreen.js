@@ -1,14 +1,14 @@
 
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions, ScrollView } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions, ScrollView, BackHandler } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
 import { deleteInterested, deletePost, getInterestedPerPost, getPostsUser, verInterested } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
 import { Loader } from '../../utils/Loader';
 import { useIsFocused } from '@react-navigation/native';
@@ -41,28 +41,29 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     const post = useSelector(state => state.postReducer.activePost)
     let dispatch = useDispatch()
     let isFocused = useIsFocused()
-    let navigation1 = useNavigation()
 
-    // console.log("post.activePost", post)
     useEffect(() => {
-        setOffset(1)
-        if (isFocused)
-            getUsers()
-        else {
-            dispatch({
-                type: ADD_ACTIVE_POST,
-                payload: {}
-            })
-        }
-    }, [isFocused])
+        getUsers()
+    }, [])
+
+    const handleBackButtonClick = async () => {
+        dispatch({
+            type: ADD_ACTIVE_POST,
+            payload: {}
+        })
+        navigation.goBack()
+        return true;
+    }
+
+    useFocusEffect(useCallback(() => {
+        BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
+        return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
+    }, []));
 
     const onProfileClick = (email) => {
-        console.log(email)
         navigation.replace(routes.PROFILE_SCREEN, { email })
     }
     const getUsers = () => {
-        // console.log(post.post.postid, offset)
-
         getInterestedPerPost({
             postId: post.post.postid,
             page: offset,
@@ -92,9 +93,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
     const onActionSheet = (index) => {
         setIsLoading(true)
-
-
-
     };
 
 
@@ -112,10 +110,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
     const deleteInterested1 = (piid) => {
         try {
-            //  verInterested
-            console.log(piid)
-
-
             deleteInterested({
                 piid: piid,
                 successCallback: ((message) => {
@@ -224,7 +218,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
                         })
                     }}
                     onMenuClicked={onMenuClicked}
-                    onProfileClick={onProfileClick}
+
                 />}
                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4, marginVertical: 4 }} />
 

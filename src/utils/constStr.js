@@ -29,9 +29,10 @@ export const constVar = {
     age: "ηλικία",
     phone: "αριθμός τηλεφώνου",
     fullName: "ονοματεπώνυμο",
-    passwordDifferent: "Ο κωδικός με τον κωδικο επιβαιβέωσης είναι διαφορετικοί.",
+    passwordDifferent: "Ο κωδικός με τον κωδικο επιβεβαίωσης είναι διαφορετικοί.",
     givePass: "δώσε έναν νέο κωδικό",
     newPass: "Νέο password",
+    contactForm: "Φόρμα επικοινωνίας",
     personalInfo: "Προσωπικά στοιχεία",
 
     email: "Email",
@@ -57,5 +58,6 @@ export const constVar = {
     selectAge: 'Επιλογή ηλικίας',
     selectCar: 'Επιλογή μάρκας',
     selectCarAge: 'Επιλογή χρονολογίας',
+    contactInputPLaceholder: 'Οποιαδήποτε απορία,ερώτηση,πρόβλημα η πρόταση έχεις μπορείς να επικοινωνήσεις μαζί μας..',
 
 }

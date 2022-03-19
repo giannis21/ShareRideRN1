@@ -1,5 +1,8 @@
 import { setValue, getValue, keyNames } from "../utils/Storage";
 import ImagePicker from 'react-native-image-crop-picker';
+import { Linking } from "react-native";
+
+
 const months = [
   {
     index: "01",
@@ -117,6 +120,32 @@ export const onLaunchCamera = (block) => {
     console.log(err)
   });
 };
+export async function sendEmail(to, subject, body, options = {}) {
+  const { cc, bcc } = options;
+
+  let url = `mailto:${to}`;
+
+  // Create email link query
+  const query = qs.stringify({
+    subject: subject,
+    body: body,
+    cc: cc,
+    bcc: bcc
+  });
+
+  if (query.length) {
+    url += `?${query}`;
+  }
+
+  // check if we can use this link
+  const canOpen = await Linking.canOpenURL(url);
+
+  if (!canOpen) {
+
+  }
+
+  return Linking.openURL(url);
+}
 
 export const carBrands =
   [

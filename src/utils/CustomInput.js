@@ -1,5 +1,5 @@
 import React from "react";
-import { TouchableOpacity, View, Text, StyleSheet } from "react-native";
+import { TouchableOpacity, View, Text, StyleSheet, Pressable } from "react-native";
 import { Spacer } from "../layout/Spacer";
 import { TextInput } from "react-native-gesture-handler";
 import { colors } from '../utils/Colors';
@@ -20,36 +20,38 @@ export function CustomInput({ text, onPressIn, hasBottomArrow, inputRef, onSubmi
             }
 
 
+            <Pressable disabled={!onPressIn} onPress={() => { onPressIn && onPressIn() }}>
+                <ViewRow>
+                    <TextInput
 
-            <ViewRow>
-                <TextInput
-                    onPressIn={() => { onPressIn && onPressIn() }}
-                    onSubmitEditing={onSubmitEditing ? onSubmitEditing : undefined}
-                    ref={inputRef}
-                    editable={disabled ? false : true}
-                    style={styles.inputStyle}
-                    placeholderTextColor="#8b9cb5"
-                    placeholder={placeHolder ? placeHolder : null}
-                    autoCapitalize="none"
-                    keyboardType={keyboardType}
-                    secureTextEntry={secureTextEntry ? true : false}
-                    returnKeyType={returnKeyType}
-                    // blurOnSubmit={true}
-                    maxLength={maxLenth}
-                    onChangeText={onChangeText}
-                    value={value} />
+                        onSubmitEditing={onSubmitEditing ? onSubmitEditing : undefined}
+                        ref={inputRef}
+                        editable={disabled ? false : true}
+                        style={styles.inputStyle}
+                        placeholderTextColor="#8b9cb5"
+                        placeholder={placeHolder ? placeHolder : null}
+                        autoCapitalize="none"
+                        keyboardType={keyboardType}
+                        secureTextEntry={secureTextEntry ? true : false}
+                        returnKeyType={returnKeyType}
+                        blurOnSubmit={false}
+                        maxLength={maxLenth}
+                        onChangeText={onChangeText}
+                        value={value} />
 
-                {hasIcon ? <TouchableOpacity activeOpacity={0.1} style={{ marginRight: 10 }} onPress={onIconPressed}>
-                    {secureTextEntry ?
-                        <Feather style={{ color: colors.colorPrimary }} name="eye-off" size={20} color='grey' /> :
-                        <Feather style={{ color: colors.colorPrimary }} name="eye" size={20} color='grey' />}
-                </TouchableOpacity>
-                    : null
-                }
-                {hasBottomArrow &&
-                    <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
-                }
-            </ViewRow>
+                    {hasIcon ? <TouchableOpacity activeOpacity={0.1} style={{ marginRight: 10 }} onPress={onIconPressed}>
+                        {secureTextEntry ?
+                            <Feather style={{ color: colors.colorPrimary }} name="eye-off" size={20} color='grey' /> :
+                            <Feather style={{ color: colors.colorPrimary }} name="eye" size={20} color='grey' />}
+                    </TouchableOpacity>
+                        : null
+                    }
+                    {hasBottomArrow &&
+                        <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
+                    }
+                </ViewRow>
+            </Pressable>
+
         </View>
 
     )

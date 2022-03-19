@@ -40,7 +40,6 @@ export function PostLayoutComponent({
     }
 
     const goToProfile = () => {
-
         if (isSafeClick) {
             if (!showMenu) {
                 onProfileClick(item?.user?.email ?? myUser.email)
@@ -50,110 +49,115 @@ export function PostLayoutComponent({
     }
 
     const { addMoreUsers, userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
-    let url = (BASE_URL + item.imagepath).toString()
 
     return (
 
         <TouchableOpacity opacity={0.9} onPress={() => { onPress(item) }} style={container}>
-            <Spacer height={5} />
-            <ViewRow>
-                <View style={leftContainer}>
-                    <PictureComponent onPress={goToProfile} imageSize="small" url={BASE_URL + item.imagePath} />
-                </View>
-
-                <View style={rightContainer}>
-                    <View style={rightContainerView}>
-                        <View style={{ width: '48%' }}>
-                            <Text onPress={goToProfile} style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
-
-                            {((item?.user?.count && item?.user?.count > 0) || (myUser.count > 0) && _.isUndefined(item?.user?.email)) &&
-                                <ViewRow style={{ alignItems: 'center' }}>
-                                    <StarsRating rating={item?.user?.average ?? myUser.average} size="small" />
-                                    <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({item?.user?.count ?? myUser.count})</Text>
-                                </ViewRow>
-                            }
-
-                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginTop: 4 }}>{item?.post?.date} - {item?.post?.postid}</Text>
-
-                            <DestinationsComponent
-                                containerStyle={{ marginTop: 10, marginBottom: 15 }}
-                                moreplaces={item?.post?.moreplaces}
-                                startplace={item.post.startplace}
-                                endplace={item.post.endplace} />
-
-                        </View>
-                        <View style={{ width: '49%' }}>
-                            {showMenu &&
-                                <Entypo
-                                    onPress={() => { onMenuClicked(item) }}
-                                    name="dots-three-horizontal" size={20}
-                                    color='black'
-                                    style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
-
-                            }
-                            <DatesPostComponent style={{ marginTop: showMenu ? 25 : 44 }} item={item} />
-
+            {item?.post ?
+                <View>
+                    <Spacer height={5} />
+                    <ViewRow>
+                        <View style={leftContainer}>
+                            <PictureComponent onPress={onProfileClick ? () => onProfileClick && goToProfile() : undefined} imageSize="small" url={BASE_URL + item.imagePath} />
                         </View>
 
-                    </View>
+                        <View style={rightContainer}>
+                            <View style={rightContainerView}>
+                                <View style={{ width: '48%' }}>
+                                    <Text onPress={() => onProfileClick && goToProfile()} style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
 
-                    <View style={bottomContainer}>
-                        <ViewRow style={{ alignItems: 'center' }}>
-                            {showFavoriteIcon &&
-                                <TouchableOpacity style={heartContainer} onPress={() => {
-                                    if (isSafeClick) {
-                                        onLikeClick(item.post.postid, index)
-                                        safeClickListener()
+                                    {((item?.user?.count && item?.user?.count > 0) || (myUser.count > 0) && _.isUndefined(item?.user?.email)) &&
+                                        <ViewRow style={{ alignItems: 'center' }}>
+                                            <StarsRating rating={item?.user?.average ?? myUser.average} size="small" />
+                                            <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({item?.user?.count ?? myUser.count})</Text>
+                                        </ViewRow>
                                     }
 
-                                }} >
-                                    <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
-                                </TouchableOpacity>
-                            }
-                            <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginStart: 10 }}>Θέσεις:
-                                <Text style={seats}> {item.post.numseats} </Text>
-                            </Text>
+                                    <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginEnd: 10, marginTop: 4 }}>{item?.post?.date} - {item?.post?.postid}</Text>
 
-                        </ViewRow>
-                        <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.costperseat}€/Θέση</Text>
+                                    <DestinationsComponent
+                                        containerStyle={{ marginTop: 10, marginBottom: 15 }}
+                                        moreplaces={item?.post?.moreplaces}
+                                        startplace={item?.post?.startplace}
+                                        endplace={item?.post?.endplace} />
 
-                    </View>
+                                </View>
+                                <View style={{ width: '49%' }}>
+                                    {showMenu &&
+                                        <Entypo
+                                            onPress={() => { onMenuClicked(item) }}
+                                            name="dots-three-horizontal" size={20}
+                                            color='black'
+                                            style={{ alignSelf: 'flex-end', marginEnd: 10 }} />
 
-                </View>
+                                    }
+                                    <DatesPostComponent style={{ marginTop: showMenu ? 25 : 44 }} item={item} />
 
+                                </View>
 
-            </ViewRow>
-
-            {showInterested &&
-                <View>
-
-                    {
-                        item.hasMoreUsers &&
-                        <View style={{ marginTop: 14 }}>
-                            <View style={addMoreUsers} >
-                                <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Δείτε τους ενδιαφερόμενους
-                                    <Text style={seats}>({item.users}) </Text>
-                                </Text>
-
-                                <TouchableOpacity
-                                    onPress={() => { showMoreUsers(item) }}
-                                    style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
-                                    <AntDesign name="arrowright" size={15} color='white' />
-
-                                </TouchableOpacity>
                             </View>
 
+                            <View style={bottomContainer}>
+                                <ViewRow style={{ alignItems: 'center' }}>
+                                    {showFavoriteIcon &&
+                                        <TouchableOpacity style={heartContainer} onPress={() => {
+                                            if (isSafeClick) {
+                                                onLikeClick(item?.post?.postid, index)
+                                                safeClickListener()
+                                            }
 
+                                        }} >
+                                            <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
+                                        </TouchableOpacity>
+                                    }
+                                    <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginStart: 10 }}>Θέσεις:
+                                        <Text style={seats}> {item?.post?.numseats} </Text>
+                                    </Text>
 
-                            <Spacer height={10} />
+                                </ViewRow>
+                                <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.costperseat}€/Θέση</Text>
+
+                            </View>
 
                         </View>
+
+
+                    </ViewRow>
+
+                    {showInterested &&
+                        <View>
+
+                            {
+                                item.hasMoreUsers &&
+                                <View style={{ marginTop: 14 }}>
+                                    <View style={addMoreUsers} >
+                                        <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Δείτε τους ενδιαφερόμενους
+                                            <Text style={seats}>({item.users}) </Text>
+                                        </Text>
+
+                                        <TouchableOpacity
+                                            onPress={() => { showMoreUsers(item) }}
+                                            style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
+                                            <AntDesign name="arrowright" size={15} color='white' />
+
+                                        </TouchableOpacity>
+                                    </View>
+
+
+
+                                    <Spacer height={10} />
+
+                                </View>
+                            }
+                            <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4 }} />
+
+
+                        </View >
                     }
-                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4 }} />
-
-
-                </View >
+                </View>
+                : <></>
             }
+
 
 
         </TouchableOpacity >

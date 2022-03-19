@@ -28,13 +28,10 @@ export function DataSlotPickerModal({
 }) {
     const { modal, container, pickerContainer } = styles;
 
-    const dispatch = useDispatch();
-
     let getInitialValue = (num) => {
         if (!data) return
         switch (num) {
             case 1: {
-
                 if (data.indexOf(initialValue1) >= 0) return initialValue1;
                 else return data[0];
             }
@@ -51,7 +48,7 @@ export function DataSlotPickerModal({
     const [selectedValue, setSelectedValue] = useState(
         initialValue1 ? getInitialValue(1) : null
     );
-    console.log(selectedValue)
+
     const [secSelectedValue, setSecSelectedValue] = useState(
         initialValue2 ? getInitialValue(2) : null
     );
@@ -63,12 +60,7 @@ export function DataSlotPickerModal({
         if (isVisible) {
             setSelectedValue(getInitialValue(1))
         }
-
     }, [isVisible])
-    let dismiss = () => {
-
-        onClose();
-    };
 
     let renderNewPicker = (data, num) => {
         let selectedIndex = _.indexOf(data, getInitialValue(num));
@@ -112,20 +104,19 @@ export function DataSlotPickerModal({
             useNativeDriver={true}
             isVisible={isVisible}
             style={modal}
-            onSwipeCancel={dismiss}
-            onBackdropPress={dismiss}
-            onSwipeComplete={dismiss}
+            onSwipeCancel={onClose}
+            onBackdropPress={onClose}
+            onSwipeComplete={onClose}
             propagateSwipe={false}
         >
             <View style={container}>
-                <TopContainerExtraFields onCloseContainer={dismiss} title={title} addMarginStart />
+                <TopContainerExtraFields onCloseContainer={onClose} title={title} addMarginStart />
                 <View style={pickerContainer}>
                     {renderNewPicker(data, 1)}
                     {secData && renderNewPicker(secData, 2)}
                     {thirdData && renderNewPicker(thirdData, 3)}
                 </View>
                 <RoundButton
-
                     containerStyle={{ bottom: 10, marginHorizontal: 10 }}
                     text={'Πάμε'}
                     onPress={() => {

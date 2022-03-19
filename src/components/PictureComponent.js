@@ -11,7 +11,7 @@ export function PictureComponent({
     url,
     isLocal,
     imageSize,
-    containerStyle
+    containerStyle,
 }) {
     var _ = require('lodash');
     let imageWidth = 0
@@ -39,12 +39,11 @@ export function PictureComponent({
     }
     return (
 
-        <TouchableOpacity style={[getStyle(), containerStyle]} onPress={onPress} >
+        <TouchableOpacity disabled={!onPress} style={[getStyle(), containerStyle]} onPress={() => onPress && onPress()} >
             <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
 
                 <Image
                     style={[{ width: imageWidth, height: imageWidth }, styles.circle]}
-
                     source={
                         url ? { uri: url } : (
                             !_.isNull(singleFile)
@@ -84,6 +83,7 @@ const styles = StyleSheet.create({
     },
     circle: {
         borderRadius: 100 / 2,
+
     },
     circleContainer: {
         width: 100,

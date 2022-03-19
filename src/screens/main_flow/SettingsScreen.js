@@ -30,7 +30,7 @@ const SettingsScreen = ({ navigation, route }) => {
     const [headerVisible, setHeaderVisible] = useState(false);
     const [initialReviews, setInitialReviews] = useState();
     const [openTabs, setOpenTabs] = useState(false)
-    const { height, width } = Dimensions.get("window");
+
     const [openRatings, setOpenRatings] = useState(false)
     const [openMyPosts, setOpenMyPosts] = useState(false)
     const [openPostsInterested, setOpenPostsInterested] = useState(false)
@@ -65,6 +65,10 @@ const SettingsScreen = ({ navigation, route }) => {
 
     const goToChangePass = () => {
         navigation.navigate(routes.RESTORE_PASSWORD_SCREEN, { email: myUser.email, isRestore: false })
+    }
+
+    const goToContact = () => {
+        navigation.navigate(routes.CONTACT_FORM_SCREEN)
     }
 
     const goToFiltersScreen = () => {
@@ -134,7 +138,7 @@ const SettingsScreen = ({ navigation, route }) => {
                     <Icon name="filter" size={27} color={'#2175D3'} />
                     <Text style={titleStyle}>Φίλτρα</Text>
                 </TouchableOpacity>
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
+                <TouchableOpacity onPress={goToContact} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
                     <Entypo style={{ alignSelf: 'flex-start' }} name="message" size={27} color={'#2175D3'} />
                     <Text style={titleStyle}>Φόρμα επικοινωνίας</Text>
                 </TouchableOpacity>

@@ -30,7 +30,7 @@ import { ADD_ACTIVE_POST, ADD_END_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_
 import { createPost, getPlaceInfo, resetValues, showInterest } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
 import { useKeyboard } from '../../customHooks/useKeyboard';
-import { useFocusEffect, useIsFocused } from '@react-navigation/native';
+import { useFocusEffect, useIsFocused, useNavigation } from '@react-navigation/native';
 import { FiltersModal } from '../../utils/FiltersModal';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import moment from 'moment';
@@ -67,7 +67,7 @@ const PostPreviewScreen = ({ navigation, route }) => {
     const [allowPet, setAllowPet] = useState(false)
     const [isSafeClick, setSafeClick] = useState(true)
     const { showFavoriteIcon, isPostInterested } = route.params
-    usePreventGoBack(goBack)
+    // usePreventGoBack(goBack)
     const handleValueChange = useCallback((low, high) => {
 
         setCost(low);
@@ -82,18 +82,13 @@ const PostPreviewScreen = ({ navigation, route }) => {
     const item = useSelector(state => state.postReducer.activePost)
     const [liked, setLiked] = useState(item.interested)
 
-    useEffect(() => {
-        if (!isFocused) {
-            dispatch({
-                type: ADD_ACTIVE_POST,
-                payload: {}
-            })
-        }
-    }, [isFocused])
+
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", goBack);
         return () => BackHandler.removeEventListener("hardwareBackPress", goBack);
-    }, []));
+    }, [liked]));
+
+    const navigation1 = useNavigation();
     const safeClickListener = (callback) => {
         setSafeClick(false)
         setTimeout(function () {
@@ -106,11 +101,11 @@ const PostPreviewScreen = ({ navigation, route }) => {
     const goToProfile = () => {
 
         if (isSafeClick && item?.user?.email !== myUser.email) {
-            navigation.navigate(routes.PROFILE_SCREEN, { email: item?.user?.email })
-
+            navigation1.push(routes.PROFILE_SCREEN, { email: item?.user?.email })
             safeClickListener()
         }
     }
+    console.log(item?.user, myUser.email)
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
         setTimeout(function () {
@@ -193,13 +188,13 @@ const PostPreviewScreen = ({ navigation, route }) => {
                 ref={scrollRef} style={{}}>
                 <ViewRow>
                     <View style={leftContainer}>
-                        <PictureComponent containerStyle={{ marginStart: 10 }} onPress={goToProfile} imageSize="small" url={BASE_URL + item.imagePath} />
+                        <PictureComponent containerStyle={{ marginStart: 10 }} onPress={item?.post?.email !== myUser.email ? () => { goToProfile() } : undefined} imageSize="small" url={BASE_URL + item.imagePath} />
                         <Spacer width={15} />
                     </View>
                     <View style={{ width: '48%' }}>
-                        <TouchableOpacity onPress={goToProfile}>
-                            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
-                        </TouchableOpacity>
+
+                        <Text onPress={goToProfile} disabled={item?.post?.email === myUser.email} style={{ fontSize: 14, fontWeight: 'bold' }}>{item?.user?.fullname ?? myUser.fullName}</Text>
+
 
                         {((item?.user?.count && item?.user?.count > 0) || (myUser.count > 0) && _.isUndefined(item?.user?.email)) &&
                             <View style={{ alignItems: 'center', flexDirection: 'row' }}>

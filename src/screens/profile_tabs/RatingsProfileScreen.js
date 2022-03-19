@@ -17,6 +17,7 @@ import { getValue, keyNames } from '../../utils/Storage';
 import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 import { useSelector } from 'react-redux';
+import { ViewRow } from '../../components/HOCS/ViewRow';
 
 
 const RatingsProfileScreen = ({ navigation, route }) => {
@@ -110,18 +111,17 @@ const RatingsProfileScreen = ({ navigation, route }) => {
 
                 <View style={{ flexDirection: 'row' }}>
                     <View style={{ width: '15%', marginStart: 6 }}>
-                        <PictureComponent imageSize="small" url={BASE_URL + item.imagepath} onPress={() => goToProfile(item.emailreviewer)} />
+                        <PictureComponent imageSize="small" url={BASE_URL + item.imagepath} />
                         <Spacer width={15} />
                     </View>
 
 
                     <View style={{ marginTop: 3, width: '85%' }}>
-                        <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                            <TouchableOpacity onPress={() => goToProfile(item.emailreviewer)}>
-                                <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.fullname}</Text>
-                            </TouchableOpacity>
+                        <ViewRow style={{ justifyContent: 'space-between' }}>
+
+                            <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{item.fullname}</Text>
                             <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6, marginEnd: 10 }}> {item.createdAt}</Text>
-                        </View>
+                        </ViewRow>
 
                         <Spacer height={10} />
                         <View style={{ alignItems: 'flex-start' }}>

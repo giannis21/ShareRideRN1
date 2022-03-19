@@ -11,7 +11,6 @@ import { BackHandler } from 'react-native';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
 import { useSelector, useDispatch } from 'react-redux';
 import { TouchableOpacity } from 'react-native-gesture-handler';
-import { CustomInput } from '../../../utils/CustomInput';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 import { FiltersModal } from '../../../utils/FiltersModal';
 import { constVar } from '../../../utils/constStr';
@@ -38,17 +37,12 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [modalCloseVisible, setModalCloseVisible] = useState(false)
-    const isFocused = useIsFocused()
 
     const myUser = useSelector(state => state.authReducer.user)
     const post = useSelector(state => state.postReducer)
     // usePreventGoBack(handleBackButtonClick)
 
     const dispatch = useDispatch()
-
-    useEffect(() => {
-        setValue(keyNames.isSearchOpen, openSearch.open.toString())
-    }, [openSearch.open])
 
     useEffect(() => {
         getRequests1()
@@ -59,7 +53,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
         return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
-    }, []));
+    }, [openSearch.open]));
 
 
     const getRequests1 = () => {
@@ -80,14 +74,11 @@ const SearchRouteScreen = ({ navigation, route }) => {
     }
 
     const handleBackButtonClick = async () => {
-        if (!isFocused) return true
 
-        if (await getValue(keyNames.isSearchOpen) === 'true') {
+        if (openSearch.open) {
             setOpenSearch({ from: true, open: false })
         } else {
-            if (isFocused)
-                setModalCloseVisible(true)
-
+            setModalCloseVisible(true)
         }
 
         return true;

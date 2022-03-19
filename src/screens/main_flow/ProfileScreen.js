@@ -34,6 +34,9 @@ import { OpenImageModal } from '../../utils/OpenImageModal';
 import { routes } from '../../navigation/RouteNames';
 import { DATA_USER_TYPE, regex } from '../../utils/Regex';
 import { DataSlotPickerModal } from '../../utils/DataSlotPickerModal';
+import { HorizontalLine } from '../../components/HorizontalLine';
+import { ViewRow } from '../../components/HOCS/ViewRow';
+import { CustomText } from '../../components/CustomText';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -84,13 +87,25 @@ const ProfileScreen = ({ navigation, route }) => {
             }
         }
     }
+
+    function ActionItem({ screenRoute, title }) {
+        return (
+            <TouchableOpacity
+                onPress={() => {
+                    navigation.navigate(screenRoute, { email: data.email })
+                }}
+                style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
+
+                <Text style={styles.rates} >{title}</Text>
+            </TouchableOpacity>
+        )
+    }
     function userInfo(icon, title, subTitle, editable, keyboardType) {
         return (
-            <View style={{ flexDirection: 'row', marginStart: 16, marginEnd: 16 }}>
+            <ViewRow style={{ marginHorizontal: 16 }}>
                 <MaterialCommunityIcons name={icon} size={32} color={colors.colorPrimary} />
                 <Spacer width={16} />
                 <View>
-
                     <Text style={{ marginVertical: 6, fontSize: 13, fontWeight: 'bold', color: getColorOrTitle(icon, DATA_USER_TYPE.TITLE_COLOR, title), opacity: 0.6 }}>{getColorOrTitle(icon, DATA_USER_TYPE.TITLE, title)}</Text>
                     <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && icon === 'account-details' && openPicker(1) }} style={{ flexDirection: 'row', justifyContent: 'space-between', width: '100%' }} >
                         <TextInput
@@ -111,9 +126,8 @@ const ProfileScreen = ({ navigation, route }) => {
                     {editProfile && icon !== 'email' &&
                         < View style={{ backgroundColor: getColorOrTitle(icon, DATA_USER_TYPE.LINE_COLOR, title), height: 1, width: '80%' }} />
                     }
-
                 </View>
-            </View>
+            </ViewRow>
         )
     }
 
@@ -174,7 +188,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     <CloseIconComponent onPress={() => navigation.goBack()} />
                 </View>
 
-                <View style={{ alignItems: 'center', justifyContent: 'center', flexDirection: 'row' }}>
+                <ViewRow style={{ alignItems: 'center', justifyContent: 'center' }}>
 
                     <PictureComponent
                         singleFile={singleFile}
@@ -189,7 +203,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     </View>
 
-                </View>
+                </ViewRow>
 
                 <Spacer height={5} />
                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1, justifyContent: 'flex-end' }} />
@@ -205,6 +219,31 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
             </View>
+        )
+    }
+    function CarColumn({ column }) {
+        return (
+            <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && openPicker(column === 1 ? 2 : 3) }} style={{ flex: 1 }}>
+                <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{column === 1 ? constVar.carBrand : constVar.carAgeTitle}</Text>
+                <ViewRow style={{ justifyContent: 'center', alignItems: 'center' }}>
+                    <TextInput editable={false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', width: '80%', textAlign: 'center' }}>{column === 1 ? data.carBrand : data.carDate}</TextInput>
+                    {editProfile && <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />}
+                </ViewRow>
+
+                {editProfile &&
+                    <HorizontalLine containerStyle={{ backgroundColor: colors.colorPrimary }} />
+                }
+            </TouchableOpacity>
+        )
+    }
+    function CarDetails({ }) {
+        return (
+            <ViewRow style={{ marginHorizontal: 16 }}>
+
+                <CarColumn column={1} />
+                <CarColumn column={2} />
+
+            </ViewRow>
         )
     }
     const resetToInitialState = () => {
@@ -299,6 +338,7 @@ const ProfileScreen = ({ navigation, route }) => {
             return data.carDate
         }
     }
+
     const setDatePickerValues = (selectedValue) => {
         if (dataSlotPickerTitle === constVar.selectAge) {
             setData({ ...data, age: selectedValue })
@@ -308,6 +348,7 @@ const ProfileScreen = ({ navigation, route }) => {
             setData({ ...data, carDate: selectedValue })
         }
     }
+
     const rate = (rating, text) => {
         rateUser({
             email: data.email,
@@ -356,7 +397,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 cardate: data.carDate
             }
         }
-        console.log(sendObj)
+
         updateProfile({
             sendObj,
             successCallback: ((message) => {
@@ -399,8 +440,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
     }
 
-    let style1 = { flex: 1, backgroundColor: 'white' }
-    let style2 = { flex: 1, backgroundColor: 'black', opacity: 0.5 }
+
 
     const showLoader = () => {
         setIsLoading(true)
@@ -426,11 +466,21 @@ const ProfileScreen = ({ navigation, route }) => {
                 || data.carDate !== data.initialCarDate
             ))
     }
-
-    const { tabsStyle } = styles
+    function EditIcon({ }) {
+        return (
+            <TouchableOpacity
+                style={{ justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16, zIndex: 1, position: 'absolute' }}
+                activeOpacity={1}
+                onPress={resetToInitialState}>
+                {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
+                    <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />}
+            </TouchableOpacity>
+        )
+    }
+    const { actionsContainer, baseView2, baseView1, topInfoContainer, ratesAmount, rateNowContainer } = styles
     return (
 
-        <BaseView statusBarColor={colors.colorPrimary} containerStyle={isRatingDialogOpened ? style2 : style1} >
+        <BaseView statusBarColor={colors.colorPrimary} containerStyle={isRatingDialogOpened ? baseView2 : baseView1} >
             <CustomInfoLayout
                 isVisible={showInfoModal}
                 title={infoMessage.info}
@@ -452,15 +502,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
             <CloseIconComponent onPress={() => { navigation.goBack() }} containerStyle={{ position: 'absolute', zIndex: 1, marginTop: 10, marginStart: 10 }} />
 
-            <TouchableOpacity
-                style={{ justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16, zIndex: 1, position: 'absolute' }}
-                activeOpacity={1}
-                onPress={resetToInitialState}>
-                {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
-                    <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
-                }
-
-            </TouchableOpacity>
+            {myUser.email === route.params.email && <EditIcon />}
 
             {
                 data.email !== '' &&
@@ -469,7 +511,7 @@ const ProfileScreen = ({ navigation, route }) => {
 
 
                     <Loader isLoading={isLoading} />
-                    <View style={{ justifyContent: 'center', alignItems: 'center', marginTop: 35 }}>
+                    <View style={topInfoContainer}>
                         <PictureComponent
                             singleFile={singleFile}
                             onPress={() => { editProfile && setImageModalVisible(true) }}
@@ -477,37 +519,31 @@ const ProfileScreen = ({ navigation, route }) => {
                             url={singleFile ? null : data.image}
                             imageSize={"big"} />
 
-                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 10 }}>
-                            <Text style={{ fontSize: 18, fontWeight: 'bold', marginBottom: 20 }}>{data.fullName}</Text>
 
 
-                            {data.count > 0 &&
-                                <View>
-                                    <StarsRating
-                                        rating={rating}
-                                        setRating={(rating) => setCurrentRating(rating)}
-                                    />
+                        <CustomText type={'title1'} text={data.fullName} textStyle={{ marginTop: 10, marginBottom: 20 }} />
 
-                                </View>
-
-                            }
-                        </View>
                         {data.count > 0 &&
-                            <Text style={{ fontSize: 13, backgroundColor: '#F0AD4E', fontWeight: 'bold', color: 'white', textAlign: 'center', marginTop: 5, width: 'auto', paddingHorizontal: 5, borderRadius: 6, paddingVertical: 1 }}>{data.count === 1 ? data.count + ` Ψήφος` : data.count + ` Ψήφοι`} </Text>
+                            <StarsRating
+                                rating={rating}
+                                setRating={(rating) => setCurrentRating(rating)}
+                            />
+                        }
+
+                        {data.count > 0 &&
+                            <Text style={ratesAmount}>{data.count === 1 ? data.count + ` Ψήφος` : data.count + ` Ψήφοι`} </Text>
                         }
 
                         <Spacer height={20} />
 
                         {userViewRate &&
-                            <TouchableWithoutFeedback onPress={() => setRatingDialogOpened(true)}>
-                                <Text style={{ padding: 3, fontSize: 16, fontWeight: 'bold', backgroundColor: '#F0AD4E', textAlign: 'center', width: '100%', color: 'white' }}>{constVar.rateNow}</Text>
-                            </TouchableWithoutFeedback>
+                            <Text onPress={() => setRatingDialogOpened(true)} style={rateNowContainer}>{constVar.rateNow}</Text>
                         }
 
                         <Spacer height={20} />
-                        <Text style={{ fontSize: 18, fontWeight: 'bold' }}>{constVar.personalInfo}</Text>
+                        <CustomText type={'title1'} text={constVar.personalInfo} />
                         <Spacer height={10} />
-                        <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1 }} />
+                        <HorizontalLine />
 
                     </View>
 
@@ -520,10 +556,8 @@ const ProfileScreen = ({ navigation, route }) => {
                     <Spacer height={28} />
                     <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.socialTitle}</Text>
                     <Spacer height={10} />
-                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1 }} />
-
+                    <HorizontalLine />
                     <Spacer height={28} />
-
                     {userInfo('facebook', constVar.facebook, data.facebook, editProfile ? true : false)}
                     <Spacer height={28} />
                     {userInfo('instagram', constVar.instagram, data.instagram, editProfile ? true : false)}
@@ -531,98 +565,35 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.car}</Text>
                     <Spacer height={10} />
-                    <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
+                    <HorizontalLine />
                     <Spacer height={28} />
-                    <View style={{ flexDirection: 'row', marginHorizontal: 16 }}>
-
-                        <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && openPicker(2) }} style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{constVar.carBrand}</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                <TextInput editable={false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', width: '80%', textAlign: 'center' }}>{data.carBrand}</TextInput>
-                                {editProfile && <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />}
-                            </View>
-
-                            {editProfile &&
-                                <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '100%' }} />
-                            }
-                        </TouchableOpacity>
-
-                        <TouchableOpacity activeOpacity={1} onPress={() => { editProfile && openPicker(3) }} style={{ flex: 1 }}>
-                            <Text style={{ fontSize: 13, fontWeight: 'bold', color: '#595959', opacity: 0.6, textAlign: 'center', marginBottom: 5 }}>{constVar.carAgeTitle}</Text>
-                            <View style={{ flexDirection: 'row', justifyContent: 'center', alignItems: 'center' }}>
-                                <TextInput keyboardType='numeric' editable={false} style={{ fontSize: 13, fontWeight: 'bold', color: 'black', textAlign: 'center', width: '80%' }}>{data.carDate}</TextInput>
-                                {editProfile && <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />}
-                            </View>
-                            {editProfile &&
-                                <View style={{ backgroundColor: colors.colorPrimary, height: 1, width: '100%' }} />
-                            }
-                        </TouchableOpacity>
-
-                    </View>
+                    <CarDetails />
 
                     {(((data.hasInterested || data.hasPosts || data.hasReviews || data.interestedForYourPosts)
                         && (myUser.email === data.email))
                         || (myUser.email !== data.email && data.hasReviews))
                         && <View style={{ marginTop: 20, marginHorizontal: 16, padding: 3 }}>
                             <Text style={{ fontSize: 18, fontWeight: 'bold', color: 'black' }}>Δείτε επίσης:</Text>
-                            <View style={{ backgroundColor: colors.CoolGray2, marginTop: 8, borderRadius: 10, padding: 10 }}>
+                            <View style={actionsContainer}>
                                 {data.hasReviews &&
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            navigation.navigate(routes.RATINGS_PROFILE_SCREEN, { email: data.email })
-                                        }}
-                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
-
-                                        <Text style={styles.rates} >Αξιολογήσεις</Text>
-                                    </TouchableOpacity>
+                                    <ActionItem screenRoute={routes.RATINGS_PROFILE_SCREEN} title={'Αξιολογήσεις'} />
                                 }
 
                                 {data.hasPosts && myUser.email === data.email &&
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            navigation.navigate(routes.MYPOSTS_PROFILE_SCREEN)
-                                        }}
-                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
-
-                                        <Text style={styles.rates} >τα Post μου</Text>
-                                    </TouchableOpacity>
+                                    <ActionItem screenRoute={routes.MYPOSTS_PROFILE_SCREEN} title={'τα Post μου'} />
                                 }
+
                                 {data.hasInterested && myUser.email === data.email &&
-
-                                    <TouchableOpacity
-                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}
-                                        onPress={() => {
-                                            navigation.navigate(routes.POSTS_INTERESTED_PROFILE_SCREEN, { email: data.email })
-                                        }}>
-
-                                        <Text style={styles.rates} >Post που ενδιαφέρομαι</Text>
-                                    </TouchableOpacity>
+                                    <ActionItem screenRoute={routes.POSTS_INTERESTED_PROFILE_SCREEN} title={'Post που ενδιαφέρομαι'} />
                                 }
 
                                 {data.interestedForYourPosts && myUser.email === data.email &&
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            navigation.navigate(routes.POSTS_INTERESTED_IN_ME_PROFILE_SCREEN, { email: data.email })
-                                        }}
-                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
-
-                                        <Text style={styles.rates} >Ενδιαφερόμενοι</Text>
-                                    </TouchableOpacity>
+                                    <ActionItem screenRoute={routes.POSTS_INTERESTED_IN_ME_PROFILE_SCREEN} title={'Ενδιαφερόμενοι'} />
                                 }
 
                                 {data.hasRequests && myUser.email === data.email &&
-                                    <TouchableOpacity
-                                        onPress={() => {
-                                            navigation.navigate(routes.REQUESTS_PROFILE_SCREEN, { email: data.email })
-                                        }}
-
-                                        style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
-
-                                        <Text style={styles.rates} >Αιτήματα για λήψη ειδοποιήσεων</Text>
-                                    </TouchableOpacity>
+                                    <ActionItem screenRoute={routes.REQUESTS_PROFILE_SCREEN} title={'Αιτήματα για λήψη ειδοποιήσεων'} />
                                 }
-
-
                             </View>
                         </View>
                     }
@@ -734,6 +705,20 @@ const ProfileScreen = ({ navigation, route }) => {
 export default ProfileScreen
 
 const styles = StyleSheet.create({
+    topInfoContainer: {
+        justifyContent: 'center',
+        alignItems: 'center',
+        marginTop: 35
+    },
+    baseView1: {
+        flex: 1,
+        backgroundColor: 'white'
+    },
+    baseView2: {
+        flex: 1,
+        backgroundColor: 'black',
+        opacity: 0.5
+    },
     circle: {
         borderRadius: 100 / 2,
     },
@@ -744,12 +729,30 @@ const styles = StyleSheet.create({
         borderRadius: 100 / 2,
         backgroundColor: colors.Gray2,
     },
+    ratesAmount: {
+        fontSize: 13,
+        backgroundColor: '#F0AD4E',
+        fontWeight: 'bold',
+        color: 'white',
+        textAlign: 'center',
+        marginTop: 5,
+        width: 'auto',
+        paddingHorizontal: 5,
+        borderRadius: 6,
+        paddingVertical: 1
+    },
     tabsStyle: {
         right: 0,
         left: 0,
         bottom: 0,
         marginHorizontal: 10,
         height: '100%'
+    },
+    actionsContainer: {
+        backgroundColor: colors.CoolGray2,
+        marginTop: 8,
+        borderRadius: 10,
+        padding: 10
     },
     footerBtn: {
 
@@ -786,5 +789,14 @@ const styles = StyleSheet.create({
         color: "white",
         fontWeight: 'bold',
 
+    },
+    rateNowContainer: {
+        padding: 3,
+        fontSize: 16,
+        fontWeight: 'bold',
+        backgroundColor: '#F0AD4E',
+        textAlign: 'center',
+        width: '100%',
+        color: 'white'
     }
 });

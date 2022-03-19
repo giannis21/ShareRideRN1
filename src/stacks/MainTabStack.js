@@ -22,12 +22,15 @@ import PostsInterestedProfileScreen from '../screens/profile_tabs/PostsIntereste
 import InterestedInMeProfileScreen from '../screens/profile_tabs/InterestedInMeProfileScreen';
 import RequestsProfileScreen from '../screens/profile_tabs/RequestsProfileScreen';
 import PostPreviewScreen from '../screens/main_flow/PostPreviewScreen';
-
+import ContactFormScreen from '../screens/ContactFormScreen';
+import { CardStyleInterpolators, createStackNavigator } from '@react-navigation/stack';
 const Tab = createBottomTabNavigator();
 const Stack = createNativeStackNavigator();
 
 const HomeStack = () => (
-    <Stack.Navigator>
+    <Stack.Navigator screenOptions={{
+        cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+    }}>
         <Stack.Screen
             options={{ headerShown: false }}
             name={routes.MAIN_TAB_STACK}
@@ -78,6 +81,10 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.POST_PREVIEW_SCREEN}
             component={PostPreviewScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.CONTACT_FORM_SCREEN}
+            component={ContactFormScreen} />
 
 
     </Stack.Navigator>

@@ -155,7 +155,7 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
                                     showMenu={true}
                                     item={item.item}
                                     onMenuClicked={onMenuClicked}
-                                    onProfileClick={onProfileClick}
+
                                     onPress={(post) => {
                                         navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: false })
                                         dispatch({

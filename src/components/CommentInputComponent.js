@@ -4,7 +4,7 @@ import { Spacer } from "../layout/Spacer";
 import { colors } from '../utils/Colors';
 import EvilIcons from 'react-native-vector-icons/EvilIcons';
 
-export function CommentInputComponent({ text, onChangeText, value, maxLenth, extraStyle, removeNote, onFocus }) {
+export function CommentInputComponent({ placeholder, onChangeText, value, maxLenth, extraStyle, removeNote, onFocus }) {
 
     return (
         <View>
@@ -19,12 +19,13 @@ export function CommentInputComponent({ text, onChangeText, value, maxLenth, ext
                         color='grey' />
 
                     <TextInput
+                        returnKeyType="done"
                         onFocus={onFocus}
                         style={styles.inputStyle}
                         placeholderTextColor="#8b9cb5"
                         autoCapitalize="none"
                         keyboardType='default'
-                        placeholder="σχόλια.."
+                        placeholder={placeholder ? placeholder : "σχόλια.."}
                         blurOnSubmit={false}
                         maxLength={maxLenth}
                         onChangeText={onChangeText}

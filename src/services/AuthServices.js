@@ -123,7 +123,7 @@ export const uploadImage = async (email, singleFile, successCallBack, errorCallb
 
 };
 
-export const registerUser = async (data, successCallBack, errorCallback) => {
+export const registerUser = async (data, imageBase64, successCallBack, errorCallback) => {
   let config = await getHeaderConfig()
 
   const send = {
@@ -136,7 +136,7 @@ export const registerUser = async (data, successCallBack, errorCallback) => {
       "car": data.carBrand,
       "cardate": data.carDate,
       "age": data.age,
-      "photo": "1"
+      "photo": imageBase64
     }
   }
   await instance.post(`/register`, send, config)

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
@@ -10,7 +10,7 @@ import { colors } from '../../utils/Colors';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { Loader } from '../../utils/Loader';
 import { OpenImageModal } from '../../utils/OpenImageModal';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 import { ADD_ACTIVE_POST } from '../../actions/types';
 import { useDispatch, useSelector } from 'react-redux';
@@ -32,11 +32,12 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
     const navigation1 = useNavigation();
     let dispatch = useDispatch()
     let isFocused = useIsFocused()
+
     const goBack = () => {
         navigation.goBack()
     }
-    useEffect(() => {
 
+    useEffect(() => {
         if (route.params.email)
             getInterestedPerUser({
                 email: route.params.email,
@@ -44,6 +45,7 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
                 errorCallback
             })
     }, []);
+
     useEffect(() => {
         if (isFocused && route?.params?.postId) {
             let likedPost = dataSource.find((item) => item.post.postid === route?.params?.postId)
@@ -53,7 +55,17 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
             setIsRender(!isRender)
             navigation.setParams({ postId: null });
         }
+
     }, [isFocused])
+
+    useEffect(() => {
+        if (isFocused)
+            dispatch({
+                type: ADD_ACTIVE_POST,
+                payload: {}
+            })
+    }, [isFocused])
+
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
         setTimeout(function () {
@@ -76,9 +88,8 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
 
 
     const onProfileClick = (email) => {
-        console.log("adasdasdsdsa ", email)
         try {
-            navigation1.push(routes.PROFILE_SCREEN, { email: email })
+            navigation.push(routes.PROFILE_SCREEN, { email: email })
         } catch (err) {
             console.log("dadsa", err)
         }

@@ -33,8 +33,6 @@ export const keyNames = {
   password: 'password',
   token: 'token',
   carDate: 'carDate',
-  isSearchOpenPost: 'isSearchOpenPost',
-  isSearchOpen: 'isSearchOpen'
 }
 export const filterKeys = {
   showMe: 'showMe',

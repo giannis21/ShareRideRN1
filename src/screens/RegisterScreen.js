@@ -13,7 +13,7 @@ import { uploadImage, registerUser } from '../services/AuthServices';
 import { Loader } from '../utils/Loader';
 import { CustomInput } from '../utils/CustomInput';
 import { CustomInfoLayout } from '../utils/CustomInfoLayout';
-import { carBrands, onLaunchCamera, onLaunchGallery } from '../utils/Functions';
+import { carBrands, newCarBrands, onLaunchCamera, onLaunchGallery, range } from '../utils/Functions';
 import { CheckBox } from 'react-native-elements';
 import RNPickerSelect from 'react-native-picker-select';
 import { OpenImageModal } from '../utils/OpenImageModal';
@@ -21,11 +21,14 @@ import { constVar } from '../utils/constStr';
 import { PictureComponent } from '../components/PictureComponent';
 import RNFetchBlob from 'rn-fetch-blob';
 import DropDownPicker from 'react-native-dropdown-picker';
-
+import { DataSlotPickerModal } from '../utils/DataSlotPickerModal';
+import moment from 'moment';
+import { HorizontalLine } from '../components/HorizontalLine';
+import { ViewRow } from '../components/HOCS/ViewRow';
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
 
-     let initalData = { email: '', password: '', carBrand: 'ΟΛΑ', checked: 'male', carDate: '', passwordConfirmed: '', secureTextEntry: true, secureTextEntryConfirmed: true, fullName: '', phone: '', age: '', gender: 'man' }
+     let initalData = { email: '', password: '', carBrand: '', checked: 'male', carDate: '', passwordConfirmed: '', secureTextEntry: true, secureTextEntryConfirmed: true, fullName: '', phone: '', age: '', gender: 'man' }
      const [data, setData] = useState(initalData)
      const [isLoading, setIsLoading] = useState(false)
      const [isModalVisible, setIsModalVisible] = useState(false)
@@ -34,7 +37,9 @@ const RegisterScreen = ({ navigation }) => {
      const [showInfoModal, setShowInfoModal] = useState(false);
      const [singleFile, setSingleFile] = useState(null);
      const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-
+     const [pickerData, setPickerData] = useState([])
+     const [dataSlotPickerVisible, setDataSlotPickerVisible] = useState(false);
+     const [dataSlotPickerTitle, setDataSlotPickerTitle] = useState(constVar.selectAge);
      const [open, setOpen] = useState(false);
      const [allowScroll, setAllowScroll] = useState(true)
      const [items, setItems] = useState(carBrands);
@@ -49,6 +54,33 @@ const RegisterScreen = ({ navigation }) => {
 
           return unsubscribe;
      }, [navigation]);
+
+     const getInitialValue = () => {
+          if (dataSlotPickerTitle === constVar.selectAge) {
+               return parseInt(data.age)
+          } else if (dataSlotPickerTitle === constVar.selectCar) {
+               return data.carBrand
+          } else {
+               return parseInt(data.carDate)
+          }
+     }
+
+     const openPicker = (option) => {
+
+          if (option === 1) {
+               setPickerData(range(18, 70))
+               setDataSlotPickerTitle(constVar.selectAge)
+               setDataSlotPickerVisible(true)
+          } else if (option === 2) {
+               setPickerData(_.tail(newCarBrands))
+               setDataSlotPickerTitle(constVar.selectCar)
+               setDataSlotPickerVisible(true)
+          } else {
+               setPickerData(range(2000, parseInt(moment().format('YYYY'))))
+               setDataSlotPickerTitle(constVar.selectCarAge)
+               setDataSlotPickerVisible(true)
+          }
+     }
 
 
      const storeImageLocally = async () => {
@@ -66,7 +98,7 @@ const RegisterScreen = ({ navigation }) => {
                return
 
           setIsLoading(true)
-          registerUser(data,
+          registerUser(data, singleFile.data
 
                //success callback
                ((message, otp) => {
@@ -105,7 +137,7 @@ const RegisterScreen = ({ navigation }) => {
                _.isEmpty(data.age) ||
                _.isEmpty(data.fullName)
           ) {
-               setInfoMessage({ info: 'Συμπληρώστε τα πεδία πρώτα.', success: false })
+               setInfoMessage({ info: 'Συμπλήρωσε τα πεδία πρώτα.', success: false })
                showCustomLayout()
                return false
           }
@@ -123,7 +155,7 @@ const RegisterScreen = ({ navigation }) => {
           }
 
           if (_.isNull(singleFile)) {
-               setInfoMessage({ info: 'Δεν έχετε προσθέσει φωτογραφία.', success: false })
+               setInfoMessage({ info: 'Δεν έχεις προσθέσει φωτογραφία.', success: false })
                showCustomLayout()
                return false
           }
@@ -186,9 +218,17 @@ const RegisterScreen = ({ navigation }) => {
                }
           }
      };
+     const setDatePickerValues = (selectedValue) => {
 
-     let imageWidth = !_.isNull(singleFile) ? 92 : 70
-     console.log(allowScroll)
+          if (dataSlotPickerTitle === constVar.selectAge) {
+               setData({ ...data, age: selectedValue })
+          } else if (dataSlotPickerTitle === constVar.selectCar) {
+               setData({ ...data, carBrand: selectedValue })
+          } else {
+               setData({ ...data, carDate: selectedValue })
+          }
+     }
+
      return (
 
 
@@ -210,18 +250,13 @@ const RegisterScreen = ({ navigation }) => {
                     bounces={true}
                     keyboardShouldPersistTaps={'handled'}>
                     <View>
-
-                         <Spacer height={35} />
-                         <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                         <View style={{ justifyContent: 'center', alignItems: 'center', marginVertical: 35 }}>
 
                               <PictureComponent
                                    singleFile={singleFile}
                                    openCamera={true}
                                    onPress={() => { setIsModalVisible(true) }} imageSize={"big"} />
                          </View>
-
-
-                         <Spacer height={35} />
 
                          <CustomInput
                               text={constVar.hereEmail}
@@ -243,17 +278,14 @@ const RegisterScreen = ({ navigation }) => {
                               value={data.phone}
                          />
                          <CustomInput
-                              onPressIn={() => { console.log("333") }}
+                              onPressIn={() => { openPicker(1) }}
                               hasBottomArrow={true}
                               disabled={true}
                               text={constVar.age}
-                              keyboardType="numeric"
-                              onChangeText={onAgeChanged}
-                              maxLenth={2}
                               value={data.age}
                          />
                          <Spacer height={16} />
-                         <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
+                         <ViewRow>
                               <Text style={{ alignSelf: 'center', fontWeight: 'bold' }}>Φύλο</Text>
                               <Spacer width={16} />
                               <CheckBox
@@ -272,7 +304,7 @@ const RegisterScreen = ({ navigation }) => {
                                    checked={data.checked === 'female' ? true : false}
                                    onPress={() => setData({ ...data, checked: 'female' })}
                               />
-                         </View>
+                         </ViewRow>
 
                          <CustomInput
                               text={constVar.herePass}
@@ -296,68 +328,33 @@ const RegisterScreen = ({ navigation }) => {
                          />
                          <Spacer height={6} />
                          <Text style={{ fontSize: 13, color: '#8b9cb5' }}>{constVar.passLengthNote}</Text>
-                         <Spacer height={26} />
-                         <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 1 }} />
-                         <Spacer height={26} />
+
+                         <HorizontalLine containerStyle={{ marginVertical: 26 }} />
 
                          <Text style={{ alignSelf: 'center', fontSize: 19, fontWeight: 'bold' }}>{constVar.carTitle}</Text>
-                         <Spacer height={20} />
+                         <Spacer height={6} />
 
-                         {/* <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.carBrandTitle}</Text>
-                              <Spacer width={20} /> */}
-                         <View style={open ? { height: 244 } : { height: 44 }}>
-                              <DropDownPicker
-                                   onOpen={() => setAllowScroll(false)}
-                                   onClose={() => setAllowScroll(true)}
-                                   containerStyle={{ height: 'auto' }}
-                                   zIndex={3000}
-                                   zIndexInverse={1000}
-
-                                   open={open}
-                                   value={value}
-                                   items={items}
-                                   setOpen={setOpen}
-                                   setValue={setValue}
-                              //  setItems={setItems}
-                              />
-                         </View>
-
-                         {/* <RNPickerSelect
-
-                                   onValueChange={(value) => setData({ ...data, carBrand: value })}
-                                   items={carBrands}
-                                   style={styles.maskInputContainer}
-                                   useNativeAndroidPickerStyle={false}
-
-                                   value={data.carBrand}
-
-                                   Icon={() => {
-                                        return (
-                                             <MaterialIcons style={{
-                                                  marginRight: -42,
-                                                  bottom: Platform.OS === 'ios' ? 0 : -2
-                                             }} name="arrow-drop-down" size={25} color='black' />
-
-                                        );
-                                   }}
-
-                              /> */}
+                         <CustomInput
+                              onPressIn={() => { openPicker(2) }}
+                              hasBottomArrow={true}
+                              disabled={true}
+                              text={constVar.carBrand}
+                              keyboardType="numeric"
+                              value={data.carBrand}
+                         />
 
 
+                         <CustomInput
+                              onPressIn={() => { openPicker(3) }}
+                              hasBottomArrow={true}
+                              disabled={true}
+                              text={constVar.carAgeLabel}
+                              keyboardType="default"
+                              onChangeText={oncarDateChanged}
+                              value={data.carDate}
+                         />
 
-                         <View style={{ flexDirection: 'row', justifyContent: 'flex-start' }}>
-                              <Text style={{ fontSize: 16, fontWeight: 'bold', alignSelf: 'flex-end' }}>{constVar.carAgeTitle}</Text>
-                              <Spacer width={20} />
 
-                              <CustomInput
-                                   text={constVar.carAgeLabel}
-                                   keyboardType="default"
-                                   onChangeText={oncarDateChanged}
-                                   maxLenth={4}
-                                   value={data.carDate}
-                              />
-
-                         </View>
                          <Spacer height={50} />
                          <RoundButton
                               text={constVar.register}
@@ -385,6 +382,19 @@ const RegisterScreen = ({ navigation }) => {
                          onActionSheet(index)
                     }}
 
+               />
+               <DataSlotPickerModal
+                    data={pickerData}
+                    title={dataSlotPickerTitle}
+                    isVisible={dataSlotPickerVisible}
+                    onClose={() => {
+                         setDataSlotPickerVisible(false);
+                    }}
+                    onConfirm={(selectedValue, secValue, thirdValue) => {
+                         setDatePickerValues(selectedValue.toString())
+                         setDataSlotPickerVisible(false);
+                    }}
+                    initialValue1={getInitialValue()}
                />
           </BaseView >
 
