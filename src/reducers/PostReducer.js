@@ -168,6 +168,7 @@ export function PostReducer(state = intialState, action) {
                 radioSelectedFilters: state.radioSelectedFilters = action.payload
             };
         case ADD_ACTIVE_POST:
+            console.log("ACTIVE POST", action.payload)
             return {
                 ...state,
                 activePost: state.activePost = action.payload

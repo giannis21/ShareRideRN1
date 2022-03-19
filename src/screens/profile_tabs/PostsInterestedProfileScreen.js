@@ -59,11 +59,11 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
     }, [isFocused])
 
     useEffect(() => {
-        if (isFocused)
-            dispatch({
-                type: ADD_ACTIVE_POST,
-                payload: {}
-            })
+        // if (isFocused)
+        //     dispatch({
+        //         type: ADD_ACTIVE_POST,
+        //         payload: {}
+        //     })
     }, [isFocused])
 
     const showCustomLayout = (callback) => {

@@ -60,7 +60,7 @@ const SettingsScreen = ({ navigation, route }) => {
 
 
     const goToProfile = () => {
-        navigation.navigate(routes.PROFILE_SCREEN, { email: myUser.email })
+        navigation.navigate(routes.PROFILE_STACK, { screen: routes.PROFILE_SCREEN, params: { email: myUser.email } })
     }
 
     const goToChangePass = () => {

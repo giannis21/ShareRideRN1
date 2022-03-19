@@ -65,6 +65,9 @@ const ProfileScreen = ({ navigation, route }) => {
 
     const scrollRef = useRef();
 
+    useEffect(() => {
+        console.log(route.params.email)
+    }, [])
     const Tab = createMaterialTopTabNavigator();
 
     const onTextsChanged = (val, icon) => {

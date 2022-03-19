@@ -67,12 +67,6 @@ const PostPreviewScreen = ({ navigation, route }) => {
     const [allowPet, setAllowPet] = useState(false)
     const [isSafeClick, setSafeClick] = useState(true)
     const { showFavoriteIcon, isPostInterested } = route.params
-    // usePreventGoBack(goBack)
-    const handleValueChange = useCallback((low, high) => {
-
-        setCost(low);
-        setHigh(high);
-    }, []);
 
     const dispatch = useDispatch();
     const isFocused = useIsFocused()
@@ -167,12 +161,7 @@ const PostPreviewScreen = ({ navigation, route }) => {
 
         return true
     }
-    const setRadioSelection = (option) => {
-        dispatch({
-            type: SET_RADIO_SELECTED,
-            payload: option
-        })
-    }
+
     const { textStyle1, bottomContainer, userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContaine } = styles
 
     return (

@@ -28,90 +28,53 @@ import {
     createStackNavigator,
     TransitionPresets
 } from '@react-navigation/stack';
-import ProfileStack from './ProfileStack';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
-// screenOptions={{
-//         cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
-const HomeStack = () => (
+
+const ProfileStack = () => (
     <Stack.Navigator
-
-        headerMode={'none'}
-        screenOptions={({ route, navigation }) => ({
-            gestureEnabled: false,
-            cardOverlayEnabled: true,
-            headerStatusBarHeight: undefined,
-            // navigation
-            //     .dangerouslyGetState()
-            //     .routes.findIndex((r) => r.key === route.key) > 0
-            //     ? 0
-            //     : undefined,
-            ...TransitionPresets.ModalPresentationIOS
-        })}
+        screenOptions={{
+            cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+        }}
     >
-        <Stack.Screen
-            options={{ headerShown: false }}
-            name={routes.MAIN_TAB_STACK}
-            component={MainTabStack} />
-        <Stack.Screen
-            options={{ headerShown: false }}
-            name={routes.PROFILE_STACK}
-            component={ProfileStack} />
 
         <Stack.Screen
             options={{ headerShown: false }}
-            name={routes.SETTINGS_SCREEN}
-            component={SettingsScreen} />
-
-
+            name={routes.PROFILE_SCREEN}
+            component={ProfileScreen} />
         <Stack.Screen
             options={{ headerShown: false }}
-            name={routes.RESTORE_PASSWORD_SCREEN}
-            component={RestorePasswordScreen} />
+            name={routes.PREVIEW_INTERESTED_IN_ME_SCREEN}
+            component={PreviewInterestedInMeScreen} />
         <Stack.Screen
             options={{ headerShown: false }}
-            name={routes.FILTERS_SCREEN}
-            component={FiltersScreen} />
+            name={routes.RATINGS_PROFILE_SCREEN}
+            component={RatingsProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.MYPOSTS_PROFILE_SCREEN}
+            component={MyPostsProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.POSTS_INTERESTED_PROFILE_SCREEN}
+            component={PostsInterestedProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.POSTS_INTERESTED_IN_ME_PROFILE_SCREEN}
+            component={InterestedInMeProfileScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.REQUESTS_PROFILE_SCREEN}
+            component={RequestsProfileScreen} />
 
         <Stack.Screen
 
             options={{ headerShown: false }}
             name={routes.POST_PREVIEW_SCREEN}
             component={PostPreviewScreen} />
-        <Stack.Screen
-            options={{ headerShown: false }}
-            name={routes.CONTACT_FORM_SCREEN}
-            component={ContactFormScreen} />
-
 
     </Stack.Navigator>
 );
-const MainTabStack = () => (
-    <Tab.Navigator tabBar={(props) => <TabBar  {...props} />}
-        screenOptions={{ headerShown: false, tabBarHideOnKeyboard: true }}>
-        <Tab.Screen
 
-            initialParams={{ icon: 'ios-home' }}
-            name={"Αναζήτηση"}
-            component={SearchRouteScreen}
-        />
-        <Tab.Screen
 
-            initialParams={{ icon: 'ios-home' }}
-            name={"Δημιουργία post"}
-            component={CreatePostScreen}
-        />
-    </Tab.Navigator >
-);
-const getTabBarVisibility = (route) => {
-    const routeName = route.state
-        ? route.state.routes[route.state.index].name
-        : '';
-
-    // if (routeName === 'CameraView') {
-    //return false;
-    //}
-
-    return true;
-}
-export default HomeStack;
+export default ProfileStack;
