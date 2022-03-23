@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { View, StyleSheet, Text, TouchableOpacity, Image } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
@@ -16,7 +16,9 @@ export function SelectLocationComponent({
 }) {
     const post = useSelector(state => state.postReducer)
 
-
+    useEffect(() => {
+        console.log(post.searchStartplace)
+    }, [])
     const getInitText = () => {
         let text = ''
         if (isPostScreen) {

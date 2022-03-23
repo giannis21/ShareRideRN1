@@ -14,7 +14,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 import { FiltersModal } from '../../../utils/FiltersModal';
 import { constVar } from '../../../utils/constStr';
-import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_REQUESTS } from '../../../actions/types';
+import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_FAVORITE_ROUTES, GET_REQUESTS } from '../../../actions/types';
 import { SelectLocationComponent } from '../../../components/SelectLocationComponent';
 import { Spacer } from '../../../layout/Spacer';
 import { RoundButton } from '../../../Buttons/RoundButton';
@@ -24,7 +24,13 @@ import moment from 'moment';
 import { usePreventGoBack } from '../../../customHooks/usePreventGoBack';
 import { InfoPopupModal } from '../../../utils/InfoPopupModal';
 import Ionicons from 'react-native-vector-icons/Ionicons';
-
+import { SearchScreenComponent } from '../../../components/SearchScreenComponent';
+import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
+import RatingsProfileScreen from '../../profile_tabs/RatingsProfileScreen';
+import MyPostsProfileScreen from '../../profile_tabs/MyPostsProfileScreen';
+import { FavDestComponent } from '../../../components/FavDestComponent';
+import { createTable, getDBConnection, getFavorites } from '../../../database/db-service';
+import SearchTopTabBar from '../../../components/SearchTopTabBar'
 const SearchRouteScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [isLoading, setIsLoading] = useState(false)
@@ -37,18 +43,42 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
     const [modalCloseVisible, setModalCloseVisible] = useState(false)
+    const [lastActiveIndex, setLastActiveIndex] = useState(0)
+    const [carouselItem, setCarouselItem] = useState(null)
 
     const myUser = useSelector(state => state.authReducer.user)
     const post = useSelector(state => state.postReducer)
-    // usePreventGoBack(handleBackButtonClick)
+    const searchReducer = useSelector(state => state.searchReducer)
 
     const dispatch = useDispatch()
+    const Tab = createMaterialTopTabNavigator();
 
     useEffect(() => {
         getRequests1()
         //dispatch(getRequests())
+        //  setCarouselItem(searchReducer.favoriteRoutes[0])
     }, [myUser.email])
 
+    useEffect(() => {
+        loadDataCallback()
+    }, [searchReducer.triggerDatabase])
+
+
+    const loadDataCallback = useCallback(async () => {
+        try {
+            const db = await getDBConnection();
+            await createTable(db);
+            getFavorites(db).then((data) => {
+                if (data.length) {
+                    dispatch({ type: GET_FAVORITE_ROUTES, payload: data })
+                } else {
+                    dispatch({ type: GET_FAVORITE_ROUTES, payload: [] })
+                }
+            })
+        } catch (error) {
+            console.error(error);
+        }
+    }, []);
 
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
@@ -69,73 +99,11 @@ const SearchRouteScreen = ({ navigation, route }) => {
             })
         })
     }
-    const resetValues = () => {
-        dispatch({ type: CLEAR_SEARCH_VALUES, payload: {} })
-    }
 
-    const handleBackButtonClick = async () => {
-
-        if (openSearch.open) {
-            setOpenSearch({ from: true, open: false })
-        } else {
-            setModalCloseVisible(true)
-        }
-
-        return true;
-    }
-
-    // useFocusEffect(() => {
-    //     let backBtnListener = BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
-
-    //     return () => {
-    //         backBtnListener.remove()
-    //     };
-    // }, []);
-    const showFavorite = () => {
-        if (post.searchStartplace !== '' && post.searchEndplace !== '')
-            return true
-
-        return false
-    }
-
-    const getPlace = (place_id, place, isStartPoint) => {
-
-        getPlaceInfo({
-            place_id,
-            successCallback: ((coordinates) => {
-                if (openSearch.from !== true && post.searchStartcoord === coordinates) {
-
-                    setInfoMessage({ info: "Έχεις ήδη προσθέσει αυτή την τοποθεσία ως αρχικό προορισμό!", success: false })
-                    showCustomLayout()
-                    return
-                }
-
-                if (openSearch.from === true && post.searchEndcoord === coordinates) {
-                    setInfoMessage({ info: "Έχεις ήδη προσθέσει αυτή την τοποθεσία ως τελικό προορισμό!", success: false })
-                    showCustomLayout()
-                    return
-                }
-
-                dispatch({
-                    type: getType(isStartPoint),
-                    payload: [place, coordinates]
-                })
-
-            }),
-            errorCallback: (() => { })
-        })
-    }
-    const showCustomLayout = (callback) => {
-        setShowInfoModal(true)
-        setTimeout(function () {
-            setShowInfoModal(false)
-            if (callback)
-                callback()
-        }, 2000);
-    }
     const searchPosts = async () => {
+        console.log(carouselItem)
 
-        if (post.searchStartplace === '' || post.searchEndplace === '') {
+        if ((post.searchStartplace === '' || post.searchEndplace === '') && lastActiveIndex !== 0) {
             setInfoMessage({ info: "Συμπλήρωσε και τα δύο πεδία πρώτα!", success: false })
             showCustomLayout()
             return
@@ -143,11 +111,34 @@ const SearchRouteScreen = ({ navigation, route }) => {
 
         let sendObj = {
             data: {
+                // email: "giannisfragoulis21@gmail.com",
+                // startplace: "Athina",
+                // // startcoord: "37.9838096,23.7275388",
+                // // endplace: "Thessaloniki",
+                // // endcoord: "40.6400629,22.9444191",
+                // // startdate: "2022-03-28",
+                // // enddate: "2022-04-03",
+                // startplace: lastActiveIndex === 0 ? carouselItem.startplace : post.searchStartplace,
+                // startcoord: lastActiveIndex === 0 ? carouselItem.startcoord : post.searchStartcoord,
+                // endplace: lastActiveIndex === 0 ? carouselItem.endplace : post.searchEndplace,
+                // endcoord: lastActiveIndex === 0 ? carouselItem.endcoord : post.searchEndcoord,
+                // page: 1,
+                // cost: 100,
+                // age: 18,
+                // age_end: 70,
+                // car: null,
+                // cardate: null,
+                // gender: null,
+                // withReturn: null,
+                // petAllowed: null,
+                // returnStartDate: "2022-04-11",
+                // returnEndDate: "2022-04-18"
+
                 email: myUser.email,
-                startplace: post.searchStartplace,
-                startcoord: post.searchStartcoord,
-                endplace: post.searchEndplace,
-                endcoord: post.searchEndcoord,
+                startplace: lastActiveIndex === 0 ? carouselItem.startplace : post.searchStartplace,
+                startcoord: lastActiveIndex === 0 ? carouselItem.startcoord : post.searchStartcoord,
+                endplace: lastActiveIndex === 0 ? carouselItem.endplace : post.searchEndplace,
+                endcoord: lastActiveIndex === 0 ? carouselItem.endcoord : post.searchEndcoord,
                 startdate: await getStartDate(),
                 enddate: await getEndDate(),
                 page: 1,
@@ -155,15 +146,15 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 age: await getStartAge(),
                 age_end: await getEndAge(),
                 car: await getValue(filterKeys.carMark) ?? null,
-                cardate: await getValue(filterKeys.carAge) ?? null,
+                cardate: null,
                 gender: await getGender(),
                 withReturn: await hasReturnDate(),
-                petAllowed: await getValue(filterKeys.allowPet) ? true : null,
+                petAllowed: null,
                 returnStartDate: await getReturnStartDate(),
                 returnEndDate: await getReturnEndDate()
             }
         }
-
+        console.log({ sendObj })
         searchForPosts({
             sendObj,
             successCallback: ((data) => {
@@ -181,7 +172,6 @@ const SearchRouteScreen = ({ navigation, route }) => {
         })
 
     }
-
     const getGender = async () => {
         let gender = await getValue(filterKeys.showMe)
 
@@ -250,8 +240,26 @@ const SearchRouteScreen = ({ navigation, route }) => {
         }
         return null
     }
-    function getType(isStartPoint) {
-        return isStartPoint ? ADD_SEARCH_START_POINT : ADD_SEARCH_END_POINT
+    const resetValues = () => {
+        dispatch({ type: CLEAR_SEARCH_VALUES, payload: {} })
+    }
+
+    const handleBackButtonClick = async () => {
+
+        if (openSearch.open) {
+            setOpenSearch({ from: true, open: false })
+        } else {
+            setModalCloseVisible(true)
+        }
+
+        return true;
+    }
+
+    const showFavorite = () => {
+        if (post.searchStartplace !== '' && post.searchEndplace !== '')
+            return true
+
+        return false
     }
 
     let resetArray = () => {
@@ -259,32 +267,48 @@ const SearchRouteScreen = ({ navigation, route }) => {
         setOpenSearchedPosts(false)
     }
 
-    let receiveNotification = () => {
-        let data =
-        {
-            data: {
-                startplace: post.searchStartplace,
-                startcoord: post.searchStartcoord,
-                endplace: post.searchEndplace,
-                endcoord: post.searchEndcoord,
-                startdate: "2022-12-20",
-                enddate: "2029-12-22"
-            }
-        }
+    const getPlace = (place_id, place, isStartPoint) => {
 
-        createRequest({
-            data,
-            successCallback: ((message) => {
-                getRequests1()
-                setInfoMessage({ info: message, success: true })
-                showCustomLayout()
+        getPlaceInfo({
+            place_id,
+            successCallback: ((coordinates) => {
+                if (openSearch.from !== true && post.searchStartcoord === coordinates) {
+
+                    setInfoMessage({ info: "Έχεις ήδη προσθέσει αυτή την τοποθεσία ως αρχικό προορισμό!", success: false })
+                    showCustomLayout()
+                    return
+                }
+
+                if (openSearch.from === true && post.searchEndcoord === coordinates) {
+                    setInfoMessage({ info: "Έχεις ήδη προσθέσει αυτή την τοποθεσία ως τελικό προορισμό!", success: false })
+                    showCustomLayout()
+                    return
+                }
+
+                dispatch({
+                    type: getType(isStartPoint),
+                    payload: [place, coordinates]
+                })
+
             }),
-            errorCallback: ((errorMessage) => {
-                setInfoMessage({ info: errorMessage, success: false })
-                showCustomLayout()
-            })
+            errorCallback: (() => { })
         })
     }
+
+    function getType(isStartPoint) {
+        return isStartPoint ? ADD_SEARCH_START_POINT : ADD_SEARCH_END_POINT
+    }
+
+    const showCustomLayout = (callback) => {
+        setShowInfoModal(true)
+        setTimeout(function () {
+            setShowInfoModal(false)
+            if (callback)
+                callback()
+        }, 2000);
+    }
+
+
     const { addΤοFav, addStopStyle } = styles
     return (
 
@@ -310,56 +334,70 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 }}
 
             />
+            {!openSearch.open && !openSearchedPost && searchReducer.favoriteRoutes.length > 0 &&
+                <View style={{ top: 0, right: 0, left: 0, bottom: 0, height: '100%' }}>
+                    <Tab.Navigator
+                        tabBar={(props) => (
+                            <SearchTopTabBar {...props}
+                                isSearchOpen={openSearch.open}
+                                lastActiveIndex={lastActiveIndex}
+                                onChangeIndex={(activeIndex) => { setLastActiveIndex(activeIndex) }} />
+                        )}
+                        screenOptions={{
+                            tabBarLabelStyle: { textTransform: 'lowercase' },
+                            swipeEnabled: true,
+
+                        }}
+                    >
+
+                        <Tab.Screen name={constVar.favoritesTab}>
+                            {(props) => (
+                                <FavDestComponent
+                                    onSearchPosts={searchPosts}
+                                    onCarouselItemChange={(currentCarouselItem) => setCarouselItem(currentCarouselItem)} />
+                            )}
+                        </Tab.Screen>
+
+                        <Tab.Screen name={constVar.searchTab}>
+                            {(props) => (
+                                <SearchScreenComponent
+                                    navigation
+                                    onSearchPosts={() => { searchPosts() }}
+                                    onOpenSearch={(from, open) => {
+                                        setOpenSearch({ from: from, open: open })
+                                    }}
+                                />
+                            )}
+                        </Tab.Screen>
+
+
+
+                    </Tab.Navigator>
+
+                </View>
+            }
+
+            {!openSearch.open && searchReducer.favoriteRoutes.length === 0 &&
+                <SearchScreenComponent
+                    navigation
+                    onSearchPosts={() => { searchPosts() }}
+                    onOpenSearch={(from, open) => {
+                        setOpenSearch({ from: from, open: open })
+                    }}
+                />
+            }
+
+            {openSearchedPost && !_.isEmpty(dataSource) &&
+                <SearchedPostsComponent navigation={navigation} data={dataSource} offset={offset} total_pages={total_pages}
+                />
+            }
             {openSearch.open &&
                 <SearchLocationComponent
                     from={openSearch.from}
                     onPress={(place_id, place, isStartPoint) => {
                         getPlace(place_id, place, isStartPoint)
                         setOpenSearch({ from: true, open: false })
-
                     }} />
-            }
-            {openSearchedPost && !_.isEmpty(dataSource) &&
-                <SearchedPostsComponent navigation={navigation} data={dataSource} offset={offset} total_pages={total_pages}
-                />
-            }
-            <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
-
-                <SelectLocationComponent
-                    onReset={resetValues}
-                    titleStart={'Αφετηρία προορισμού'}
-                    titleEnd={'Τελικός προορισμός'}
-                    startingPointPress={() => { setOpenSearch({ from: true, open: true }) }}
-                    endPointPress={() => { setOpenSearch({ from: false, open: true }) }} />
-
-                <Spacer height={16} />
-                <RoundButton
-                    text={'Αναζήτηση'}
-                    onPress={searchPosts}
-                    backgroundColor={colors.colorPrimary} />
-            </View>
-
-            {(post.searchStartplace !== '' && post.searchEndplace !== '') &&
-                <View View style={{ marginTop: 14 }}>
-                    <View style={addΤοFav} >
-                        <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Προσθήκη αναζήτησης στα αγαπημένα</Text>
-                        <TouchableOpacity
-                            onPress={() => { }}
-                            style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
-                            <Ionicons name="add" size={15} color='white' />
-
-                        </TouchableOpacity>
-                    </View>
-                    <Spacer height={10} />
-
-                    <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginHorizontal: 40, marginVertical: 10, alignSelf: 'center' }}>Θες να λαμβάνεις ειδοποίηση όταν δημιουργείται αντίστοιχο post;</Text>
-                    <RoundButton
-                        containerStyle={[addStopStyle, { alignSelf: 'center' }]}
-                        leftIcon={true}
-                        text={'Αίτημα λήψης ειδοποίησης'}
-                        onPress={receiveNotification}
-                        backgroundColor={colors.colorPrimary} />
-                </View>
             }
             <CustomInfoLayout
                 isVisible={showInfoModal}
@@ -368,17 +406,6 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 success={infoMessage.success}
             />
 
-            <FiltersModal
-                isVisible={isModalVisible}
-                description={constVar.changePassDescription}
-                buttonText={constVar.go}
-                closeAction={() => {
-                    setIsModalVisible(false);
-                }}
-                buttonPress={() => { }}
-                descrStyle={true}
-                onChangeText={() => { }}
-            />
             <InfoPopupModal
                 preventAction={true}
                 preventActionText={'Έξοδος'}

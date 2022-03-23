@@ -58,6 +58,9 @@ export const constVar = {
     selectAge: 'Επιλογή ηλικίας',
     selectCar: 'Επιλογή μάρκας',
     selectCarAge: 'Επιλογή χρονολογίας',
+    favoritesTab: "αγαπημένες αναζητήσεις",
+    searchTab: "αναζήτηση",
+    selectCarAge: 'Επιλογή χρονολογίας',
     contactInputPLaceholder: 'Οποιαδήποτε απορία,ερώτηση,πρόβλημα η πρόταση έχεις μπορείς να επικοινωνήσεις μαζί μας..',
 
 }

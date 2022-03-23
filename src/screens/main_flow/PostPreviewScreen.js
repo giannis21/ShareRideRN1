@@ -264,7 +264,14 @@ const PostPreviewScreen = ({ navigation, route }) => {
 export default PostPreviewScreen
 
 const styles = StyleSheet.create({
-    textStyle1: { fontSize: 16, fontWeight: 'bold', paddingStart: 16, marginTop: 15, backgroundColor: colors.CoolGray2, paddingVertical: 1 },
+    textStyle1: {
+        fontSize: 16,
+        fontWeight: 'bold',
+        paddingStart: 16,
+        marginTop: 15,
+        backgroundColor: colors.CoolGray2,
+        paddingVertical: 1
+    },
 
     bottomContainer: {
         justifyContent: 'space-between',

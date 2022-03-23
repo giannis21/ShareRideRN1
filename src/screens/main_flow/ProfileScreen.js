@@ -65,9 +65,6 @@ const ProfileScreen = ({ navigation, route }) => {
 
     const scrollRef = useRef();
 
-    useEffect(() => {
-        console.log(route.params.email)
-    }, [])
     const Tab = createMaterialTopTabNavigator();
 
     const onTextsChanged = (val, icon) => {
@@ -100,6 +97,8 @@ const ProfileScreen = ({ navigation, route }) => {
                 style={[styles.infoContainer, { flexDirection: 'row', alignItems: 'center', marginTop: 10 }]}>
 
                 <Text style={styles.rates} >{title}</Text>
+                <MaterialIcons name={"arrow-forward-ios"} size={15} style={{ marginStart: 10 }} color={'white'} />
+
             </TouchableOpacity>
         )
     }
