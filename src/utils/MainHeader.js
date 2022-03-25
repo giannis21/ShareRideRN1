@@ -7,8 +7,11 @@ import { RoundButton } from '../Buttons/RoundButton';
 import { Spacer } from '../layout/Spacer';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Icon from 'react-native-vector-icons/Ionicons';
+import Entypo from 'react-native-vector-icons/Entypo';
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import { CloseIconComponent } from '../components/CloseIconComponent';
+import { ViewRow } from '../components/HOCS/ViewRow';
+import { useSelector } from 'react-redux';
 
 export function MainHeader({
     title,
@@ -17,42 +20,45 @@ export function MainHeader({
     onLogout,
     showX,
     onFilterPress,
+    onFavoritePostsPress,
+    isCreatePost
 }) {
+    var _ = require('lodash');
     const { modal, container } = styles;
     const selectedColor = colors.colorPrimary
-
+    const post = useSelector(state => state.postReducer)
     return (
 
-        <View style={[{ flexDirection: 'row' },]}>
-
-            {showX &&
-                <View style={{ marginStart: 7, marginTop: 7 }}>
-                    <CloseIconComponent onPress={onClose} />
-                </View>
-
-            }
-
-            <View style={[container, { flex: 1, marginStart: showX ? 8 : 30 }]}>
-
-                <View style={{
-                    flexDirection: 'row',
-                    justifyContent: 'space-between',
-
-                }}>
-                    <Text style={{ color: 'white', alignSelf: 'center', flexWrap: 'wrap', fontSize: 19, marginStart: 14 }}>{title}</Text>
-                    <View style={{ flexDirection: 'row' }}>
-
-                        <Spacer width={10} />
-                        <TouchableWithoutFeedback onPress={onSettingsPress}>
-                            <Icon name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />
-                        </TouchableWithoutFeedback>
+        <View>
+            {/* <View style={{ width: '100%', height: 20, backgroundColor: 'red' }}>
+                <Text style={{ textAlign: 'center', fontSize: 12, color: 'white', fontWeight: 'bold' }}>Δεν υπάρχει σύνδεση στο internet</Text>
+            </View> */}
+            <ViewRow>
+                {showX &&
+                    <View style={{ marginStart: 7, marginTop: 7 }}>
+                        <CloseIconComponent onPress={onClose} />
                     </View>
 
+                }
+
+                <View style={[container, { flex: 1, marginStart: showX ? 8 : 30 }]}>
+
+                    <ViewRow style={{ justifyContent: 'space-between' }}>
+                        <Text style={{ color: 'white', alignSelf: 'center', flexWrap: 'wrap', fontSize: 19, marginStart: 14 }}>{title}</Text>
+                        <ViewRow>
+                            {isCreatePost && !_.isEmpty(post.favoritePosts) &&
+                                <Entypo onPress={onFavoritePostsPress} name="heart-outlined" color='white' size={23} style={{ alignSelf: 'center', marginEnd: 10 }} />
+                            }
+                            <Icon onPress={onSettingsPress} name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />
+                        </ViewRow>
+
+                    </ViewRow>
+
+
+
                 </View>
+            </ViewRow>
 
-
-
-            </View>
         </View >
 
 

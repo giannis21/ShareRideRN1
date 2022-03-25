@@ -23,7 +23,6 @@ import { CommentInputComponent } from '../components/CommentInputComponent';
 import { Paragraph } from '../components/HOCS/Paragraph';
 import { sendEmail } from '../utils/Functions';
 import { sendReport } from '../services/MainServices';
-let hasErrors = false
 const ContactFormScreen = ({ navigation, route }) => {
     var _ = require('lodash');
 

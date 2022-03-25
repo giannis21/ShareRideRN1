@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import { View, StyleSheet, Text, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, StyleSheet, Text, TouchableOpacity, Image, Dimensions, FlatList } from 'react-native';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
 import Feather from 'react-native-vector-icons/Feather';
 import { colors } from '../utils/Colors';
@@ -22,10 +22,11 @@ export function FavDestComponent({
     let data = useSelector(state => state.searchReducer.favoriteRoutes)
     const [carouselData, setCarouselData] = useState([])
     const [suppliesReady, setSuppliesReady] = useState(false);
+    const [isRender, setIsRender] = useState(false)
     let isFocused = useIsFocused()
     let dispatch = useDispatch()
     useEffect(() => {
-        setCarouselData(data)
+        setCarouselData(data.reverse())
     }, [data.length]);
 
 
@@ -35,34 +36,74 @@ export function FavDestComponent({
             await createTable(db);
             deleteRoute(item.compoundKey, db)
             dispatch({ type: TRIGGER_DATABASE })
+            onCarouselItemChange(null)
+
         } catch (error) {
             console.error(error);
         }
-
     }
 
-    function renderFavorite({ item, index }) {
+    const updateList = (index, compoundKey) => {
+        let tempList = carouselData
+
+        tempList = tempList.map(item => {
+            return {
+                ...item,
+                isSelected: 0
+            }
+        });
+
+        let updated = tempList.find(obj => obj.compoundKey === compoundKey)
+        updated.isSelected = updated.isSelected === 1 ? 0 : 1
+        tempList[index] = updated
+
+
+        setCarouselData(tempList)
+        setIsRender(!isRender)
+        onCarouselItemChange(updated)
+    }
+
+    function RenderFavorite({ item, index, onItemPress }) {
         return (
-            <View>
-                <View style={[styles.container, containerStyle]} >
+            <TouchableOpacity activeOpacity={1} onPress={() => onItemPress(index)}>
+                <View style={item.isSelected === 1 ? styles.containerSelected : styles.container} >
                     <Text style={{ fontWeight: 'bold' }}>Από</Text>
                     <Text style={styles.textStyle1}>{item.startplace}</Text>
                     <Entypo name={"arrow-long-down"} size={30} style={{ alignSelf: 'center', marginTop: 10, transform: [{ translateY: 7 }] }} color={colors.colorPrimary} />
                     <Text style={{ fontWeight: 'bold' }}>Μέχρι</Text>
                     <Text style={styles.textStyle1}>{item.endplace}</Text>
                 </View>
-                <TouchableOpacity onPress={() => { deleteItem(item) }} style={styles.circle}>
-                    <MaterialCommunityIcons name={"delete"} size={20} color={'white'} />
-                </TouchableOpacity>
+                {item.isSelected === 1 &&
+                    <TouchableOpacity onPress={() => { deleteItem(item) }} style={styles.circle}>
+                        <MaterialCommunityIcons name={"delete"} size={20} color={'white'} />
+                    </TouchableOpacity>
+                }
 
-            </View>
+
+            </TouchableOpacity>
 
         )
     }
 
     return (
         <View>
-            <Carousel
+            <FlatList
+                horizontal
+                data={carouselData}
+                // ItemSeparatorComponent={() => (
+                //     <View style={{ height: 10 }} />
+                // )}
+                extraData={isRender}
+                keyExtractor={(item, index) => index}
+                enableEmptySections={true}
+                renderItem={({ item, index }) => {
+
+                    return <RenderFavorite item={item} index={index} onItemPress={(index) => { updateList(index, item.compoundKey) }} />
+                }}
+            //showsHorizontalScrollIndicator={false}
+
+            />
+            {/* <Carousel
                 enableMomentum={false}
                 activeDotIndex={activeIndex}
                 dotColor={'black'}
@@ -75,9 +116,10 @@ export function FavDestComponent({
                 renderItem={renderFavorite}
                 decelerationRate={'fast'}
                 removeClippedSubviews={false}
-                inactiveSlideScale={0.92}
+                inactiveSlideScale={0.62}
                 inactiveSlideOpacity={0.65}
                 onSnapToItem={(index) => {
+                    console.log(carouselData[index], index)
                     onCarouselItemChange(carouselData[index])
                     setActiveIndex(index);
                     //onSnapToItem(index);
@@ -101,8 +143,8 @@ export function FavDestComponent({
                         backgroundColor: colors.CoolGray1
                     }}
                 />
-            )}
-            {carouselData.length > 0 &&
+            )} */}
+            {carouselData.length > 0 && carouselData.find(obj => obj.isSelected === 1) &&
                 <RoundButton
                     containerStyle={{ marginHorizontal: 15 }}
                     text={'Αναζήτηση'}
@@ -132,7 +174,18 @@ const styles = StyleSheet.create({
         margin: 20,
         borderRadius: 10,
         borderStyle: 'dashed',
-
+        width: width / 1.2,
+        padding: 10
+    },
+    containerSelected: {
+        borderColor: 'black',
+        borderWidth: 1,
+        backgroundColor: colors.verifiedUser,
+        height: 'auto',
+        margin: 20,
+        borderRadius: 10,
+        borderStyle: 'dashed',
+        width: width / 1.2,
         padding: 10
     },
     textStyle1: {

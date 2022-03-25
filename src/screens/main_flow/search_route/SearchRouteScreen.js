@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
-import { createRequest, getPlaceInfo, getRequests, resetValues, searchForPosts } from '../../../services/MainServices';
+import { createRequest, getFavoritePosts, getPlaceInfo, getRequests, getRequests2, resetValues, searchForPosts } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
@@ -14,7 +14,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 import { FiltersModal } from '../../../utils/FiltersModal';
 import { constVar } from '../../../utils/constStr';
-import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_FAVORITE_ROUTES, GET_REQUESTS } from '../../../actions/types';
+import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_FAVORITE_ROUTES, GET_REQUESTS, HIDE_BOTTOM_TAB } from '../../../actions/types';
 import { SelectLocationComponent } from '../../../components/SelectLocationComponent';
 import { Spacer } from '../../../layout/Spacer';
 import { RoundButton } from '../../../Buttons/RoundButton';
@@ -23,11 +23,8 @@ import { CustomInfoLayout } from '../../../utils/CustomInfoLayout';
 import moment from 'moment';
 import { usePreventGoBack } from '../../../customHooks/usePreventGoBack';
 import { InfoPopupModal } from '../../../utils/InfoPopupModal';
-import Ionicons from 'react-native-vector-icons/Ionicons';
 import { SearchScreenComponent } from '../../../components/SearchScreenComponent';
 import { createMaterialTopTabNavigator } from '@react-navigation/material-top-tabs';
-import RatingsProfileScreen from '../../profile_tabs/RatingsProfileScreen';
-import MyPostsProfileScreen from '../../profile_tabs/MyPostsProfileScreen';
 import { FavDestComponent } from '../../../components/FavDestComponent';
 import { createTable, getDBConnection, getFavorites } from '../../../database/db-service';
 import SearchTopTabBar from '../../../components/SearchTopTabBar'
@@ -50,19 +47,26 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const post = useSelector(state => state.postReducer)
     const searchReducer = useSelector(state => state.searchReducer)
 
+
     const dispatch = useDispatch()
     const Tab = createMaterialTopTabNavigator();
 
     useEffect(() => {
-        getRequests1()
-        //dispatch(getRequests())
-        //  setCarouselItem(searchReducer.favoriteRoutes[0])
+        dispatch(getFavoritePosts())
+        dispatch(getRequests())
     }, [myUser.email])
 
     useEffect(() => {
         loadDataCallback()
     }, [searchReducer.triggerDatabase])
 
+    useEffect(() => {
+        if (openSearch.open || openSearchedPost) {
+            dispatch({ type: HIDE_BOTTOM_TAB, payload: true })
+        } else {
+            dispatch({ type: HIDE_BOTTOM_TAB, payload: false })
+        }
+    }, [openSearch.open, openSearchedPost])
 
     const loadDataCallback = useCallback(async () => {
         try {
@@ -83,25 +87,10 @@ const SearchRouteScreen = ({ navigation, route }) => {
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
         return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
-    }, [openSearch.open]));
+    }, [openSearch.open, openSearchedPost]));
 
-
-    const getRequests1 = () => {
-        getRequests({
-            successCallback: ((data) => {
-                dispatch({
-                    type: GET_REQUESTS,
-                    payload: data
-                })
-            }),
-            errorCallback: ((message) => {
-
-            })
-        })
-    }
 
     const searchPosts = async () => {
-        console.log(carouselItem)
 
         if ((post.searchStartplace === '' || post.searchEndplace === '') && lastActiveIndex !== 0) {
             setInfoMessage({ info: "Συμπλήρωσε και τα δύο πεδία πρώτα!", success: false })
@@ -248,19 +237,14 @@ const SearchRouteScreen = ({ navigation, route }) => {
 
         if (openSearch.open) {
             setOpenSearch({ from: true, open: false })
+        } else if (openSearchedPost) {
+            setOpenSearchedPosts(false)
         } else {
             setModalCloseVisible(true)
         }
-
         return true;
     }
 
-    const showFavorite = () => {
-        if (post.searchStartplace !== '' && post.searchEndplace !== '')
-            return true
-
-        return false
-    }
 
     let resetArray = () => {
         setDataSource([]);
@@ -327,12 +311,13 @@ const SearchRouteScreen = ({ navigation, route }) => {
                     resetValues(() => {
                         navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
                     })
-
                 }}
                 onFilterPress={() => {
                     setIsModalVisible(true)
                 }}
-
+                onFavoritePostsPress={() => {
+                    navigation.navigate(routes.FAVORITE_POSTS_SCREEN)
+                }}
             />
             {!openSearch.open && !openSearchedPost && searchReducer.favoriteRoutes.length > 0 &&
                 <View style={{ top: 0, right: 0, left: 0, bottom: 0, height: '100%' }}>
@@ -345,8 +330,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                         )}
                         screenOptions={{
                             tabBarLabelStyle: { textTransform: 'lowercase' },
-                            swipeEnabled: true,
-
+                            swipeEnabled: lastActiveIndex === 1,
                         }}
                     >
 
@@ -377,7 +361,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 </View>
             }
 
-            {!openSearch.open && searchReducer.favoriteRoutes.length === 0 &&
+            {!openSearch.open && _.isEmpty(searchReducer.favoriteRoutes) &&
                 <SearchScreenComponent
                     navigation
                     onSearchPosts={() => { searchPosts() }}
@@ -388,9 +372,9 @@ const SearchRouteScreen = ({ navigation, route }) => {
             }
 
             {openSearchedPost && !_.isEmpty(dataSource) &&
-                <SearchedPostsComponent navigation={navigation} data={dataSource} offset={offset} total_pages={total_pages}
-                />
+                <SearchedPostsComponent navigation={navigation} data={dataSource} offset={offset} total_pages={total_pages} />
             }
+
             {openSearch.open &&
                 <SearchLocationComponent
                     from={openSearch.from}

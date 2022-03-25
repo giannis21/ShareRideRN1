@@ -103,6 +103,38 @@ export const getPostsUser = async ({ email, page, successCallback, errorCallback
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+export const addPostToFavorites = async ({ postid, successCallback, errorCallback }) => {
+    let config = await getHeaderConfig()
+
+    const send = {
+        "data": {
+            "postid": postid,
+        }
+    }
+    console.log({ send })
+    await instance.post(`/handleFavourite`, send, config)
+        .then(res => {
+            successCallback(res.data.message)
+        }).catch(function (error) {
+            console.log(error)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
+
+export const getFavoritePosts = () => async (dispatch) => {
+    let config = await getHeaderConfig()
+
+    instance.post('/getFavourites', {}, config)
+        .then(res => {
+            console.log("getFav", res.data)
+            dispatch({
+                type: types.SET_FAVORITE_POSTS,
+                payload: res.data.favourites
+            })
+        }).catch(function (error) {
+            console.log(error.response.data.message ?? constVar.sthWentWrong)
+        });
+}
 
 export const getInterestedInMe = async ({ email, page, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
@@ -185,7 +217,8 @@ export const createPost = async ({ data, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
     await instance.post(`/createpost`, data, config)
         .then(res => {
-            successCallback(res.data.message)
+            console.log("create post ", res.data)
+            successCallback(res.data.message, res.data.body.postid)
         }).catch(function (error) {
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
@@ -314,21 +347,21 @@ export const deleteRequest = async ({ data, successCallback, errorCallback }) =>
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
-export const getRequests = async ({ successCallback, errorCallback }) => {
-    let config = await getHeaderConfig()
-    await instance.post('/getRequests', {}, config)
-        .then(res => {
 
-            // dispatch({
-            //     type: types.GET_REQUESTS,
-            //     payload: res.data
-            // })
-            successCallback(res.data.requests)
+export const getRequests = () => async (dispatch) => {
+    let config = await getHeaderConfig()
+
+    instance.post('/getRequests', {}, config)
+        .then(res => {
+            dispatch({
+                type: types.GET_REQUESTS,
+                payload: res.data.requests
+            })
         }).catch(function (error) {
-            console.log(error.response.data)
-            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+            console.log(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+
 export const sendReport = async ({ text, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
     await instance.post('/sendReport', { text: text }, config)

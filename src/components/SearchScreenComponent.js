@@ -42,7 +42,8 @@ export function SearchScreenComponent({
 
     const myUser = useSelector(state => state.authReducer.user)
     const post = useSelector(state => state.postReducer)
-
+    const requests = useSelector(state => state.requestsReducer.requests)
+    let favoriteRoutes = useSelector(state => state.searchReducer.favoriteRoutes)
     const dispatch = useDispatch()
 
     const resetValues = () => {
@@ -67,12 +68,7 @@ export function SearchScreenComponent({
     //         backBtnListener.remove()
     //     };
     // }, []);
-    const showFavorite = () => {
-        if (post.searchStartplace !== '' && post.searchEndplace !== '')
-            return true
 
-        return false
-    }
 
     // const getPlace = (place_id, place, isStartPoint) => {
 
@@ -243,13 +239,16 @@ export function SearchScreenComponent({
             endplace: post.searchEndplace.toString(),
             compoundKey: `${post.searchStartcoord} - ${post.searchEndcoord}`
         }
+
         const db = await getDBConnection();
         await createTable(db);
+
         insertRoute(data, db).then((data) => {
             dispatch({ type: TRIGGER_DATABASE })
         }).catch((error) => {
             console.log(error)
         })
+
     }
     let receiveNotification = () => {
         let data =
@@ -267,7 +266,7 @@ export function SearchScreenComponent({
         createRequest({
             data,
             successCallback: ((message) => {
-                getRequests1()
+                dispatch(getRequests())
                 setInfoMessage({ info: message, success: true })
                 showCustomLayout()
             }),
@@ -277,11 +276,21 @@ export function SearchScreenComponent({
             })
         })
     }
+
+    const showRequestsCta = () => {
+        let start = requests.find((obj) => obj.startcoord === post.searchStartcoord)
+        let end = requests.find((obj) => obj.endcoord === post.searchEndcoord)
+        return !(start && end)
+    }
+
+    const showFavoriteCta = () => {
+        let start = favoriteRoutes.find((obj) => obj.startcoord === post.searchStartcoord)
+        let end = favoriteRoutes.find((obj) => obj.endcoord === post.searchEndcoord)
+        return !(start && end)
+    }
+
+
     const { addΤοFav, addStopStyle } = styles
-
-
-
-
     return (
 
         <View>
@@ -305,24 +314,34 @@ export function SearchScreenComponent({
 
             {(post.searchStartplace !== '' && post.searchEndplace !== '') &&
                 <View View style={{ marginTop: 14 }}>
-                    <View style={addΤοFav} >
-                        <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Προσθήκη αναζήτησης στα αγαπημένα</Text>
-                        <TouchableOpacity
-                            onPress={addToFavorites}
-                            style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
-                            <Ionicons name="add" size={15} color='white' />
 
-                        </TouchableOpacity>
-                    </View>
-                    <Spacer height={10} />
+                    {showFavoriteCta() &&
+                        <View style={addΤοFav} >
+                            <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Προσθήκη αναζήτησης στα αγαπημένα</Text>
+                            <TouchableOpacity
+                                onPress={addToFavorites}
+                                style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
+                                <Ionicons name="add" size={15} color='white' />
 
-                    <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginHorizontal: 40, marginVertical: 10, alignSelf: 'center' }}>Θες να λαμβάνεις ειδοποίηση όταν δημιουργείται αντίστοιχο post;</Text>
-                    <RoundButton
-                        containerStyle={[addStopStyle, { alignSelf: 'center' }]}
-                        leftIcon={true}
-                        text={'Αίτημα λήψης ειδοποίησης'}
-                        onPress={receiveNotification}
-                        backgroundColor={colors.colorPrimary} />
+                            </TouchableOpacity>
+                        </View>
+                    }
+
+
+                    {showRequestsCta() &&
+                        <View>
+                            <Spacer height={10} />
+                            <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginHorizontal: 40, marginVertical: 10, alignSelf: 'center' }}>Θες να λαμβάνεις ειδοποίηση όταν δημιουργείται αντίστοιχο post;</Text>
+                            <RoundButton
+                                containerStyle={[addStopStyle, { alignSelf: 'center' }]}
+                                leftIcon={true}
+                                text={'Αίτημα λήψης ειδοποίησης'}
+                                onPress={receiveNotification}
+                                backgroundColor={colors.colorPrimary} />
+                        </View>
+
+                    }
+
                 </View>
             }
             <CustomInfoLayout

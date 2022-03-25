@@ -13,6 +13,8 @@ import { StarsRating } from '../utils/StarsRating';
 import { DestinationsComponent } from './DestinationsComponent';
 import { ViewRow } from './HOCS/ViewRow';
 import { DatesPostComponent } from './DatesPostComponent';
+import { HorizontalLine } from './HorizontalLine';
+import { Paragraph } from './HOCS/Paragraph';
 
 export function PostLayoutComponent({
     onPress,
@@ -23,9 +25,10 @@ export function PostLayoutComponent({
     onMenuClicked,
     showMenu,
     showInterested,
-    deleteInterested,
+    isFavoritePostsScreen,
     showMoreUsers,
-    showFavoriteIcon
+    showFavoriteIcon,
+    goToPreviewFavorite
 }) {
     var _ = require('lodash');
     const [isSafeClick, setSafeClick] = useState(true)
@@ -48,7 +51,32 @@ export function PostLayoutComponent({
         }
     }
 
-    const { addMoreUsers, userStyleAdded, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
+    function BottomContainer({ onIconPress, title }) {
+        return (
+            <View>
+                <View style={{ marginTop: 14 }}>
+                    {!isFavoritePostsScreen ? (
+                        <View style={addMoreUsers} >
+                            <Paragraph>
+                                <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>{title}</Text>
+                                <Text style={seats}>({item.users}) </Text>
+                            </Paragraph>
+                            <TouchableOpacity
+                                onPress={() => { onIconPress(item) }}
+                                style={circleBottomIcon}>
+                                <AntDesign name="arrowright" size={15} color='white' />
+                            </TouchableOpacity>
+                        </View>
+                    ) : (
+                        <Text onPress={() => { onIconPress(item) }} style={[{ textAlign: 'center', padding: 5, borderTopRightRadius: 5, borderTopLeftRadius: 5, backgroundColor: colors.infoColor, fontSize: 14, color: 'white', fontWeight: 'bold' }]}>Ξαναπόσταρε </Text>
+                    )}
+                </View>
+                <HorizontalLine containerStyle={{ height: 4 }} />
+            </View >
+        )
+    }
+
+    const { addMoreUsers, circleBottomIcon, userStyle, leftContainer, rightContainer, container, rightContainerView, locationsLine, heartContainer, bottomContainer, seats } = styles
 
     return (
 
@@ -123,37 +151,20 @@ export function PostLayoutComponent({
 
 
                     </ViewRow>
-
-                    {showInterested &&
-                        <View>
-
-                            {
-                                item.hasMoreUsers &&
-                                <View style={{ marginTop: 14 }}>
-                                    <View style={addMoreUsers} >
-                                        <Text style={{ fontSize: 14, color: '#595959', opacity: 0.6, marginStart: 10 }}>Δείτε τους ενδιαφερόμενους
-                                            <Text style={seats}>({item.users}) </Text>
-                                        </Text>
-
-                                        <TouchableOpacity
-                                            onPress={() => { showMoreUsers(item) }}
-                                            style={{ alignItems: 'center', justifyContent: 'center', width: 35, height: 35, backgroundColor: colors.infoColor, borderRadius: 50 }}>
-                                            <AntDesign name="arrowright" size={15} color='white' />
-
-                                        </TouchableOpacity>
-                                    </View>
-
-
-
-                                    <Spacer height={10} />
-
-                                </View>
-                            }
-                            <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4 }} />
-
-
-                        </View >
+                    {isFavoritePostsScreen &&
+                        <BottomContainer
+                            title={'ΞαναΠόσταρε'}
+                            onIconPress={(val) => { goToPreviewFavorite(val) }} />
                     }
+
+
+
+                    {showInterested && item.hasMoreUsers &&
+                        <BottomContainer
+                            title={'Δείτε τους ενδιαφερόμενους'}
+                            onIconPress={(val) => { showMoreUsers(val) }} />
+                    }
+
                 </View>
                 : <></>
             }
@@ -167,6 +178,14 @@ export function PostLayoutComponent({
 }
 
 const styles = StyleSheet.create({
+    circleBottomIcon: {
+        alignItems: 'center',
+        justifyContent: 'center',
+        width: 35,
+        height: 35,
+        backgroundColor: colors.infoColor,
+        borderRadius: 50
+    },
     loadMoreBtn: {
         padding: 10,
         backgroundColor: colors.colorPrimary,
@@ -201,6 +220,7 @@ const styles = StyleSheet.create({
 
         borderRadius: 13,
         marginEnd: 10,
+        marginBottom: 10
 
     },
     userStyleAdded: {

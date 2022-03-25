@@ -17,7 +17,7 @@ export const getDBConnection = async () => {
 enablePromise(true);
 export const createTable = async (db: SQLiteDatabase) => {
     // create table if not exists
-    const query = `CREATE TABLE IF NOT EXISTS ${FAVORITE_TABLE}(compoundKey VARCHAR(100) PRIMARY KEY , startcoord VARCHAR(100), startplace VARCHAR(100), endcoord VARCHAR(255), endplace VARCHAR(255))`;
+    const query = `CREATE TABLE IF NOT EXISTS ${FAVORITE_TABLE}(compoundKey VARCHAR(100) PRIMARY KEY , startcoord VARCHAR(100), startplace VARCHAR(100), endcoord VARCHAR(255), endplace VARCHAR(255),isSelected INTEGER)`;
     db.transaction((tx) => {
         tx.executeSql(query)
 
@@ -71,8 +71,8 @@ export const insertRoute = async (route: JSON, db: SQLiteDatabase) => {
         console.log()
         db.transaction(function (tx) {
             tx.executeSql(
-                `INSERT INTO ${FAVORITE_TABLE} (compoundKey, startcoord, startplace,endcoord,endplace) VALUES (?,?,?,?,?)`,
-                [route.compoundKey, route.startcoord, route.startplace, route.endcoord, route.endplace],
+                `INSERT INTO ${FAVORITE_TABLE} (compoundKey, startcoord, startplace,endcoord,endplace,isSelected) VALUES (?,?,?,?,?,?)`,
+                [route.compoundKey, route.startcoord, route.startplace, route.endcoord, route.endplace, 0],
                 (tx, results) => {
                     console.log('Results', results.rowsAffected);
                     if (results.rowsAffected > 0) {

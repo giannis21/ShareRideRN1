@@ -29,6 +29,8 @@ import {
     TransitionPresets
 } from '@react-navigation/stack';
 import ProfileStack from './ProfileStack';
+import FavoritePostsScreen from '../screens/main_flow/FavoritePostsScreen';
+import { constVar } from '../utils/constStr';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 // screenOptions={{
@@ -41,11 +43,6 @@ const HomeStack = () => (
             gestureEnabled: false,
             cardOverlayEnabled: true,
             headerStatusBarHeight: undefined,
-            // navigation
-            //     .dangerouslyGetState()
-            //     .routes.findIndex((r) => r.key === route.key) > 0
-            //     ? 0
-            //     : undefined,
             ...TransitionPresets.ModalPresentationIOS
         })}
     >
@@ -57,13 +54,10 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.PROFILE_STACK}
             component={ProfileStack} />
-
         <Stack.Screen
             options={{ headerShown: false }}
             name={routes.SETTINGS_SCREEN}
             component={SettingsScreen} />
-
-
         <Stack.Screen
             options={{ headerShown: false }}
             name={routes.RESTORE_PASSWORD_SCREEN}
@@ -72,16 +66,22 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.FILTERS_SCREEN}
             component={FiltersScreen} />
-
         <Stack.Screen
+            options={{
+                headerShown: false,
+                cardStyleInterpolator: CardStyleInterpolators.forHorizontalIOS
+            }}
 
-            options={{ headerShown: false }}
             name={routes.POST_PREVIEW_SCREEN}
             component={PostPreviewScreen} />
         <Stack.Screen
             options={{ headerShown: false }}
             name={routes.CONTACT_FORM_SCREEN}
             component={ContactFormScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.FAVORITE_POSTS_SCREEN}
+            component={FavoritePostsScreen} />
 
 
     </Stack.Navigator>
@@ -92,13 +92,13 @@ const MainTabStack = () => (
         <Tab.Screen
 
             initialParams={{ icon: 'ios-home' }}
-            name={"Αναζήτηση"}
+            name={constVar.searchBottomTab}
             component={SearchRouteScreen}
         />
         <Tab.Screen
 
             initialParams={{ icon: 'ios-home' }}
-            name={"Δημιουργία post"}
+            name={constVar.createPostBottomTab}
             component={CreatePostScreen}
         />
     </Tab.Navigator >

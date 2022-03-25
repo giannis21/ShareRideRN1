@@ -4,7 +4,7 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 
 const Tab = ({ color, tab, onPress, icon }) => {
     return (
-        <TouchableOpacity style={styles.container} onPress={onPress}>
+        <TouchableOpacity activeOpacity={1} style={styles.container} onPress={onPress}>
             {icon && <Ionicons name={icon} size={20} color={color} />}
             <Text style={{ color }}>{tab.name}</Text>
         </TouchableOpacity>

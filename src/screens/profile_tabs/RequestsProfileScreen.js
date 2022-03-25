@@ -53,11 +53,10 @@ const RequestsProfileScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        retrieveImage()
+        // retrieveImage()
     }, [])
 
     useEffect(() => {
-        console.log(requestsReducer.requests)
         setDataSource(requestsReducer.requests)
     }, [requestsReducer.requests]);
 

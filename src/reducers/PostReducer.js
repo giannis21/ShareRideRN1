@@ -1,4 +1,4 @@
-import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_END_POINT, ADD_MIDDLE_STOP, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, CLEAR_SEARCH_VALUES, DELETE_ACTIVE_USER, IS_SEARCH_OPEN, LOGIN_USER, LOGOUT, REMOVE_DATES, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS, SET_RADIO_SELECTED, SET_RADIO_SELECTED_FILTERS, SIGNUP_CHECK } from '../actions/types';
+import { ADD_ACTIVE_POST, ADD_END_DATE, ADD_END_POINT, ADD_MIDDLE_STOP, ADD_RETURN_END_DATE, ADD_RETURN_START_DATE, ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, CLEAR_SEARCH_VALUES, DELETE_ACTIVE_USER, IS_SEARCH_OPEN, LOGIN_USER, LOGOUT, REMOVE_DATES, REMOVE_MIDDLE_STOP, REMOVE_MIDDLE_STOPS, SET_FAVORITE_POSTS, SET_POST_SCREEN_VALUES, SET_RADIO_SELECTED, SET_RADIO_SELECTED_FILTERS, SIGNUP_CHECK } from '../actions/types';
 import { constVar } from '../utils/constStr';
 
 
@@ -29,11 +29,11 @@ const intialState = {
     returnEndDate: constVar.returnEndDate,
     activePost: {},
     moreplaces: [],
+    favoritePosts: [],
     isSearchOpened: true
 };
 
 export function PostReducer(state = intialState, action) {
-    console.log(action.type, action.payload)
     switch (action.type) {
         case ADD_MIDDLE_STOP: {
 
@@ -43,7 +43,6 @@ export function PostReducer(state = intialState, action) {
             };
         }
         case IS_SEARCH_OPEN: {
-            console.log("dadadkasdksadksa", action.payload)
             return {
                 ...state,
                 isSearchOpened: action.payload
@@ -61,6 +60,27 @@ export function PostReducer(state = intialState, action) {
                 returnEndDate: constVar.returnEndDate,
                 startplace: '',
                 endplace: ''
+            };
+        }
+        case SET_POST_SCREEN_VALUES: {
+            let newPlaces = action.payload.moreplaces
+            return {
+                ...state,
+                moreplaces: state.moreplaces = [...Array.from(JSON.parse(newPlaces))],
+                startplace: state.startplace = action.payload.startplace,
+                endplace: state.endplace = action.payload.endplace,
+                startcoord: state.startcoord = action.payload.startcoord,
+                endcoord: state.endcoord = action.payload.endcoord,
+                startdate: constVar.initialDate,
+                enddate: constVar.endDate,
+                returnStartDate: constVar.returnStartDate,
+                returnEndDate: constVar.returnEndDate,
+            };
+        }
+        case SET_FAVORITE_POSTS: {
+            return {
+                ...state,
+                favoritePosts: action.payload
             };
         }
         case CLEAR_SEARCH_VALUES: {
@@ -93,6 +113,8 @@ export function PostReducer(state = intialState, action) {
         }
         case REMOVE_MIDDLE_STOP: {
             let moreplacesNew;
+            console.log("state.moreplaces", typeof state.moreplaces)
+            //let currentArray = [...Array.from(JSON.parse(state?.moreplaces))]
             if (state.moreplaces.find((obj) => obj.placecoords === action.payload)) {
                 moreplacesNew = state.moreplaces.filter((obj) => obj.placecoords !== action.payload)
             }
@@ -168,7 +190,6 @@ export function PostReducer(state = intialState, action) {
                 radioSelectedFilters: state.radioSelectedFilters = action.payload
             };
         case ADD_ACTIVE_POST:
-            console.log("ACTIVE POST", action.payload)
             return {
                 ...state,
                 activePost: state.activePost = action.payload

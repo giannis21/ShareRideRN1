@@ -40,23 +40,25 @@ export function DatesPostComponent({
 
             </ViewRow>
 
-            <Text style={[{ marginTop: 10 }, size === 'big' ? textStyle1 : textStyle]}>επιστροφή</Text>
-            {item.post.returnStartDate &&
-                <View style={{ justifyContent: 'center', alignItems: 'center' }}>
 
-                    <ViewRow style={{ marginTop: 10 }}>
-                        <Text style={[date, { fontSize: size === 'big' ? 15 : 10 }]}>{item.post.returnStartDate}</Text>
-                        {item.post.returnStartDate !== item.post.returnEndDate &&
-                            <ViewRow style={{ alignItems: 'center' }}>
-                                <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginHorizontal: 5 }}>έως</Text>
+            {item.post.withReturn === true &&
+                <View>
+                    <Text style={[{ marginTop: 10 }, size === 'big' ? textStyle1 : textStyle]}>επιστροφή</Text>
+                    <View style={{ justifyContent: 'center', alignItems: 'center' }}>
+                        <ViewRow style={{ marginTop: 10 }}>
+                            <Text style={[date, { fontSize: size === 'big' ? 15 : 10 }]}>{item.post.returnStartDate}</Text>
+                            {item.post.returnStartDate !== item.post.returnEndDate &&
+                                <ViewRow style={{ alignItems: 'center' }}>
+                                    <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginHorizontal: 5 }}>έως</Text>
 
-                                <Text style={[date, { fontSize: size === 'big' ? 15 : 10 }]}>{item.post.returnEndDate}</Text>
-                            </ViewRow>
+                                    <Text style={[date, { fontSize: size === 'big' ? 15 : 10 }]}>{item.post.returnEndDate}</Text>
+                                </ViewRow>
+                            }
 
-                        }
+                        </ViewRow>
 
-                    </ViewRow>
 
+                    </View>
 
                 </View>
             }

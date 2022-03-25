@@ -18,7 +18,7 @@ LogBox.ignoreAllLogs();
 
 export const store = createStore(
   AppReducers,
-  {},
+
   compose(applyMiddleware(ReduxThunk))
 );
 function App() {

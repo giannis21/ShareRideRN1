@@ -7,13 +7,15 @@ import { AuthReducer } from './reducers/AuthReducer';
 import { FiltersReducer } from './reducers/FiltersReducer';
 import { RequestsReducer } from './reducers/RequestsReducer';
 import { SearchReducer } from './reducers/SearchReducer';
+import { GeneralReducer } from './reducers/GeneralReducer';
 
 export default AppReducers = combineReducers({
     authReducer: AuthReducer,
     postReducer: PostReducer,
     filtersReducer: FiltersReducer,
     requestsReducer: RequestsReducer,
-    searchReducer: SearchReducer
+    searchReducer: SearchReducer,
+    generalReducer: GeneralReducer
 })
 
 // const rootReducer = (state, action) => {

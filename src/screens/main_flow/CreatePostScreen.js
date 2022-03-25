@@ -25,9 +25,9 @@ import { CommentInputComponent } from '../../components/CommentInputComponent';
 import { constVar } from '../../utils/constStr';
 import { useSelector, useDispatch } from 'react-redux';
 import { CalendarPickerModal } from '../../utils/CalendarPickerModal';
-import { ADD_END_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, IS_SEARCH_OPEN, REMOVE_MIDDLE_STOP, SET_RADIO_SELECTED } from '../../actions/types';
+import { ADD_END_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, HIDE_BOTTOM_TAB, REMOVE_MIDDLE_STOP, SET_RADIO_SELECTED, SET_SEARCH_OPEN } from '../../actions/types';
 
-import { createPost, getPlaceInfo, resetValues } from '../../services/MainServices';
+import { addPostToFavorites, createPost, getFavoritePosts, getPlaceInfo, resetValues } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
 import { useKeyboard } from '../../customHooks/useKeyboard';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
@@ -39,7 +39,7 @@ import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { getValue, keyNames, setValue } from '../../utils/Storage';
 
 const CreatePostScreen = ({ navigation, route }) => {
-
+    const initialModalInfoState = { preventActionText: 'Όχι', buttonText: 'Έξοδος', description: 'Είσαι σίγουρος θέλεις να κλείσεις την εφαρμογή;', postid: '' }
     const [data, setData] = useState({ startPoint: '', endPoint: '', check_textInputChange: false, secureTextEntry: true })
     const [cost, setCost] = useState(0);
     const [seats, setSeats] = useState(1);
@@ -63,6 +63,8 @@ const CreatePostScreen = ({ navigation, route }) => {
     const renderRailSelected = useCallback(() => <RailSelected />, []);
     const renderLabel = useCallback(value => <Label text={value} />, []);
     const renderNotch = useCallback(() => <Notch />, []);
+    const [modalInfo, setModalInfo] = useState(initialModalInfoState)
+
     const handleValueChange = useCallback((low, high) => {
 
         setCost(low);
@@ -75,7 +77,6 @@ const CreatePostScreen = ({ navigation, route }) => {
 
     const post = useSelector(state => state.postReducer)
     const myUser = useSelector(state => state.authReducer.user)
-    //usePreventGoBack(handleBackButtonClick)
 
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
@@ -85,6 +86,28 @@ const CreatePostScreen = ({ navigation, route }) => {
                 callback()
         }, 2000);
     }
+
+    useEffect(() => {
+        console.log(openSearch.open)
+        if (openSearch.open) {
+            dispatch({ type: HIDE_BOTTOM_TAB, payload: true })
+        } else {
+            dispatch({ type: HIDE_BOTTOM_TAB, payload: false })
+        }
+    }, [openSearch.open])
+
+
+    useEffect(() => {
+        if (isFocused && route?.params?.params) {
+            const { comment, cost, seats, petAllowed } = route.params.params
+
+            setComment(comment)
+            setCost(cost)
+            setSeats(seats)
+            setAllowPet(petAllowed)
+
+        }
+    }, [isFocused])
 
     const resetAll = () => {
         setComment('')
@@ -181,9 +204,12 @@ const CreatePostScreen = ({ navigation, route }) => {
 
         createPost({
             data: send,
-            successCallback: ((message) => {
-                setInfoMessage({ info: message, success: true })
-                showCustomLayout()
+            successCallback: ((message, postid) => {
+                //setInfoMessage({ info: message, success: true }) 
+                console.log({ postid })
+                setModalInfo({ preventActionText: 'Όχι', buttonText: 'Προσθήκη', description: constVar.askForPostsFavorites, postid: postid })
+                setModalCloseVisible(true)
+                // showCustomLayout()
             }),
             errorCallback: ((errorMessage) => {
                 setInfoMessage({ info: errorMessage, success: false })
@@ -290,14 +316,18 @@ const CreatePostScreen = ({ navigation, route }) => {
     }
 
     function renderStops() {
+        let morePlaces =
+            typeof post.moreplaces == 'string' ?
+                post.moreplaces.length > 0 ? [...Array.from(JSON.parse(post?.moreplaces))] : [] : post.moreplaces
+
         return (
             <View>
 
                 <Text style={{ color: 'black', fontWeight: 'bold', fontSize: 18, alignSelf: 'center' }}>Στάσεις που μπορώ να κάνω</Text>
                 <Spacer height={15} />
                 <View style={{ marginBottom: 15 }}>
-                    {
-                        post?.moreplaces?.map((item, index) => (
+                    {morePlaces &&
+                        morePlaces.map((item, index) => (
                             <View key={index} style={{ marginStart: 16, marginVertical: 5, justifyContent: 'space-between', flexDirection: 'row' }}>
                                 <View style={{ flexDirection: 'row' }}>
                                     <Entypo name="location-pin" size={24} color={colors.colorPrimary} />
@@ -334,6 +364,22 @@ const CreatePostScreen = ({ navigation, route }) => {
 
 
     }
+    const addPostToFav = (postid) => {
+        addPostToFavorites({
+            postid: modalInfo.postid,
+            successCallback: ((message) => {
+                dispatch(getFavoritePosts())
+                setModalCloseVisible(false)
+                setInfoMessage({ info: message, success: true })
+                showCustomLayout()
+            }),
+            errorCallback: ((message) => {
+                setModalCloseVisible(false)
+                setInfoMessage({ info: message, success: false })
+                showCustomLayout()
+            })
+        })
+    }
 
     const setRadioSelection = (option) => {
         dispatch({
@@ -347,21 +393,24 @@ const CreatePostScreen = ({ navigation, route }) => {
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
 
             <MainHeader
+                isCreatePost={true}
                 onSettingsPress={() => { navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email }) }}
                 onClose={() => {
                     setOpenSearch({ from: true, open: false, addStops: false })
 
                 }}
                 showX={openSearch.open === true}
-                title={openSearch.open === true ? "Αναζήτηση" : "Δημιουργία Post"}
+                title={openSearch.open === true ? constVar.searchBottomTab : constVar.createPostBottomTab}
                 onLogout={() => {
                     resetValues(() => {
                         navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
                     })
-
                 }}
                 onFilterPress={() => {
                     setIsModalVisible(true)
+                }}
+                onFavoritePostsPress={() => {
+                    navigation.navigate(routes.FAVORITE_POSTS_SCREEN)
                 }}
             />
             <KeyboardAwareScrollView
@@ -495,15 +544,21 @@ const CreatePostScreen = ({ navigation, route }) => {
             />
             <InfoPopupModal
                 preventAction={true}
-                preventActionText={'Όχι'}
-                buttonText={'Έξοδος'}
+                preventActionText={modalInfo.preventActionText}
+                buttonText={modalInfo.buttonText}
                 isVisible={modalCloseVisible}
-                description={'Είσαι σίγουρος θέλεις να κλείσεις την εφαρμογή;'}
+                description={modalInfo.description}
 
                 closeAction={() => {
                     setModalCloseVisible(false);
+                    setModalInfo(initialModalInfoState)
                 }}
-                buttonPress={() => { BackHandler.exitApp() }}
+                buttonPress={() => {
+                    console.log(modalInfo.description, constVar.askForPostsFavorites)
+                    modalInfo.description !== constVar.askForPostsFavorites ?
+                        BackHandler.exitApp() : addPostToFav(modalInfo.postid)
+
+                }}
                 descrStyle={true}
             />
         </BaseView >

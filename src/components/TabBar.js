@@ -1,5 +1,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { View, StyleSheet, Dimensions, Animated, Text } from 'react-native';
+import { useSelector } from 'react-redux';
 import { useKeyboard } from '../customHooks/useKeyboard';
 import { colors } from '../utils/Colors';
 import Tab from './Tab';
@@ -11,7 +12,7 @@ const TabBar = ({ state, navigation }) => {
     const [selected, setSelected] = useState('Αναζήτηση');
     const { routes } = state;
     const renderColor = currentTab => (currentTab === selected ? colors.colorPrimary : 'grey');
-
+    const generalReducer = useSelector(state => state.generalReducer)
     const isKeyBoardOpen = useKeyboard();
 
     const animation = useRef(new Animated.Value(0)).current;
@@ -24,7 +25,7 @@ const TabBar = ({ state, navigation }) => {
     };
 
     const toggleTabBarAnimation = () => {
-        if (selected === "Αναζήτηση") {
+        if (!generalReducer.isSearchOpened) {
             Animated.timing(animation, {
                 toValue: 0,
                 duration: 200,
@@ -39,9 +40,9 @@ const TabBar = ({ state, navigation }) => {
         }
     };
 
-    // useEffect(() => {
-    //     toggleTabBarAnimation();
-    // }, [selected]);
+    useEffect(() => {
+        toggleTabBarAnimation();
+    }, [generalReducer.isSearchOpened]);
 
     return (
 
