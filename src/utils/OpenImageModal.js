@@ -53,7 +53,7 @@ export function OpenImageModal({
         {
           isFavoritePostScreen &&
           <TouchableOpacity activeOpacity={0.9} style={[{ padding: 10 }, container]} onPress={() => buttonPress(1)}>
-            <Text style={[textStyle, { color: postExists ? 'red' : 'black' }]}>{postExists ? 'Αφαίρεση απο τα αγαπημένα' : 'Προσθήκη στα αγαπημένα'}</Text>
+            <Text style={[textStyle, { color: postExists || isFavoritePostScreen ? 'red' : 'black' }]}>{postExists || isFavoritePostScreen ? 'Αφαίρεση απο τα αγαπημένα' : 'Προσθήκη στα αγαπημένα'}</Text>
           </TouchableOpacity>
         }
 
