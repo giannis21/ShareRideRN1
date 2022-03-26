@@ -198,7 +198,7 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
                             bottomTitle={bottomModalTitle}
                             isVisible={isModalVisible}
                             isPost={true}
-                            isFavoritePostScreen={true}
+                            isFavoritePostScreen={false}
                             closeAction={() => {
                                 setIsModalVisible(false);
                                 setDeletedPost(null)
