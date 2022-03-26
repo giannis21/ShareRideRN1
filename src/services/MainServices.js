@@ -103,7 +103,7 @@ export const getPostsUser = async ({ email, page, successCallback, errorCallback
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
-export const addPostToFavorites = async ({ postid, successCallback, errorCallback }) => {
+export const addRemovePostToFavorites = async ({ postid, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
 
     const send = {
@@ -124,14 +124,19 @@ export const addPostToFavorites = async ({ postid, successCallback, errorCallbac
 export const getFavoritePosts = () => async (dispatch) => {
     let config = await getHeaderConfig()
 
-    instance.post('/getFavourites', {}, config)
+    instance.get('/getFavourites', config)
         .then(res => {
-            console.log("getFav", res.data)
+            console.log(res.data.favourites)
             dispatch({
                 type: types.SET_FAVORITE_POSTS,
                 payload: res.data.favourites
             })
         }).catch(function (error) {
+            if (error.response.status == 404)
+                dispatch({
+                    type: types.SET_FAVORITE_POSTS,
+                    payload: []
+                })
             console.log(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
@@ -204,6 +209,7 @@ export const deletePost = async ({ postID, successCallback, errorCallback }) => 
             "postid": postID
         }
     }
+    console.log({ send })
     await instance.post(`/deletePost`, send, config)
         .then(res => {
             successCallback(res.data.message)

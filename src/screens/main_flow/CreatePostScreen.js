@@ -27,7 +27,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import { CalendarPickerModal } from '../../utils/CalendarPickerModal';
 import { ADD_END_POINT, ADD_START_DATE, ADD_START_POINT, CLEAR_ALL, HIDE_BOTTOM_TAB, REMOVE_MIDDLE_STOP, SET_RADIO_SELECTED, SET_SEARCH_OPEN } from '../../actions/types';
 
-import { addPostToFavorites, createPost, getFavoritePosts, getPlaceInfo, resetValues } from '../../services/MainServices';
+import { addPostToFavorites, addRemovePostToFavorites, createPost, getFavoritePosts, getPlaceInfo, resetValues } from '../../services/MainServices';
 import { SearchLocationComponent } from '../../components/SearchLocationComponent';
 import { useKeyboard } from '../../customHooks/useKeyboard';
 import { useFocusEffect, useIsFocused } from '@react-navigation/native';
@@ -130,7 +130,6 @@ const CreatePostScreen = ({ navigation, route }) => {
 
         return true;
     }
-
 
     const valid = () => {
         if (post.startplace === '' || post.endplace === '') {
@@ -365,7 +364,7 @@ const CreatePostScreen = ({ navigation, route }) => {
 
     }
     const addPostToFav = (postid) => {
-        addPostToFavorites({
+        addRemovePostToFavorites({
             postid: modalInfo.postid,
             successCallback: ((message) => {
                 dispatch(getFavoritePosts())

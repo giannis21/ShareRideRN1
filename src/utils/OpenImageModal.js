@@ -6,6 +6,8 @@ import { colors } from './Colors';
 import { RoundButton } from '../Buttons/RoundButton';
 import { Spacer } from '../layout/Spacer';
 import { TouchableWithoutFeedback } from 'react-native-gesture-handler';
+import { useSelector } from 'react-redux';
+import { postExistsInFav } from '../customSelectors/PostsSelectors';
 
 export function OpenImageModal({
   closeAction,
@@ -16,9 +18,13 @@ export function OpenImageModal({
   closeText,
   buttonPress,
   isVisible,
-  isPost
+  isPost,
+  isFavoritePostScreen,
+  postId
 }) {
   const { modal, container, textStyle } = styles;
+
+  const postExists = useSelector(postExistsInFav(postId));
 
   return (
     <View>
@@ -44,6 +50,14 @@ export function OpenImageModal({
 
         </View>
         }
+        {
+          isFavoritePostScreen &&
+          <TouchableOpacity activeOpacity={0.9} style={[{ padding: 10 }, container]} onPress={() => buttonPress(1)}>
+            <Text style={[textStyle, { color: postExists ? 'red' : 'black' }]}>{postExists ? 'Αφαίρεση απο τα αγαπημένα' : 'Προσθήκη στα αγαπημένα'}</Text>
+          </TouchableOpacity>
+        }
+
+
         <Spacer height={10} />
         <TouchableOpacity activeOpacity={0.9} style={[{ padding: 10 }, container]} onPress={() => buttonPress(2)}>
           <Text style={[textStyle, { color: 'red' }]}>Διαγραφή</Text>

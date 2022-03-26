@@ -5,7 +5,7 @@ import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { deletePost, getPostsUser } from '../../services/MainServices';
+import { addRemovePostToFavorites, deletePost, getFavoritePosts, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -17,6 +17,7 @@ import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 import { useDispatch, useSelector } from 'react-redux';
 import { ADD_ACTIVE_POST } from '../../actions/types';
+import { postExistsInFav } from '../../customSelectors/PostsSelectors';
 
 const MyPostsProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -30,11 +31,14 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [showContent, setShowContent] = React.useState(true)
+    const [bottomModalTitle, setBottomModalTitle] = React.useState(null)
     const { height, width } = Dimensions.get("window");
 
     let isFocused = useIsFocused()
     let dispatch = useDispatch()
     const myUser = useSelector(state => state.authReducer.user)
+    const post = useSelector(state => state.postReducer)
+
     useEffect(() => {
 
         if (myUser.email)
@@ -78,31 +82,51 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
     const onMenuClicked = (item1, index) => {
         let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
         setDeletedPost(postToBeDeleted)
+
         setIsModalVisible(true)
     }
 
     const onActionSheet = (index) => {
         setIsLoading(true)
+        if (index === 2) {
+            deletePost({
+                postID: deletedPost.post.postid,
+                successCallback: ((message) => {
 
-        deletePost({
-            postID: deletedPost.post.postid,
+                    dispatch(getFavoritePosts())
+                    let newData = dataSource.filter((obj) => obj !== deletedPost)
+                    setDataSource(newData)
+                    setIsRender(!isRender)
+
+                    setInfoMessage({ info: message, success: true })
+                    setIsLoading(false)
+                    showCustomLayout()
+                }),
+                errorCallback: ((message) => {
+                    setInfoMessage({ info: message, success: false })
+                    setIsLoading(false)
+                    showCustomLayout()
+
+                })
+            })
+            return
+        }
+
+        addRemovePostToFavorites({
+            postid: deletedPost.post.postid,
             successCallback: ((message) => {
-
-                let newData = dataSource.filter((obj) => obj !== deletedPost)
-                setDataSource(newData)
-                setIsRender(!isRender)
-
-                setInfoMessage({ info: message, success: true })
                 setIsLoading(false)
+                dispatch(getFavoritePosts())
+                setInfoMessage({ info: message, success: true })
                 showCustomLayout()
             }),
             errorCallback: ((message) => {
-                setInfoMessage({ info: message, success: false })
                 setIsLoading(false)
+                setInfoMessage({ info: message, success: false })
                 showCustomLayout()
-
             })
         })
+
 
 
     };
@@ -170,8 +194,11 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
 
 
                         <OpenImageModal
+                            postId={deletedPost?.post?.postid}
+                            bottomTitle={bottomModalTitle}
                             isVisible={isModalVisible}
                             isPost={true}
+                            isFavoritePostScreen={true}
                             closeAction={() => {
                                 setIsModalVisible(false);
                                 setDeletedPost(null)

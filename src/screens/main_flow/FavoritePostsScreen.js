@@ -4,7 +4,7 @@ import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, Tou
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { deletePost, getFavoritePosts, getPostsUser } from '../../services/MainServices';
+import { addRemovePostToFavorites, deletePost, getFavoritePosts, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -30,6 +30,7 @@ const FavoritePostsScreen = ({ navigation, route }) => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [showContent, setShowContent] = React.useState(true)
+    const [bottomModalTitle, setBottomModalTitle] = React.useState(null)
     const { height, width } = Dimensions.get("window");
 
     let isFocused = useIsFocused()
@@ -50,11 +51,11 @@ const FavoritePostsScreen = ({ navigation, route }) => {
         setDataSource([...dataSource, ...data.postUser]);
         setTotalPages(data.totalPages)
         setOffset(offset + 1)
-        setShowContent(false)
+
     }
     const errorCallback = () => {
         setIsLoading(false)
-        setShowContent(false)
+
     }
 
 
@@ -75,31 +76,47 @@ const FavoritePostsScreen = ({ navigation, route }) => {
         let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
         setDeletedPost(postToBeDeleted)
         setIsModalVisible(true)
+
     }
 
     const onActionSheet = (index) => {
         setIsLoading(true)
+        if (index === 1) {
+            addRemovePostToFavorites({
+                postid: deletedPost.post.postid,
+                successCallback: ((message) => {
+                    dispatch(getFavoritePosts())
+                    let newData = dataSource.filter((obj) => obj !== deletedPost)
+                    setDataSource(newData)
+                    setIsRender(!isRender)
+
+                    setInfoMessage({ info: message, success: true })
+                    setIsLoading(false)
+                    showCustomLayout()
+                }),
+                errorCallback: ((message) => {
+
+                    setInfoMessage({ info: message, success: false })
+                    showCustomLayout()
+                })
+            })
+            return
+        }
 
         deletePost({
             postID: deletedPost.post.postid,
             successCallback: ((message) => {
-
-                let newData = dataSource.filter((obj) => obj !== deletedPost)
-                setDataSource(newData)
-                setIsRender(!isRender)
-
+                dispatch(getFavoritePosts())
                 setInfoMessage({ info: message, success: true })
                 setIsLoading(false)
                 showCustomLayout()
             }),
             errorCallback: ((message) => {
-                setInfoMessage({ info: message, success: false })
-                setIsLoading(false)
-                showCustomLayout()
 
+                setInfoMessage({ info: message, success: false })
+                showCustomLayout()
             })
         })
-
 
     };
 
@@ -134,7 +151,7 @@ const FavoritePostsScreen = ({ navigation, route }) => {
             <View style={styles.container}>
                 <TopContainerExtraFields onCloseContainer={goBack} title={'Αγαπημένα post'} />
 
-                {showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
+                {!showContent ? <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: (height / 2) - 50 }}>
 
                     <Text>Περιμένετε..</Text>
                 </View> : (
@@ -147,7 +164,6 @@ const FavoritePostsScreen = ({ navigation, route }) => {
                             keyExtractor={(item, index) => index}
                             enableEmptySections={true}
                             renderItem={(item) => {
-
                                 return <PostLayoutComponent
                                     showMenu={true}
                                     item={item.item}
@@ -170,6 +186,8 @@ const FavoritePostsScreen = ({ navigation, route }) => {
                         <OpenImageModal
                             isVisible={isModalVisible}
                             isPost={true}
+                            isFavoritePostScreen={true}
+                            bottomTitle={bottomModalTitle}
                             closeAction={() => {
                                 setIsModalVisible(false);
                                 setDeletedPost(null)

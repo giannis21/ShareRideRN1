@@ -6,7 +6,7 @@ import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
-import { addActivePost, deletePost, getInterestedInMe, getPostsUser } from '../../services/MainServices';
+import { addActivePost, deletePost, getFavoritePosts, getInterestedInMe, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
 import { useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -121,7 +121,7 @@ const InterestedInMeProfileScreen = ({ navigation, route }) => {
         deletePost({
             postID: deletedPost.post.postid,
             successCallback: ((message) => {
-
+                dispatch(getFavoritePosts())
                 let newData = dataSource.filter((obj) => obj !== deletedPost)
                 setDataSource(newData)
                 setIsRender(!isRender)
