@@ -66,6 +66,7 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
 
   await instance.post(`/passotp`, send, config)
     .then(res => {
+      console.log(res.data.otp)
       successCallBack(res.data.otp, email, res.data.message)
 
 

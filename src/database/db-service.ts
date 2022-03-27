@@ -17,7 +17,7 @@ export const getDBConnection = async () => {
 enablePromise(true);
 export const createTable = async (db: SQLiteDatabase) => {
     // create table if not exists
-    const query = `CREATE TABLE IF NOT EXISTS ${FAVORITE_TABLE}(compoundKey VARCHAR(100) PRIMARY KEY , startcoord VARCHAR(100), startplace VARCHAR(100), endcoord VARCHAR(255), endplace VARCHAR(255),isSelected INTEGER)`;
+    const query = `CREATE TABLE IF NOT EXISTS ${FAVORITE_TABLE}(compoundKey VARCHAR(100) PRIMARY KEY , startcoord VARCHAR(100), startplace VARCHAR(100), endcoord VARCHAR(255), endplace VARCHAR(255),isSelected INTEGER, email VARCHAR(255))`;
     db.transaction((tx) => {
         tx.executeSql(query)
 
@@ -25,10 +25,10 @@ export const createTable = async (db: SQLiteDatabase) => {
     // await db.executeSql(query);
 };
 
-export const getFavorites = async (db: SQLiteDatabase): Promise<FavItem[]> => {
+export const getFavorites = async (email: string, db: SQLiteDatabase): Promise<FavItem[]> => {
     try {
         const favItems: FavItem[] = [];
-        const results = await db.executeSql(`SELECT * FROM ${FAVORITE_TABLE}`);
+        const results = await db.executeSql(`SELECT * FROM ${FAVORITE_TABLE} where email=?`, [email]);
         results.forEach(result => {
             for (let index = 0; index < result.rows.length; index++) {
                 favItems.push(result.rows.item(index))
@@ -71,8 +71,8 @@ export const insertRoute = async (route: JSON, db: SQLiteDatabase) => {
         console.log()
         db.transaction(function (tx) {
             tx.executeSql(
-                `INSERT INTO ${FAVORITE_TABLE} (compoundKey, startcoord, startplace,endcoord,endplace,isSelected) VALUES (?,?,?,?,?,?)`,
-                [route.compoundKey, route.startcoord, route.startplace, route.endcoord, route.endplace, 0],
+                `INSERT INTO ${FAVORITE_TABLE} (compoundKey, startcoord, startplace,endcoord,endplace,isSelected,email) VALUES (?,?,?,?,?,?,?)`,
+                [route.compoundKey, route.startcoord, route.startplace, route.endcoord, route.endplace, 0, route.email],
                 (tx, results) => {
                     console.log('Results', results.rowsAffected);
                     if (results.rowsAffected > 0) {

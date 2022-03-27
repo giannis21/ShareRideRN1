@@ -72,7 +72,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
         try {
             const db = await getDBConnection();
             await createTable(db);
-            getFavorites(db).then((data) => {
+            getFavorites(myUser.email, db).then((data) => {
                 if (data.length) {
                     dispatch({ type: GET_FAVORITE_ROUTES, payload: data })
                 } else {

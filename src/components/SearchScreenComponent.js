@@ -237,7 +237,8 @@ export function SearchScreenComponent({
             startplace: post.searchStartplace.toString(),
             endcoord: post.searchEndcoord.toString(),
             endplace: post.searchEndplace.toString(),
-            compoundKey: `${post.searchStartcoord} - ${post.searchEndcoord}`
+            compoundKey: `${post.searchStartcoord} - ${post.searchEndcoord} - ${myUser.email}`,
+            email: myUser.email
         }
 
         const db = await getDBConnection();

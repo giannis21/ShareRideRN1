@@ -57,7 +57,7 @@ const CreatePostScreen = ({ navigation, route }) => {
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [modalCloseVisible, setModalCloseVisible] = useState(false)
-    const [allowPet, setAllowPet] = useState(null)
+    const [allowPet, setAllowPet] = useState(false)
     const renderThumb = useCallback(() => <Thumb />, []);
     const renderRail = useCallback(() => <Rail />, []);
     const renderRailSelected = useCallback(() => <RailSelected />, []);
@@ -88,7 +88,6 @@ const CreatePostScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        console.log(openSearch.open)
         if (openSearch.open) {
             dispatch({ type: HIDE_BOTTOM_TAB, payload: true })
         } else {
@@ -105,7 +104,6 @@ const CreatePostScreen = ({ navigation, route }) => {
             setCost(cost)
             setSeats(seats)
             setAllowPet(petAllowed)
-
         }
     }, [isFocused])
 
@@ -116,6 +114,7 @@ const CreatePostScreen = ({ navigation, route }) => {
         setAllowPet(null)
         dispatch({ type: CLEAR_ALL, payload: {} })
     }
+
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
         return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
@@ -127,7 +126,6 @@ const CreatePostScreen = ({ navigation, route }) => {
         } else {
             setModalCloseVisible(true)
         }
-
         return true;
     }
 
@@ -451,26 +449,15 @@ const CreatePostScreen = ({ navigation, route }) => {
                 </View>
                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1, marginVertical: 10 }} />
                 <Spacer height={10} />
-                <TouchableWithoutFeedback onPress={() => {
-                    allowPet == true ? setAllowPet(false) : allowPet == false ? setAllowPet(null) : setAllowPet(true)
-
-                    // if (allowPet === true) {
-                    //     setAllowPet(false)
-                    // } else if (allowPet === false) {
-
-                    // } else {
-
-                    // }
-
-                }} style={{ alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
-                    <Text style={{ color: '#8b9cb5', alignSelf: 'center' }}>δεκτά κατοικίδια {allowPet == true ? "👍" : allowPet == false ? "👎" : "👍👎 (ολα)"}</Text>
+                <TouchableWithoutFeedback onPress={() => { setAllowPet(!allowPet) }}
+                    style={{ alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
+                    <Text style={{ color: '#8b9cb5', alignSelf: 'center' }}>δεκτά κατοικίδια {allowPet == true ? "👍" : "👎"}</Text>
                 </TouchableWithoutFeedback>
                 <Spacer height={10} />
                 <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1, marginVertical: 10 }} />
                 <CustomRadioButton
                     returnedDate={(hasReturnDate) => {
                         setHasReturnDate(hasReturnDate)
-
                     }}
                     rangeRadioSelected={(choice) => {
                         setRangeDate(choice === 'many' ? true : false)

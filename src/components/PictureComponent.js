@@ -16,7 +16,6 @@ export function PictureComponent({
     var _ = require('lodash');
     let imageWidth = 0
 
-
     const getStyle = () => {
         if (imageSize === 'big') {
             imageWidth = !singleFile && !url ? 72 : 92

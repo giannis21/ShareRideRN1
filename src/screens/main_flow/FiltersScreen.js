@@ -163,11 +163,11 @@ const FiltersScreen = ({ navigation, route }) => {
     }
 
     const resetValues = async () => {
-        let allowPetVar = await getValue(filterKeys.allowPet) ?? false
+        let allowPetVar = await getValue(filterKeys.allowPet) === "true" ? true : await getValue(filterKeys.allowPet) === "false" ? false : null
         setCarValue(await getValue(filterKeys.carMark) ?? 'ΟΛΑ')
         setGenre(await getValue(filterKeys.showMe) ?? 'όλους')
-        setCost(await getValue(filterKeys.maxCost) ?? '0')
-        setAllowPet(allowPetVar === "true" ? true : allowPetVar === "null" ? null : false)
+        setCost(await getValue(filterKeys.maxCost) ?? '100')
+        setAllowPet(allowPetVar)
         let ageRange = await getValue(filterKeys.ageRange)
 
         if (ageRange) {

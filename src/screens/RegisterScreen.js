@@ -84,9 +84,8 @@ const RegisterScreen = ({ navigation }) => {
 
 
      const storeImageLocally = async () => {
-          const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
-
           try {
+               const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
                const data = await RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
                setSingleFile(data)
           } catch (error) {
@@ -98,7 +97,7 @@ const RegisterScreen = ({ navigation }) => {
                return
 
           setIsLoading(true)
-          registerUser(data, singleFile.data
+          registerUser(data, singleFile.data,
 
                //success callback
                ((message, otp) => {
@@ -116,13 +115,6 @@ const RegisterScreen = ({ navigation }) => {
                     setInfoMessage({ info: error, success: false })
                     showCustomLayout()
                }))
-          // uploadImage(data.email, singleFile.path, () => {
-
-          // }, (error) => {
-          //      setInfoMessage({ info: error, success: false })
-          //      showCustomLayout()
-          // });
-
      }
 
 

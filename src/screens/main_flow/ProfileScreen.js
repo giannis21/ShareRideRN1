@@ -37,6 +37,7 @@ import { DataSlotPickerModal } from '../../utils/DataSlotPickerModal';
 import { HorizontalLine } from '../../components/HorizontalLine';
 import { ViewRow } from '../../components/HOCS/ViewRow';
 import { CustomText } from '../../components/CustomText';
+import RNFetchBlob from 'rn-fetch-blob';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -174,9 +175,7 @@ const ProfileScreen = ({ navigation, route }) => {
                     case DATA_USER_TYPE.TITLE:
                         return title
                 }
-
             }
-
         }
         return title
     }
@@ -396,14 +395,16 @@ const ProfileScreen = ({ navigation, route }) => {
                 facebook: data.facebook,
                 instagram: data.instagram,
                 car: data.carBrand,
-                cardate: data.carDate
+                cardate: data.carDate,
+                photo: singleFile ? singleFile : undefined
             }
         }
 
         updateProfile({
             sendObj,
             successCallback: ((message) => {
-                setEditProfile(false)
+                setEditProfile(false);
+                singleFile && storeImageLocally()
                 setInfoMessage({ info: message, success: true })
                 showCustomLayout()
             }),
@@ -415,6 +416,18 @@ const ProfileScreen = ({ navigation, route }) => {
         })
 
     }
+
+    const storeImageLocally = async () => {
+        try {
+            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
+            const data = await RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
+            setSingleFile(data)
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
+
+
     const ratingErrorCallback = (message) => {
         setInfoMessage({ info: message, success: false })
         showCustomLayout(() => {
