@@ -44,6 +44,6 @@ export const filterKeys = {
   startDate: 'startDate',
   endDate: 'endDate',
   returnStartDate: 'returnStartDate',
-  returnEndDate: 'returnEndDate'
+  returnEndDate: 'returnEndDate',
 
 }

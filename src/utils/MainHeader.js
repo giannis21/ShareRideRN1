@@ -5,7 +5,7 @@ import { CustomInput } from './CustomInput';
 import { colors } from './Colors';
 import { RoundButton } from '../Buttons/RoundButton';
 import { Spacer } from '../layout/Spacer';
-import AntDesign from 'react-native-vector-icons/AntDesign';
+import Ionicons from 'react-native-vector-icons/Ionicons';
 import Icon from 'react-native-vector-icons/Ionicons';
 import Entypo from 'react-native-vector-icons/Entypo';
 import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture-handler';
@@ -46,6 +46,9 @@ export function MainHeader({
                     <ViewRow style={{ justifyContent: 'space-between' }}>
                         <Text style={{ color: 'white', alignSelf: 'center', flexWrap: 'wrap', fontSize: 19, marginStart: 14 }}>{title}</Text>
                         <ViewRow>
+                            {!isCreatePost &&
+                                <Ionicons onPress={onFilterPress} name="filter" color='white' size={23} style={{ alignSelf: 'center', marginEnd: 10 }} />
+                            }
                             {isCreatePost && !_.isEmpty(post.favoritePosts) &&
                                 <Entypo onPress={onFavoritePostsPress} name="heart-outlined" color='white' size={23} style={{ alignSelf: 'center', marginEnd: 10 }} />
                             }

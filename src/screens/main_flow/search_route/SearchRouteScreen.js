@@ -100,29 +100,6 @@ const SearchRouteScreen = ({ navigation, route }) => {
 
         let sendObj = {
             data: {
-                // email: "giannisfragoulis21@gmail.com",
-                // startplace: "Athina",
-                // // startcoord: "37.9838096,23.7275388",
-                // // endplace: "Thessaloniki",
-                // // endcoord: "40.6400629,22.9444191",
-                // // startdate: "2022-03-28",
-                // // enddate: "2022-04-03",
-                // startplace: lastActiveIndex === 0 ? carouselItem.startplace : post.searchStartplace,
-                // startcoord: lastActiveIndex === 0 ? carouselItem.startcoord : post.searchStartcoord,
-                // endplace: lastActiveIndex === 0 ? carouselItem.endplace : post.searchEndplace,
-                // endcoord: lastActiveIndex === 0 ? carouselItem.endcoord : post.searchEndcoord,
-                // page: 1,
-                // cost: 100,
-                // age: 18,
-                // age_end: 70,
-                // car: null,
-                // cardate: null,
-                // gender: null,
-                // withReturn: null,
-                // petAllowed: null,
-                // returnStartDate: "2022-04-11",
-                // returnEndDate: "2022-04-18"
-
                 email: myUser.email,
                 startplace: lastActiveIndex === 0 ? carouselItem.startplace : post.searchStartplace,
                 startcoord: lastActiveIndex === 0 ? carouselItem.startcoord : post.searchStartcoord,
@@ -131,14 +108,14 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 startdate: await getStartDate(),
                 enddate: await getEndDate(),
                 page: 1,
-                cost: await getValue(filterKeys.maxCost) ?? '100',
+                cost: await getValue(filterKeys.maxCost) ?? null,
                 age: await getStartAge(),
                 age_end: await getEndAge(),
-                car: await getValue(filterKeys.carMark) ?? null,
-                cardate: null,
+                car: await getCar(),
+                cardate: await getValue(filterKeys.carAge) ?? null,
                 gender: await getGender(),
                 withReturn: await hasReturnDate(),
-                petAllowed: null,
+                petAllowed: await getPetAllowed(),
                 returnStartDate: await getReturnStartDate(),
                 returnEndDate: await getReturnEndDate()
             }
@@ -175,6 +152,18 @@ const SearchRouteScreen = ({ navigation, route }) => {
         return null
 
     }
+    const getCar = async () => {
+        let carMark = await getValue(filterKeys.carMark)
+
+        if (carMark) {
+            if (carMark === 'ΟΛΑ')
+                return null
+            else
+                return carMark
+        }
+        return null
+
+    }
     const getStartAge = async () => {
         let ageRange = await getValue(filterKeys.ageRange)
         if (ageRange) {
@@ -186,7 +175,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const getEndAge = async () => {
         let ageRange = await getValue(filterKeys.ageRange)
         if (ageRange) {
-            return parseInt(ageRange.split('-')[1])
+            return ageRange.split('-')[1]
         }
         return null
     }
@@ -197,6 +186,19 @@ const SearchRouteScreen = ({ navigation, route }) => {
         if (returnStartDate && returnStartDate !== constVar.returnStartDate) {
             return true
         }
+        return null
+
+    }
+
+    const getPetAllowed = async () => {
+        let petAllowed = await getValue(filterKeys.allowPet)
+        if (petAllowed && petAllowed === 'true') {
+            return true
+        }
+        if (petAllowed && petAllowed === 'false') {
+            return false
+        }
+
         return null
 
     }
@@ -313,7 +315,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                     })
                 }}
                 onFilterPress={() => {
-                    setIsModalVisible(true)
+                    navigation.navigate(routes.FILTERS_SCREEN)
                 }}
                 onFavoritePostsPress={() => {
                     navigation.navigate(routes.FAVORITE_POSTS_SCREEN)

@@ -147,7 +147,7 @@ const FiltersScreen = ({ navigation, route }) => {
             await setValue(filterKeys.maxCost, cost.toString())
             await setValue(filterKeys.carMark, carValue.toString())
             await setValue(filterKeys.carAge, carDate.toString())
-            await setValue(filterKeys.allowPet, allowPet.toString())
+            await setValue(filterKeys.allowPet, allowPet ? allowPet.toString() : "null")
 
             await setValue(filterKeys.startDate, filtersReducer.startdate)
             await setValue(filterKeys.endDate, filtersReducer.enddate)
@@ -167,7 +167,7 @@ const FiltersScreen = ({ navigation, route }) => {
         setCarValue(await getValue(filterKeys.carMark) ?? 'ΟΛΑ')
         setGenre(await getValue(filterKeys.showMe) ?? 'όλους')
         setCost(await getValue(filterKeys.maxCost) ?? '0')
-        setAllowPet(allowPetVar === "true" ? true : false)
+        setAllowPet(allowPetVar === "true" ? true : allowPetVar === "null" ? null : false)
         let ageRange = await getValue(filterKeys.ageRange)
 
         if (ageRange) {
@@ -319,10 +319,10 @@ const FiltersScreen = ({ navigation, route }) => {
                         }
                     </TouchableOpacity>
                     <View style={{ backgroundColor: colors.CoolGray1, height: 1, marginTop: 5, marginBottom: 10, opacity: 0.4 }} />
-                    <TouchableOpacity activeOpacity={1} onPress={() => { setAllowPet(!allowPet) }} >
+                    <TouchableOpacity activeOpacity={1} onPress={() => { allowPet == true ? setAllowPet(false) : allowPet == false ? setAllowPet(null) : setAllowPet(true) }} >
                         <View style={item}>
                             <Text style={{ fontSize: 15 }}>δεκτα κατοικίδια</Text>
-                            <Text style={{ fontSize: 20 }}>{allowPet ? "👍" : "👎"}</Text>
+                            <Text style={{ fontSize: 20 }}>{allowPet == true ? "👍" : allowPet == false ? "👎" : "👍👎 (ολα)"}</Text>
 
                         </View>
                     </TouchableOpacity>
