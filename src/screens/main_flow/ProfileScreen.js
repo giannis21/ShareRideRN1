@@ -499,6 +499,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 || data.instagram !== data.initialInstagram
                 || data.carBrand !== data.initialCarBrand
                 || data.carDate !== data.initialCarDate
+                || singleFile?.data
             ))
     }
     function EditIcon({ }) {
