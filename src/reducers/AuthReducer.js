@@ -1,4 +1,4 @@
-import { LOGIN_USER, LOGOUT, SIGNUP_CHECK, ADD_AVERAGE } from '../actions/types';
+import { LOGIN_USER, LOGOUT, SIGNUP_CHECK, SET_PROFILE_PHOTO, ADD_AVERAGE } from '../actions/types';
 
 export const CONTRACT_TYPE = {
   HOME: 'RES',
@@ -26,8 +26,10 @@ const intialState = {
     password: '',
     token: '',
     average: '0',
-    count: '0'
+    count: '0',
+    photoProfile: ''
   },
+
 
 };
 
@@ -42,13 +44,22 @@ export function AuthReducer(state = intialState, action) {
         ...state,
         check: action.payload
       };
+    case SET_PROFILE_PHOTO:
+      console.log("reducer called", action.payload)
+      return {
+        ...state,
+        user: {
+          ...state.user,
+          photoProfile: action.payload
+        }
+
+      };
     case LOGOUT:
       return {
         ...intialState,
         user: {}
       };
     case ADD_AVERAGE:
-      console.log("action", action.payload)
       return {
         ...intialState,
         user: {

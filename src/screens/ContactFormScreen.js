@@ -23,6 +23,7 @@ import { CommentInputComponent } from '../components/CommentInputComponent';
 import { Paragraph } from '../components/HOCS/Paragraph';
 import { sendEmail } from '../utils/Functions';
 import { sendReport } from '../services/MainServices';
+import { CustomText } from '../components/CustomText';
 const ContactFormScreen = ({ navigation, route }) => {
     var _ = require('lodash');
 
@@ -74,6 +75,7 @@ const ContactFormScreen = ({ navigation, route }) => {
             })
         })
     }
+
     return (
         <BaseView statusBarColor={colors.colorPrimary} removePadding>
 
@@ -91,10 +93,14 @@ const ContactFormScreen = ({ navigation, route }) => {
                 automaticallyAdjustContentInsets={true}
                 bounces={true}
                 keyboardShouldPersistTaps={'handled'}>
-                <View style={styles.topContainer}>
 
+                <View style={styles.topContainer}>
                     <CloseIconComponent onPress={() => { navigation.goBack() }} />
-                    <Text style={styles.header}>{constVar.contactForm}</Text>
+
+                    <CustomText
+                        type={'header'}
+                        containerStyle={{ marginStart: 14 }}
+                        text={constVar.contactForm} />
                 </View>
 
                 <CommentInputComponent
@@ -105,13 +111,15 @@ const ContactFormScreen = ({ navigation, route }) => {
 
                 <View style={{ alignItems: 'center' }}>
                     <Text style={{ fontSize: 15, color: '#595959', marginVertical: 10 }}>ή</Text>
+
                     <Paragraph>
                         <Text style={{ fontSize: 15 }}>στείλε μας email </Text>
-                        <Text onPress={handleEmailSending} style={{ fontSize: 15, fontWeight: 'bold', textDecorationLine: 'underline' }}>εδώ</Text>
+                        <CustomText type={'underline-bold'} onPress={handleEmailSending} text='εδώ' />
                     </Paragraph>
-
                 </View>
+
             </KeyboardAwareScrollView>
+
             <RoundButton
                 disabled={_.isEmpty(comment)}
                 containerStyle={{ bottom: 10, marginHorizontal: 10 }}
@@ -126,16 +134,7 @@ const ContactFormScreen = ({ navigation, route }) => {
 export default ContactFormScreen
 
 const styles = StyleSheet.create({
-    header: {
-        fontSize: 23,
-        marginStart: 14,
-        color: 'black',
-        fontWeight: 'bold',
 
-    },
-    wrongPass: {
-        fontSize: 13, fontWeight: '900', color: 'red'
-    },
     topContainer: {
         flexDirection: 'row',
         marginTop: 10,

@@ -16,38 +16,31 @@ import RNFetchBlob from 'rn-fetch-blob';
 import { resetValues } from '../../services/MainServices';
 import { usePreventGoBack } from '../../customHooks/usePreventGoBack';
 import { useFocusEffect } from '@react-navigation/native';
+import { HorizontalLine } from '../../components/HorizontalLine';
+import { CustomIcon } from '../../components/CustomIcon';
+import { ViewRow } from '../../components/HOCS/ViewRow';
+import { CustomText } from '../../components/CustomText';
+import { constVar } from '../../utils/constStr';
 const SettingsScreen = ({ navigation, route }) => {
     var _ = require('lodash');
-    let initalData = { email: '', facebook: '', instagram: '', carBrand: 'ΟΛΑ', carDate: '', fullName: '', phone: '', age: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false }
-    const [data, setData] = useState(initalData)
-    const [isLoading, setIsLoading] = React.useState(false)
+
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-    const [rating, setCurrentRating] = useState(null);
-
-    const [isRatingDialogOpened, setRatingDialogOpened] = useState(false);
-    const [userViewRate, setUserViewRate] = useState(true);
-    const [headerVisible, setHeaderVisible] = useState(false);
-    const [initialReviews, setInitialReviews] = useState();
-    const [openTabs, setOpenTabs] = useState(false)
-
-    const [openRatings, setOpenRatings] = useState(false)
-    const [openMyPosts, setOpenMyPosts] = useState(false)
-    const [openPostsInterested, setOpenPostsInterested] = useState(false)
-    const [openPostsInterestedInMe, setOpenPostsInterestedInMe] = useState(false)
-    const [editProfile, setEditProfile] = useState(false)
     const [singleFile, setSingleFile] = useState(null);
-    const [isImageModalVisible, setImageModalVisible] = useState(false)
-    const dispatch = useDispatch()
 
     const myUser = useSelector(state => state.authReducer.user)
-    usePreventGoBack(goBack)
 
-    const scrollRef = useRef();
+    usePreventGoBack(goBack)
 
     const goBack = () => {
         navigation.goBack()
     }
+
+    useEffect(() => {
+        console.log(myUser.photoProfile)
+        setSingleFile(myUser.photoProfile)
+    }, [myUser.photoProfile])
+
     useFocusEffect(useCallback(() => {
         BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
         return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
@@ -70,6 +63,9 @@ const SettingsScreen = ({ navigation, route }) => {
     const goToContact = () => {
         navigation.navigate(routes.CONTACT_FORM_SCREEN)
     }
+    const goToTerms = () => {
+        navigation.navigate(routes.TERMS_SCREEN)
+    }
 
     const goToFiltersScreen = () => {
         navigation.navigate(routes.FILTERS_SCREEN)
@@ -81,8 +77,8 @@ const SettingsScreen = ({ navigation, route }) => {
         })
     }
     const retrieveImage = async () => {
-        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
         try {
+            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
             const data = await RNFetchBlob.fs.readFile(path, 'base64');
             setSingleFile(data)
         } catch (error) {
@@ -90,11 +86,17 @@ const SettingsScreen = ({ navigation, route }) => {
         }
     }
 
-    useEffect(() => {
-        retrieveImage()
-    }, [])
+    const Action = ({ title, onItemPress, icon, type, containerStyle }) => {
+        return (
+            <TouchableOpacity onPress={onItemPress} style={[actionStyle, containerStyle]}>
+                <CustomIcon type={type} style={{ alignSelf: 'center' }} name={icon} size={27} color={'#2175D3'} />
+                <Text style={titleStyle}>{title}</Text>
+            </TouchableOpacity>
+        )
+    }
 
-    const { tabsStyle, titleStyle } = styles
+    const { actionStyle, titleStyle, logoStyle, closeIconStyle } = styles
+
     return (
 
         <BaseView statusBarColor={colors.colorPrimary}  >
@@ -106,66 +108,45 @@ const SettingsScreen = ({ navigation, route }) => {
             />
 
             <Image
-                style={{ width: 200, height: 200, alignSelf: 'center', marginTop: -30 }}
+                style={logoStyle}
                 source={require('../../assets/images/logo_transparent.png')}
             />
 
-            <View style={{ position: 'absolute', marginTop: 10, marginStart: 10, justifyContent: 'space-around' }}>
-                <CloseIconComponent onPress={goBack} />
-            </View>
+            <CloseIconComponent containerStyle={closeIconStyle} onPress={goBack} />
+
             <View style={{ paddingHorizontal: 16 }}>
-                <View style={{ flexDirection: 'row', alignItems: 'center' }}>
+                <ViewRow style={{ alignItems: 'center' }}>
 
                     <PictureComponent
                         isLocal={true}
                         singleFile={singleFile}
                         imageSize={"small"} />
-                    <Text style={{ marginStart: 16, fontSize: 18, color: '#2175D3' }}>{myUser.fullName.toUpperCase()}</Text>
-                </View>
-                <View style={{ backgroundColor: colors.CoolGray1, height: 1, width: '100%', marginVertical: 20 }} />
 
-                <TouchableOpacity onPress={goToProfile} style={{ flexDirection: 'row', alignItems: 'center' }}>
-                    <Fontisto style={{ alignSelf: 'center' }} name="person" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>Προβολή προφίλ</Text>
-                </TouchableOpacity>
+                    <CustomText
+                        text={myUser.fullName.toUpperCase()}
+                        type={'settings-title'}
+                        containerStyle={[{ marginStart: 16 }]} />
 
-                <TouchableOpacity onPress={goToChangePass} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
-                    <Entypo style={{ alignSelf: 'flex-start' }} name="lock" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>Αλλαγή κωδικού</Text>
-                </TouchableOpacity>
+                </ViewRow>
+                <HorizontalLine containerStyle={{ marginVertical: 20 }} />
 
-                <TouchableOpacity onPress={goToFiltersScreen} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
-                    <Icon name="filter" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>Φίλτρα</Text>
-                </TouchableOpacity>
-                <TouchableOpacity onPress={goToContact} style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
-                    <Entypo style={{ alignSelf: 'flex-start' }} name="message" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>Φόρμα επικοινωνίας</Text>
-                </TouchableOpacity>
+                <Action onItemPress={goToProfile} title={constVar.previewProfile} icon={'person'} type={'Fontisto'} containerStyle={{ marginStart: 3 }} />
+                <Action onItemPress={goToChangePass} title={constVar.changePass} icon={'lock'} type={'Entypo'} />
+                <Action onItemPress={goToFiltersScreen} title={constVar.filters} icon={'filter'} type={'Ionicons'} />
+                <Action onItemPress={goToContact} title={constVar.contactForm} icon={'message'} type={'Entypo'} />
+                <Action onItemPress={goToTerms} title={constVar.termsTitle} icon={'exception1'} type={'AntDesign'} />
 
-                <TouchableOpacity style={{ flexDirection: 'row', alignItems: 'center', marginTop: 29, marginStart: -4 }}>
-                    <AntDesign style={{ alignSelf: 'flex-start' }} name="exception1" size={27} color={'#2175D3'} />
-                    <Text style={titleStyle}>'Οροι και Προϋποθέσεις</Text>
-                </TouchableOpacity>
+                <HorizontalLine containerStyle={{ marginTop: 20 }} />
 
-                <View style={{ backgroundColor: colors.CoolGray1, height: 1, width: '100%', marginTop: 20 }} />
-                <View style={{ flexDirection: 'row', justifyContent: 'space-between' }}>
-                    <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6 }}>App version: 1.0.1</Text>
+                <ViewRow style={{ justifyContent: 'space-between' }}>
+                    <CustomText text={'App version: 1.0.1'} type={'small-grey'}></CustomText>
+
                     <TouchableOpacity onPress={onLogout} style={{ flexDirection: 'row', marginTop: 1 }}>
-                        <AntDesign name="logout" color='#595959' size={13} style={{ alignSelf: 'center', marginEnd: 5 }} />
-                        <Text style={{ fontSize: 13, color: '#595959', opacity: 0.6 }}>Έξοδος</Text>
+                        <CustomIcon type={'AntDesign'} name="logout" color='#595959' size={13} style={{ alignSelf: 'center', marginEnd: 5 }} />
+                        <CustomText text={'Έξοδος'} type={'small-grey'}></CustomText>
                     </TouchableOpacity>
-                </View>
-
-
+                </ViewRow>
             </View>
-
-
-
-
-
-
-
         </BaseView >
 
     );
@@ -181,57 +162,21 @@ const styles = StyleSheet.create({
         color: '#595959',
         opacity: 0.6
     },
-    circle: {
-        borderRadius: 100 / 2,
-    },
-    circleContainer: {
-
-        width: 100,
-        height: 100,
-        borderRadius: 100 / 2,
-        backgroundColor: colors.Gray2,
-    },
-    tabsStyle: {
-        right: 0,
-        left: 0,
-        bottom: 0,
-        marginHorizontal: 10,
-        height: '100%'
-    },
-    footerBtn: {
-
-        marginTop: 20,
-        paddingVertical: 10,
-        paddingHorizontal: 8,
-        width: '100%',
-        justifyContent: 'center',
-        alignItems: 'center',
-        alignSelf: 'baseline',
-        backgroundColor: colors.colorPrimary,
-
-    },
-    infoContainer: {
-        alignSelf: 'baseline',
-        borderRadius: 5,
-        paddingVertical: 8,
-        paddingHorizontal: 18,
+    actionStyle: {
         flexDirection: 'row',
-        backgroundColor: colors.infoColor,
-
+        alignItems: 'center',
+        marginTop: 20
     },
-    dot: {
-        marginLeft: 10,
-        width: 6,
-        height: 6,
-        borderRadius: 100 / 2,
-        backgroundColor: 'black',
+    logoStyle: {
+        width: 200,
+        height: 200,
+        alignSelf: 'center',
+        marginTop: -30
     },
-    rates: {
-        fontSize: 15,
-        marginLeft: 10,
-
-        color: "white",
-        fontWeight: 'bold',
-
+    closeIconStyle: {
+        position: 'absolute',
+        marginTop: 10,
+        marginStart: 10,
+        justifyContent: 'space-around'
     }
 });

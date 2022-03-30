@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import moment from 'moment';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions, BackHandler } from 'react-native';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Image, TouchableOpacity, Dimensions, BackHandler, PermissionsAndroid } from 'react-native';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { colors } from '../../utils/Colors';
@@ -27,7 +27,7 @@ import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { Animated, Easing } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
 import { RoundButton } from '../../Buttons/RoundButton';
-import { ADD_AVERAGE } from '../../actions/types';
+import { ADD_AVERAGE, SET_PROFILE_PHOTO } from '../../actions/types';
 import { TextInput } from 'react-native-gesture-handler';
 import { carBrands, newCarBrands, onLaunchCamera, onLaunchGallery, range } from '../../utils/Functions';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -38,6 +38,7 @@ import { HorizontalLine } from '../../components/HorizontalLine';
 import { ViewRow } from '../../components/HOCS/ViewRow';
 import { CustomText } from '../../components/CustomText';
 import RNFetchBlob from 'rn-fetch-blob';
+import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
 
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -311,6 +312,7 @@ const ProfileScreen = ({ navigation, route }) => {
             interestedForYourPosts: data.interestedForYourPosts,
             hasRequests: data.hasRequests
         })
+
         dispatch({ type: ADD_AVERAGE, payload: { average: data.average, count: data.count } })
     }
 
@@ -396,7 +398,7 @@ const ProfileScreen = ({ navigation, route }) => {
                 instagram: data.instagram,
                 car: data.carBrand,
                 cardate: data.carDate,
-                photo: singleFile ? singleFile : undefined
+                photo: singleFile ? singleFile.data : undefined
             }
         }
 
@@ -418,13 +420,31 @@ const ProfileScreen = ({ navigation, route }) => {
     }
 
     const storeImageLocally = async () => {
-        try {
-            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
-            const data = await RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
-            setSingleFile(data)
-        } catch (error) {
-            console.log(error.message);
-        }
+
+        check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
+            .then((result) => {
+                switch (result) {
+                    case PermissionsAndroid.RESULTS.GRANTED:
+                        console.log("permission granted")
+                        try {
+                            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
+                            RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
+
+                            dispatch({ type: SET_PROFILE_PHOTO, payload: singleFile.data })
+                        } catch (error) {
+                            console.log(error.message, "error.message");
+                        }
+                        break;
+                    default:
+                        break;
+                }
+            })
+            .catch((error) => {
+                console.log(error)
+            });
+
+
+
     }
 
 
@@ -618,66 +638,6 @@ const ProfileScreen = ({ navigation, route }) => {
                 </KeyboardAwareScrollView>
 
             }
-
-
-            {/* {(openTabs || ((myUser.email !== data.email && data.hasReviews) && openTabs)) &&
-                <View>
-                    <View style={{ top: 47, right: 0, left: 0, bottom: 0, marginHorizontal: 10, paddingBottom: 50, height: '100%' }}>
-                        <Tab.Navigator
-                            screenOptions={{
-                                tabBarLabelStyle: { textTransform: 'lowercase' },
-                                tabBarScrollEnabled: true,
-                                swipeEnabled: true
-                            }}
-                        >
-                            {data.hasReviews && false &&
-                                <Tab.Screen name={"Αξιολογήσεις"}>
-                                    {(props) => (
-                                        <RatingTabScreen
-                                            email={data.email}
-                                        />
-                                    )}
-                                </Tab.Screen>
-                            }
-
-                            {data.hasPosts && myUser.email === data.email && false &&
-                                <Tab.Screen name={"τα Post μου"}>
-                                    {(props) => (
-                                        <MyPostsTabScreen
-                                            navigation={navigation}
-                                            email={data.email}
-                                        />
-                                    )}
-                                </Tab.Screen>
-                            }
-
-                            {data.hasInterested && myUser.email === data.email && false &&
-                                <Tab.Screen name={"ενδιαφέρομαι"}>
-                                    {(props) => (
-                                        <PostsInterestedTabScreen
-                                            email={data.email}
-                                        />
-                                    )}
-                                </Tab.Screen>
-                            }
-
-                            {data.interestedForYourPosts && myUser.email === data.email &&
-                                <Tab.Screen name={"ενδιαφερόμενοι"}>
-                                    {(props) => (
-                                        <InterestedInMeScreen
-                                            email={data.email}
-                                        />
-                                    )}
-                                </Tab.Screen>
-                            }
-
-                        </Tab.Navigator>
-
-                    </View>
-
-                </View>
-            } */}
-
 
             <RatingDialog
                 onSubmit={(rating, text) => rate(rating, text)}

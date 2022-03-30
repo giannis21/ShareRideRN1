@@ -37,7 +37,7 @@ import moment from 'moment';
 import { usePreventGoBack } from '../../customHooks/usePreventGoBack';
 import { InfoPopupModal } from '../../utils/InfoPopupModal';
 import { getValue, keyNames, setValue } from '../../utils/Storage';
-
+import { HorizontalLine } from '../../components/HorizontalLine'
 const CreatePostScreen = ({ navigation, route }) => {
     const initialModalInfoState = { preventActionText: 'Όχι', buttonText: 'Έξοδος', description: 'Είσαι σίγουρος θέλεις να κλείσεις την εφαρμογή;', postid: '' }
     const [data, setData] = useState({ startPoint: '', endPoint: '', check_textInputChange: false, secureTextEntry: true })
@@ -66,7 +66,6 @@ const CreatePostScreen = ({ navigation, route }) => {
     const [modalInfo, setModalInfo] = useState(initialModalInfoState)
 
     const handleValueChange = useCallback((low, high) => {
-
         setCost(low);
         setHigh(high);
     }, []);
@@ -392,12 +391,11 @@ const CreatePostScreen = ({ navigation, route }) => {
             <MainHeader
                 isCreatePost={true}
                 onSettingsPress={() => { navigation.navigate(routes.SETTINGS_SCREEN, { email: myUser.email }) }}
-                onClose={() => {
-                    setOpenSearch({ from: true, open: false, addStops: false })
-
-                }}
                 showX={openSearch.open === true}
                 title={openSearch.open === true ? constVar.searchBottomTab : constVar.createPostBottomTab}
+                onClose={() => {
+                    setOpenSearch({ from: true, open: false, addStops: false })
+                }}
                 onLogout={() => {
                     resetValues(() => {
                         navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
@@ -420,7 +418,6 @@ const CreatePostScreen = ({ navigation, route }) => {
                     <View style={{ paddingHorizontal: 16, marginTop: 15 }}>
 
                         <SelectLocationComponent
-
                             titleStart={constVar.startDestination}
                             titleEnd={constVar.endDestination}
                             isPostScreen={true}
@@ -429,32 +426,27 @@ const CreatePostScreen = ({ navigation, route }) => {
                             endPointPress={() => { setOpenSearch({ from: false, open: true, addStops: false }) }} />
                         <Spacer height={20} />
 
-
                         {renderStops()}
-
                         <Spacer height={10} />
-                        <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1 }} />
-
+                        <HorizontalLine />
                         {renderSeats()}
-                        <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1, marginVertical: 10 }} />
-
+                        <HorizontalLine containerStyle={{ marginVertical: 10 }} />
                         {renderCost()}
 
-
-
-
                     </View>
-
                     <Spacer height={15} />
                 </View>
-                <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1, marginVertical: 10 }} />
+                <HorizontalLine containerStyle={{ marginVertical: 10 }} />
                 <Spacer height={10} />
+
                 <TouchableWithoutFeedback onPress={() => { setAllowPet(!allowPet) }}
                     style={{ alignItems: 'center', justifyContent: 'center', marginTop: 20 }}>
                     <Text style={{ color: '#8b9cb5', alignSelf: 'center' }}>δεκτά κατοικίδια {allowPet == true ? "👍" : "👎"}</Text>
                 </TouchableWithoutFeedback>
+
                 <Spacer height={10} />
-                <View style={{ width: '100%', backgroundColor: colors.CoolGray1, height: 1, marginVertical: 10 }} />
+                <HorizontalLine containerStyle={{ marginVertical: 10 }} />
+
                 <CustomRadioButton
                     returnedDate={(hasReturnDate) => {
                         setHasReturnDate(hasReturnDate)
@@ -475,38 +467,34 @@ const CreatePostScreen = ({ navigation, route }) => {
                     }}
                     value={comment}
                     removeNote={true}
-                    extraStyle={{ marginTop: 10 }}
+                    extraStyle={{ marginTop: 10, marginBottom: 16 }}
                     onChangeText={(val) => setComment(val)} />
-                <Spacer height={16} />
-
 
                 <RoundButton
-                    containerStyle={{ marginHorizontal: 16 }}
+                    containerStyle={{ marginHorizontal: 16, marginBottom: 70 }}
                     text={constVar.submit}
                     backgroundColor={colors.colorPrimary}
                     onPress={onSubmit}
                 />
-                <Spacer height={70} />
+
             </KeyboardAwareScrollView>
 
             {
                 openSearch.open &&
                 <SearchLocationComponent
+                    from={openSearch.from}
+                    addStops={openSearch.addStops}
                     showMessage={(message) => {
                         setInfoMessage({ info: message, success: false })
                         showCustomLayout()
                     }}
-                    from={openSearch.from}
-                    addStops={openSearch.addStops}
                     onPress={(place_id, place, isStartPoint) => {
-
                         getPlace(place_id, place, isStartPoint)
                         setOpenSearch({ from: true, open: false, addStops: false })
                     }} />
             }
 
             <CalendarPickerModal
-
                 isVisible={isPickerVisible}
                 closeAction={() => {
                     setIsPickerVisible(false);

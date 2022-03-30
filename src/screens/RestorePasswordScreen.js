@@ -19,6 +19,7 @@ import { CustomInfoLayout } from '../utils/CustomInfoLayout';
 import { getValue, setValue } from '../utils/Storage';
 import { constVar } from '../utils/constStr'
 import { CloseIconComponent } from '../components/CloseIconComponent';
+import { CustomText } from '../components/CustomText';
 let hasErrors = false
 const RestorePasswordScreen = ({ navigation, route }) => {
   var _ = require('lodash');
@@ -35,7 +36,6 @@ const RestorePasswordScreen = ({ navigation, route }) => {
       setIsLoading(false)
       setInfoMessage({ hasError: false, message: false });
       setShowInfoModal(false)
-
     });
 
     return unsubscribe;
@@ -50,16 +50,19 @@ const RestorePasswordScreen = ({ navigation, route }) => {
         callback()
     }, 3000);
   }
+
   const successCallBack = (message) => {
     setInfoMessage({ hasError: false, message })
     showCustomLayout((() => {
       route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack()
     }))
   }
+
   const errorCallback = (message) => {
     setInfoMessage({ hasError: true, message })
     showCustomLayout()
   }
+
   const onButtonPressed = () => {
     Keyboard.dismiss()
     if (_.isEmpty(data.password) || _.isEmpty(data.passwordConfirm) || (!route.params.isRestore && _.isEmpty(data.currentPassword))) {
@@ -83,12 +86,9 @@ const RestorePasswordScreen = ({ navigation, route }) => {
       let password = data.password
       restorePassword({ email, password, successCallBack: successCallBack, errorCallback: errorCallback })
     }
-
-
   }
-  const goToLogin = () => {
 
-  }
+
   const onPasswordChanged = (value) => {
     setData({ ...data, password: value })
   }
@@ -109,6 +109,9 @@ const RestorePasswordScreen = ({ navigation, route }) => {
     setData({ ...data, secureTextEntryConfirmed: !data.secureTextEntryConfirmed });
   }
 
+  const onBackIconPress = () => {
+    route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack()
+  }
 
   return (
     <BaseView statusBarColor={colors.colorPrimary} removePadding>
@@ -127,19 +130,24 @@ const RestorePasswordScreen = ({ navigation, route }) => {
         automaticallyAdjustContentInsets={true}
         bounces={true}
         keyboardShouldPersistTaps={'handled'}>
+
         <View style={styles.topContainer}>
+          <CloseIconComponent onPress={onBackIconPress} />
 
-          <CloseIconComponent onPress={() => { route.params.isRestore ? navigation.navigate(routes.LOGIN_SCREEN) : navigation.goBack() }} />
-          <Text style={styles.header}>{constVar.newPass}</Text>
+          <CustomText
+            type={'header'}
+            containerStyle={{ marginStart: 14 }}
+            text={constVar.newPass} />
+
         </View>
-        <View style={{ paddingHorizontal: 16 }}>
 
+        <View style={{ paddingHorizontal: 16 }}>
 
           <Spacer height={80} />
           {
             !route.params.isRestore &&
             <CustomInput
-              text={"δώσε τον τωρινό κωδικό"}
+              text={constVar.giveCurrentPass}
               secureTextEntry={data.secureTextEntryCurrent ? true : false}
               onChangeText={oncurrentPasswordChanged}
               onIconPressed={updateSecureTextEntryCurrent}
@@ -147,7 +155,6 @@ const RestorePasswordScreen = ({ navigation, route }) => {
               value={data.currentPassword}
             />
           }
-
 
           <CustomInput
             text={constVar.givePass}
@@ -166,10 +173,11 @@ const RestorePasswordScreen = ({ navigation, route }) => {
             hasIcon={true}
             value={data.passwordConfirm}
           />
-          <Spacer height={5} />
 
-          <Text style={{ fontSize: 13, color: '#8b9cb5' }}>{constVar.passLengthNote}</Text>
-          <Spacer height={30} />
+          <CustomText
+            containerStyle={{ marginTop: 5, marginBottom: 30 }}
+            text={constVar.passLengthNote}
+            type={'note'} />
 
           <RoundButton
             text={constVar.go}
@@ -186,16 +194,8 @@ const RestorePasswordScreen = ({ navigation, route }) => {
 export default RestorePasswordScreen
 
 const styles = StyleSheet.create({
-  header: {
-    fontSize: 23,
-    marginStart: 14,
-    color: 'black',
-    fontWeight: 'bold',
 
-  },
-  wrongPass: {
-    fontSize: 13, fontWeight: '900', color: 'red'
-  },
+
   topContainer: {
     flexDirection: 'row',
     marginTop: 10,

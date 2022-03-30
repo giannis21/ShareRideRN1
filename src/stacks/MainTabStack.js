@@ -31,6 +31,7 @@ import {
 import ProfileStack from './ProfileStack';
 import FavoritePostsScreen from '../screens/main_flow/FavoritePostsScreen';
 import { constVar } from '../utils/constStr';
+import TermsScreen from '../screens/TermsScreen';
 const Tab = createBottomTabNavigator();
 const Stack = createStackNavigator();
 // screenOptions={{
@@ -78,6 +79,10 @@ const HomeStack = () => (
             options={{ headerShown: false }}
             name={routes.CONTACT_FORM_SCREEN}
             component={ContactFormScreen} />
+        <Stack.Screen
+            options={{ headerShown: false }}
+            name={routes.TERMS_SCREEN}
+            component={TermsScreen} />
         <Stack.Screen
             options={{ headerShown: false }}
             name={routes.FAVORITE_POSTS_SCREEN}

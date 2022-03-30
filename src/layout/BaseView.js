@@ -11,11 +11,11 @@ export function BaseView({ edges, light, statusBarColor, children, translucent, 
         <SafeAreaView
             style={containerStyle ? containerStyle : { flex: 1, paddingHorizontal: removePadding ? 0 : 16, backgroundColor: 'white' }}>
 
-            {true && <StatusBar backgroundColor={statusBarColor}
+            <StatusBar backgroundColor={statusBarColor}
                 barStyle={!light ? 'light-content' : 'dark-content'}
                 hidden={false}
-                translucent={translucent} />
-            }
+                translucent={false} />
+
             {children}
         </SafeAreaView>
     )

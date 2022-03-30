@@ -41,6 +41,7 @@ const RequestsProfileScreen = ({ navigation, route }) => {
     const goBack = () => {
         navigation.goBack()
     }
+
     let dispatch = useDispatch()
     const retrieveImage = async () => {
         const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
@@ -51,10 +52,6 @@ const RequestsProfileScreen = ({ navigation, route }) => {
             console.log(error.message);
         }
     }
-
-    useEffect(() => {
-        // retrieveImage()
-    }, [])
 
     useEffect(() => {
         setDataSource(requestsReducer.requests)

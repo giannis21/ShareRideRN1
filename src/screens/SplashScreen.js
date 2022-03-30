@@ -84,7 +84,6 @@ const SplashScreen = ({ navigation, route }) => {
     }
 
     const goToHome = () => {
-        //  BackHandler.removeEventListener('hardwareBackPress', this.handleBackButton);
         navigation.navigate(routes.HOMESTACK, { screen: routes.SEARCH_ROUTE_SCREEN })
     }
     const goToLogin = () => {

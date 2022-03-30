@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, Button, Platform, TextInput, Image, InteractionManager } from 'react-native';
+import { View, Text, StyleSheet, Button, Platform, TextInput, Image, InteractionManager, PermissionsAndroid } from 'react-native';
 import { KeyboardAwareScrollView } from 'react-native-keyboard-aware-scroll-view';
 import { BaseView } from '../layout/BaseView';
 import { Spacer } from '../layout/Spacer';
@@ -25,6 +25,8 @@ import { DataSlotPickerModal } from '../utils/DataSlotPickerModal';
 import moment from 'moment';
 import { HorizontalLine } from '../components/HorizontalLine';
 import { ViewRow } from '../components/HOCS/ViewRow';
+import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
+
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
 
@@ -82,7 +84,6 @@ const RegisterScreen = ({ navigation }) => {
           }
      }
 
-
      const storeImageLocally = async () => {
           try {
                const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
@@ -92,6 +93,7 @@ const RegisterScreen = ({ navigation }) => {
                console.log(error.message);
           }
      }
+
      const onRegister = async () => {
           if (!valid())
                return
@@ -220,7 +222,45 @@ const RegisterScreen = ({ navigation }) => {
                setData({ ...data, carDate: selectedValue })
           }
      }
+     const requestIosPermission = () => {
+          request(PERMISSIONS.IOS.WRITE_EXTERNAL_STORAGE)
+               .then((result) => {
+                    switch (result) {
+                         case RESULTS.GRANTED:
+                              setIsModalVisible(true)
+                              break;
+                         case RESULTS.BLOCKED:
 
+                              break;
+                    }
+               })
+               .catch((error) => { });
+     };
+
+     const requestAndroidPermission = () => {
+          check(PermissionsAndroid.PERMISSIONS.WRITE_EXTERNAL_STORAGE)
+               .then((result) => {
+                    switch (result) {
+                         case PermissionsAndroid.RESULTS.GRANTED:
+                              console.log("permission granted")
+                              setIsModalVisible(true)
+                              break;
+                         default:
+                              break;
+                    }
+               })
+               .catch((error) => {
+                    console.log(error)
+               });
+     };
+
+     const onImageClick = () => {
+          if (Platform.OS === 'android') {
+               requestAndroidPermission()
+          } else {
+               requestIosPermission()
+          }
+     }
      return (
 
 
@@ -247,7 +287,7 @@ const RegisterScreen = ({ navigation }) => {
                               <PictureComponent
                                    singleFile={singleFile}
                                    openCamera={true}
-                                   onPress={() => { setIsModalVisible(true) }} imageSize={"big"} />
+                                   onPress={onImageClick} imageSize={"big"} />
                          </View>
 
                          <CustomInput

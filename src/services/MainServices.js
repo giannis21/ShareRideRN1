@@ -140,6 +140,19 @@ export const getFavoritePosts = () => async (dispatch) => {
             console.log(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+export const getTerms = () => async (dispatch) => {
+    let config = await getHeaderConfig()
+
+    instance.post('/getTerms', {}, config)
+        .then(res => {
+            dispatch({
+                type: types.SET_TERMS,
+                payload: res.data
+            })
+        }).catch(function (error) {
+            console.log(error)
+        });
+}
 
 export const getInterestedInMe = async ({ email, page, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
@@ -327,11 +340,11 @@ export const updateProfile = async ({ sendObj, successCallback, errorCallback })
 
     await instance.post(`/updateProfile`, sendObj, config)
         .then(res => {
-
+            console.log("profile ujpdated")
             successCallback(res.data.message)
         }).catch(function (error) {
-
-            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+            console.log("profile ujpdated nnn", error)
+            //errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
 export const createRequest = async ({ data, successCallback, errorCallback }) => {
@@ -357,7 +370,7 @@ export const deleteRequest = async ({ data, successCallback, errorCallback }) =>
 export const getRequests = () => async (dispatch) => {
     let config = await getHeaderConfig()
 
-    instance.post('/getRequests', {}, config)
+    instance.get('/getRequests', config)
         .then(res => {
             dispatch({
                 type: types.GET_REQUESTS,

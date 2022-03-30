@@ -64,7 +64,7 @@ export function DataSlotPickerModal({
 
     let renderNewPicker = (data, num) => {
         let selectedIndex = _.indexOf(data, getInitialValue(num));
-        console.log(selectedIndex, data, getInitialValue(num))
+
         return (
             <ScrollPicker
                 dataSource={data}

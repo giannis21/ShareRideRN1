@@ -84,11 +84,8 @@ const LoginScreen = ({ navigation, route }) => {
   }
 
   const onLogin = (email, password) => {
-
     if (!valid())
       return
-
-
 
     setIsLoading(true)
     createToken({
@@ -140,7 +137,6 @@ const LoginScreen = ({ navigation, route }) => {
 
 
   const forgotPassSuccessCallback = (_otp, _email) => {
-
     setIsLoading(false)
     navigation.navigate(routes.OTP_SCREEN, { _otp: _otp, _email: _email, goToRestore: true })
   }
@@ -160,11 +156,9 @@ const LoginScreen = ({ navigation, route }) => {
   }
 
   const forgotPassErrorCallback = (message) => {
-
     setInfoMessage({ info: message, success: false })
     setIsLoading(false)
     showCustomLayout()
-
   }
 
   const showCustomLayout = (callback) => {
@@ -176,6 +170,7 @@ const LoginScreen = ({ navigation, route }) => {
     }, 2000);
   }
 
+  const { logoStyle } = styles
   return (
 
 
@@ -198,7 +193,7 @@ const LoginScreen = ({ navigation, route }) => {
         keyboardShouldPersistTaps={'handled'}>
 
         <Image
-          style={{ width: 280, height: 280, alignSelf: 'center', marginTop: -70 }}
+          style={logoStyle}
           source={require('../assets/images/logo_transparent.png')}
         />
 
@@ -216,7 +211,6 @@ const LoginScreen = ({ navigation, route }) => {
           />
 
           <CustomInput
-
             inputRef={passwordRef}
             text={constVar.herePass}
             keyboardType="default"
@@ -245,11 +239,8 @@ const LoginScreen = ({ navigation, route }) => {
           <RoundButton
             text={constVar.register}
             textColor={colors.colorPrimary.toString()}
-            onPress={() =>
-              goToRegister()
-            }
+            onPress={goToRegister} />
 
-          />
         </View>
 
         <InfoPopupModal
@@ -264,12 +255,7 @@ const LoginScreen = ({ navigation, route }) => {
           onChangeText={modalInputChange}
         />
       </KeyboardAwareScrollView>
-
-
-
-
     </BaseView>
-
 
   );
 
@@ -281,5 +267,11 @@ const styles = StyleSheet.create({
   forgotPass: {
     color: '#8b9cb5',
     alignSelf: 'flex-end'
+  },
+  logoStyle: {
+    width: 280,
+    height: 280,
+    alignSelf: 'center',
+    marginTop: -70
   }
 })

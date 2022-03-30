@@ -1,9 +1,10 @@
-import { HIDE_BOTTOM_TAB } from '../actions/types';
+import { HIDE_BOTTOM_TAB, SET_TERMS } from '../actions/types';
 import { constVar } from '../utils/constStr';
 
 
 const intialState = {
-    isSearchOpened: false
+    isSearchOpened: false,
+    terms: ''
 };
 
 export function GeneralReducer(state = intialState, action) {
@@ -14,6 +15,11 @@ export function GeneralReducer(state = intialState, action) {
             return {
                 ...state,
                 isSearchOpened: state.isSearchOpened = action.payload
+            };
+        case SET_TERMS:
+            return {
+                ...state,
+                terms: state.terms = action.payload
             };
 
         default:

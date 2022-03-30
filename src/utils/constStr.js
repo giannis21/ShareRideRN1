@@ -31,8 +31,10 @@ export const constVar = {
     fullName: "ονοματεπώνυμο",
     passwordDifferent: "Ο κωδικός με τον κωδικο επιβεβαίωσης είναι διαφορετικοί.",
     givePass: "δώσε έναν νέο κωδικό",
+    giveCurrentPass: "δώσε τον τωρινό κωδικό",
     newPass: "Νέο password",
     contactForm: "Φόρμα επικοινωνίας",
+    termsTitle: "Όροι && προϋποθέσεις",
     personalInfo: "Προσωπικά στοιχεία",
 
     email: "Email",
@@ -64,5 +66,7 @@ export const constVar = {
     createPostBottomTab: "Δημιουργία post",
     selectCarAge: 'Επιλογή χρονολογίας',
     contactInputPLaceholder: 'Οποιαδήποτε απορία,ερώτηση,πρόβλημα η πρόταση έχεις μπορείς να επικοινωνήσεις μαζί μας..',
-
+    previewProfile: 'Προβολή προφίλ',
+    changePass: 'Αλλαγή κωδικού',
+    filters: 'Φίλτρα'
 }

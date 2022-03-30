@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
-import { createRequest, getFavoritePosts, getPlaceInfo, getRequests, getRequests2, resetValues, searchForPosts } from '../../../services/MainServices';
+import { createRequest, getFavoritePosts, getPlaceInfo, getRequests, getRequests2, getTerms, resetValues, searchForPosts } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
@@ -14,7 +14,7 @@ import { TouchableOpacity } from 'react-native-gesture-handler';
 import { SearchLocationComponent } from '../../../components/SearchLocationComponent';
 import { FiltersModal } from '../../../utils/FiltersModal';
 import { constVar } from '../../../utils/constStr';
-import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_FAVORITE_ROUTES, GET_REQUESTS, HIDE_BOTTOM_TAB } from '../../../actions/types';
+import { ADD_SEARCH_END_POINT, ADD_SEARCH_START_POINT, CLEAR_SEARCH_VALUES, GET_FAVORITE_ROUTES, GET_REQUESTS, HIDE_BOTTOM_TAB, SET_PROFILE_PHOTO } from '../../../actions/types';
 import { SelectLocationComponent } from '../../../components/SelectLocationComponent';
 import { Spacer } from '../../../layout/Spacer';
 import { RoundButton } from '../../../Buttons/RoundButton';
@@ -28,6 +28,7 @@ import { createMaterialTopTabNavigator } from '@react-navigation/material-top-ta
 import { FavDestComponent } from '../../../components/FavDestComponent';
 import { createTable, getDBConnection, getFavorites } from '../../../database/db-service';
 import SearchTopTabBar from '../../../components/SearchTopTabBar'
+import RNFetchBlob from 'rn-fetch-blob';
 const SearchRouteScreen = ({ navigation, route }) => {
     var _ = require('lodash');
     const [isLoading, setIsLoading] = useState(false)
@@ -54,9 +55,11 @@ const SearchRouteScreen = ({ navigation, route }) => {
     useEffect(() => {
         dispatch(getFavoritePosts())
         dispatch(getRequests())
+        dispatch(getTerms())
     }, [myUser.email])
 
     useEffect(() => {
+        retrieveImage()
         loadDataCallback()
     }, [searchReducer.triggerDatabase])
 
@@ -89,6 +92,16 @@ const SearchRouteScreen = ({ navigation, route }) => {
         return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
     }, [openSearch.open, openSearchedPost]));
 
+    const retrieveImage = async () => {
+        try {
+            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
+            const data = await RNFetchBlob.fs.readFile(path, 'base64');
+            console.log({ data })
+            dispatch({ type: SET_PROFILE_PHOTO, payload: data })
+        } catch (error) {
+            console.log(error.message);
+        }
+    }
 
     const searchPosts = async () => {
 
@@ -120,7 +133,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 returnEndDate: await getReturnEndDate()
             }
         }
-        console.log({ sendObj })
+
         searchForPosts({
             sendObj,
             successCallback: ((data) => {

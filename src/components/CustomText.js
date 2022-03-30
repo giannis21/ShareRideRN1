@@ -24,34 +24,35 @@ export function CustomText({
                     fontSize: 18,
                     fontWeight: 'bold'
                 };
-            case 'display-01':
+            case 'small-grey':
                 return {
-                    fontSize: 42,
-                    fontFamily: 'MavenPro-Medium',
-                    letterSpacing: -0.02
+                    fontSize: 13,
+                    color: '#595959',
+                    opacity: 0.6
+                };
+            case 'settings-title':
+                return {
+                    fontSize: 18,
+                    color: '#2175D3'
                     // lineHeight: multiplyLineHeight(type, 42)
                 };
-            case 'display-01-s':
+            case 'note':
                 return {
-                    fontSize: 36,
-                    fontFamily: 'MavenPro-Medium',
-                    letterSpacing: -0.02
-                    // lineHeight: multiplyLineHeight(type, 42)
+                    fontSize: 13,
+                    color: '#8b9cb5'
                 };
-            case 'display-02':
+            case 'header':
                 return {
-                    fontSize: 32,
-                    fontFamily: 'MavenPro-Medium',
-                    letterSpacing: -0.02
+                    fontSize: 23,
+                    color: 'black',
+                    fontWeight: 'bold',
                     // lineHeight: multiplyLineHeight(type, 32)
                 };
-            case 'display-03':
+            case 'underline-bold':
                 return {
-                    fontSize: 28,
-                    // fontWeight: '500',
-                    fontFamily: 'MavenPro-Regular',
-                    letterSpacing: -0.01
-                    // lineHeight: multiplyLineHeight(type, 28)
+                    fontSize: 15,
+                    fontWeight: 'bold',
+                    textDecorationLine: 'underline'
                 };
             case 'display-03-medium':
                 return {
@@ -241,7 +242,8 @@ export function CustomText({
             style={[
                 getStyleForText(type),
                 { textAlign: textAlign ? textAlign : 'left' },
-                textStyle
+                textStyle,
+                containerStyle
             ]}
 
             onPress={onPress ? onPress : null}

@@ -20,7 +20,7 @@ export function useKeyboard() {
 
         return () => {
             keyboardDidHideListener.remove();
-            keyboardDidShowListener.remove();
+
         };
     }, []);
 
