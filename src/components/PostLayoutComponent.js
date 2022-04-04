@@ -28,7 +28,8 @@ export function PostLayoutComponent({
     isFavoritePostsScreen,
     showMoreUsers,
     showFavoriteIcon,
-    goToPreviewFavorite
+    goToPreviewFavorite,
+    openHocScreen
 }) {
     var _ = require('lodash');
     const [isSafeClick, setSafeClick] = useState(true)
@@ -73,6 +74,19 @@ export function PostLayoutComponent({
                 </View>
                 <HorizontalLine containerStyle={{ height: 4 }} />
             </View >
+        )
+    }
+    function HeartLike({ disableStyle }) {
+        return (
+            <TouchableOpacity disabled={disableStyle} style={[disableStyle ? null : heartContainer, { marginEnd: 10 }]} onPress={() => {
+                if (isSafeClick) {
+                    onLikeClick(item?.post?.postid, index)
+                    safeClickListener()
+                }
+
+            }} >
+                <Entypo name={!item.interested && !disableStyle ? "heart-outlined" : "heart"} size={20} color={colors.like_red} />
+            </TouchableOpacity>
         )
     }
 
@@ -127,20 +141,22 @@ export function PostLayoutComponent({
 
                             <View style={bottomContainer}>
                                 <ViewRow style={{ alignItems: 'center' }}>
-                                    {showFavoriteIcon &&
-                                        <TouchableOpacity style={heartContainer} onPress={() => {
-                                            if (isSafeClick) {
-                                                onLikeClick(item?.post?.postid, index)
-                                                safeClickListener()
-                                            }
+                                    {showFavoriteIcon && <HeartLike />}
 
-                                        }} >
-                                            <Entypo name={!item.interested ? "heart-outlined" : "heart"} size={20} color={colors.colorPrimary} />
-                                        </TouchableOpacity>
-                                    }
-                                    <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginStart: 10 }}>Θέσεις:
+                                    {/* {<TouchableOpacity onPress={openHocScreen} >
+                                        <ViewRow style={{ marginEnd: 10, backgroundColor: colors.CoolGray2, paddingHorizontal: 6, paddingVertical: 3, borderRadius: 5 }}>
+                                            <Text style={{ color: 'black', fontWeight: 'bold', textDecorationLine: 'underline', fontSize: 15, marginEnd: 4 }}>50</Text>
+                                            <HeartLike disableStyle />
+                                        </ViewRow>
+                                    </TouchableOpacity>
+
+                                    } */}
+
+                                    <Paragraph>
+                                        <Text style={{ fontSize: 12, color: '#595959', opacity: 0.6, marginStart: 10 }}>Θέσεις:</Text>
                                         <Text style={seats}> {item?.post?.numseats} </Text>
-                                    </Text>
+                                    </Paragraph>
+
 
                                 </ViewRow>
                                 <Text style={{ fontSize: 13, fontWeight: 'bold' }}>{item.post.costperseat}€/Θέση</Text>
@@ -151,7 +167,8 @@ export function PostLayoutComponent({
 
 
                     </ViewRow>
-                    {isFavoritePostsScreen &&
+                    {
+                        isFavoritePostsScreen &&
                         <BottomContainer
                             title={'ΞαναΠόσταρε'}
                             onIconPress={(val) => { goToPreviewFavorite(val) }} />
@@ -159,13 +176,14 @@ export function PostLayoutComponent({
 
 
 
-                    {showInterested && item.hasMoreUsers &&
+                    {
+                        showInterested && item.hasMoreUsers &&
                         <BottomContainer
                             title={'Δείτε τους ενδιαφερόμενους'}
                             onIconPress={(val) => { showMoreUsers(val) }} />
                     }
 
-                </View>
+                </View >
                 : <></>
             }
 

@@ -30,7 +30,7 @@ import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
 const RegisterScreen = ({ navigation }) => {
      var _ = require('lodash');
 
-     let initalData = { email: '', password: '', carBrand: '', checked: 'male', carDate: '', passwordConfirmed: '', secureTextEntry: true, secureTextEntryConfirmed: true, fullName: '', phone: '', age: '', gender: 'man' }
+     let initalData = { email: '', password: '', carBrand: null, checked: 'male', carDate: null, passwordConfirmed: '', secureTextEntry: true, secureTextEntryConfirmed: true, fullName: '', phone: '', age: '', gender: 'man' }
      const [data, setData] = useState(initalData)
      const [isLoading, setIsLoading] = useState(false)
      const [isModalVisible, setIsModalVisible] = useState(false)
@@ -86,7 +86,7 @@ const RegisterScreen = ({ navigation }) => {
 
      const storeImageLocally = async () => {
           try {
-               const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${data.email}.png`;
+               const path = `${RNFetchBlob.fs.dirs.DocumentDir}/images/${data.email}.png`;
                const data = await RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
                setSingleFile(data)
           } catch (error) {
@@ -124,8 +124,8 @@ const RegisterScreen = ({ navigation }) => {
 
           if (_.isEmpty(data.email) ||
                _.isEmpty(data.password) ||
-               _.isEmpty(data.carBrand) ||
-               _.isEmpty(data.carDate) ||
+               // _.isEmpty(data.carBrand) ||
+               // _.isEmpty(data.carDate) ||
                _.isEmpty(data.passwordConfirmed) ||
                _.isEmpty(data.phone) ||
                _.isEmpty(data.age) ||
@@ -242,7 +242,6 @@ const RegisterScreen = ({ navigation }) => {
                .then((result) => {
                     switch (result) {
                          case PermissionsAndroid.RESULTS.GRANTED:
-                              console.log("permission granted")
                               setIsModalVisible(true)
                               break;
                          default:

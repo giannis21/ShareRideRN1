@@ -12,6 +12,7 @@ import { TouchableOpacity, TouchableWithoutFeedback } from 'react-native-gesture
 import { CloseIconComponent } from '../components/CloseIconComponent';
 import { ViewRow } from '../components/HOCS/ViewRow';
 import { useSelector } from 'react-redux';
+import { getUsersToRate } from '../customSelectors/GeneralSelectors';
 
 export function MainHeader({
     title,
@@ -21,12 +22,14 @@ export function MainHeader({
     showX,
     onFilterPress,
     onFavoritePostsPress,
+    onNotificationPress,
     isCreatePost
 }) {
     var _ = require('lodash');
     const { modal, container } = styles;
     const selectedColor = colors.colorPrimary
     const post = useSelector(state => state.postReducer)
+    let usersToRate = useSelector(getUsersToRate)
     return (
 
         <View>
@@ -51,6 +54,9 @@ export function MainHeader({
                             }
                             {isCreatePost && !_.isEmpty(post.favoritePosts) &&
                                 <Entypo onPress={onFavoritePostsPress} name="heart-outlined" color='white' size={23} style={{ alignSelf: 'center', marginEnd: 10 }} />
+                            }
+                            {!_.isEmpty(usersToRate) &&
+                                <Ionicons onPress={onNotificationPress} name="notifications" color='white' size={23} style={{ alignSelf: 'center', marginEnd: 10 }} />
                             }
                             <Icon onPress={onSettingsPress} name="settings" color='white' size={23} style={{ alignSelf: 'center' }} />
                         </ViewRow>

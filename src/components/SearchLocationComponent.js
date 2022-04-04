@@ -70,7 +70,6 @@ export function SearchLocationComponent({
                         type: ADD_MIDDLE_STOP,
                         payload: place1
                     })
-                    //updateList(item, coordinates, true)
                     return
                 }
 

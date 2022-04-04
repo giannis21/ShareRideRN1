@@ -42,16 +42,14 @@ const RequestsProfileScreen = ({ navigation, route }) => {
         navigation.goBack()
     }
 
+
+
+    useEffect(() => {
+        setSingleFile(myUser.photoProfile)
+    }, [myUser.photoProfile])
+
     let dispatch = useDispatch()
-    const retrieveImage = async () => {
-        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
-        try {
-            const data = await RNFetchBlob.fs.readFile(path, 'base64');
-            setSingleFile(data)
-        } catch (error) {
-            console.log(error.message);
-        }
-    }
+
 
     useEffect(() => {
         setDataSource(requestsReducer.requests)

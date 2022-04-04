@@ -2,70 +2,65 @@
 
 import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions, ScrollView, BackHandler } from 'react-native';
-import { PostLayoutComponent } from '../../components/PostLayoutComponent';
-import { BaseView } from '../../layout/BaseView';
-import { Spacer } from '../../layout/Spacer';
-import { routes } from '../../navigation/RouteNames';
-import { deleteInterested, deletePost, getInterestedPerPost, getPostsUser, verInterested } from '../../services/MainServices';
-import { colors } from '../../utils/Colors';
 import { useFocusEffect, useNavigation } from '@react-navigation/native';
-import { OpenImageModal } from '../../utils/OpenImageModal';
-import { Loader } from '../../utils/Loader';
+
 import { useIsFocused } from '@react-navigation/native';
-import { InfoPopupModal } from '../../utils/InfoPopupModal';
-import { constVar } from '../../utils/constStr';
-import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
-import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
-import { PictureComponent } from '../../components/PictureComponent';
-import FontAwesome from 'react-native-vector-icons/FontAwesome';
-import Entypo from 'react-native-vector-icons/Entypo';
+
 
 import { useSelector, useDispatch } from 'react-redux';
-import { BASE_URL } from '../../constants/Constants';
-import { UserComponent } from '../../components/UserComponent';
-import { ADD_ACTIVE_POST, DELETE_ACTIVE_USER } from '../../actions/types';
-const PreviewInterestedInMeScreen = ({ navigation, route }) => {
+import { BaseView } from '../layout/BaseView';
+import { TopContainerExtraFields } from '../components/TopContainerExtraFields';
+import { UserComponent } from '../components/UserComponent';
+import { Loader } from '../utils/Loader';
+import { CustomInfoLayout } from '../utils/CustomInfoLayout';
+import { routes } from '../navigation/RouteNames';
+import { getInterestedPerPost, verInterested } from '../services/MainServices';
+import { colors } from '../utils/Colors';
+import { getIsHocScreenActive, getIsHocScreenMinimize } from '../customSelectors/GeneralSelectors';
+import { OPEN_HOC_MODAL } from '../actions/types';
+
+const GeneralHocScreen = ({ navigation }) => {
     var _ = require('lodash');
-    const [total_pages, setTotalPages] = useState(2);
+    const [total_pages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(false);
     const [dataSource, setDataSource] = useState([]);
     const [offset, setOffset] = useState(1);
-    const [isModalVisible, setIsModalVisible] = useState(false)
-    const [deletedPost, setDeletedPost] = useState(null);
+
     const [isRender, setIsRender] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
-    const [showContent, setShowContent] = React.useState(true)
+    const [showContent, setShowContent] = useState(true)
     const { height, width } = Dimensions.get("window");
 
-    const post = useSelector(state => state.postReducer.activePost)
     let dispatch = useDispatch()
     let isFocused = useIsFocused()
+    // const navigation = useNavigation();
+    const isScreenActive = useSelector(getIsHocScreenActive);
 
+    // const isMinimize = useSelector(getIsHocScreenMinimize);
     useEffect(() => {
-        getUsers()
-    }, [])
+        if (isScreenActive)
+            setTimeout(() => {
+                getUsers()
+            }, 1000);
+        else {
+            // event.persist();
+            // setDataSource([])
+        }
 
-    const handleBackButtonClick = async () => {
-        dispatch({
-            type: ADD_ACTIVE_POST,
-            payload: {}
-        })
-        navigation.goBack()
-        return true;
-    }
 
-    useFocusEffect(useCallback(() => {
-        BackHandler.addEventListener("hardwareBackPress", handleBackButtonClick);
-        return () => BackHandler.removeEventListener("hardwareBackPress", handleBackButtonClick);
-    }, []));
+    }, [isScreenActive])
+
+
+
+
 
     const onProfileClick = (email) => {
         navigation.push(routes.PROFILE_SCREEN, { email })
     }
     const getUsers = () => {
         getInterestedPerPost({
-            postId: post.post.postid,
+            postId: '1320',
             page: offset,
             successCallback,
             errorCallback
@@ -85,11 +80,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
     }
 
-    const onMenuClicked = (item1, index) => {
-        let postToBeDeleted = dataSource.find((item) => item.post.postid === item1.post.postid)
-        setDeletedPost(postToBeDeleted)
-        setIsModalVisible(true)
-    }
 
     const onActionSheet = (index) => {
         setIsLoading(true)
@@ -107,35 +97,6 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
     }
 
 
-
-    const deleteInterested1 = (piid) => {
-        try {
-            deleteInterested({
-                piid: piid,
-                successCallback: ((message) => {
-
-                    let newData = dataSource.filter((obj) => obj.piid !== piid)
-                    setDataSource(newData)
-                    setIsRender(!isRender)
-
-                    setInfoMessage({ info: message, success: true })
-                    setIsLoading(false)
-                    showCustomLayout()
-                }),
-                errorCallback: ((message) => {
-                    setInfoMessage({ info: message, success: false })
-                    setIsLoading(false)
-                    showCustomLayout()
-
-                })
-            })
-
-        } catch (err) {
-
-        }
-
-    }
-
     const giveApproval = (piid, isVerified) => {
         let tempList = dataSource
 
@@ -146,7 +107,7 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
         setDataSource(tempList)
         setIsRender(!isRender)
         verInterested({
-            postid: post.post.postid,
+            postid: '1320',
             piid: piid,
             successCallback: ((message) => {
                 let tempList = dataSource
@@ -201,76 +162,64 @@ const PreviewInterestedInMeScreen = ({ navigation, route }) => {
 
         );
     };
-
+    const closeHoc = () => {
+        dispatch({ type: OPEN_HOC_MODAL, payload: false })
+    }
     const { userStyleAdded } = styles
     return (
-        <BaseView containerStyle={{ flex: 1, paddingHorizontal: 16, backgroundColor: 'white' }}>
-            <View style={styles.container}>
-                <TopContainerExtraFields onCloseContainer={() => { navigation.goBack() }} title={'Ενδιαφερόμενοι του post'} />
-                {post && <PostLayoutComponent
-                    showMenu={false}
-                    item={post}
-                    onPress={(post) => {
-                        navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: false })
-                        dispatch({
-                            type: ADD_ACTIVE_POST,
-                            payload: post
-                        })
+        <BaseView containerStyle={styles.container}>
+
+            <TopContainerExtraFields addMarginStart={10} onCloseContainer={closeHoc} title={'Ενδιαφερόμενοι του post'} />
+
+            {!_.isEmpty(dataSource) ?
+                <FlatList
+                    style={{ marginHorizontal: 10 }}
+                    data={dataSource}
+                    extraData={isRender}
+                    keyExtractor={(item, index) => index}
+                    enableEmptySections={true}
+                    renderItem={(item, index) => {
+
+                        return <UserComponent
+                            user={item.item}
+                            index={index}
+                            onProfileClick={onProfileClick}
+
+                            giveApproval={giveApproval}
+                            fillWidth />
                     }}
-                    onMenuClicked={onMenuClicked}
+                    ListFooterComponent={renderFooter}
+                /> : (
+                    <View>
 
-                />}
-                <View style={{ width: '100%', backgroundColor: colors.CoolGray1.toString(), height: 4, marginVertical: 4 }} />
-
-                {!_.isEmpty(dataSource) ?
-                    <FlatList
-
-                        data={dataSource}
-                        extraData={isRender}
-                        keyExtractor={(item, index) => index}
-                        enableEmptySections={true}
-                        renderItem={(item, index) => {
-
-                            return <UserComponent
-                                user={item.item}
-                                index={index}
-                                onProfileClick={onProfileClick}
-                                deleteInterested={deleteInterested1}
-                                giveApproval={giveApproval}
-                                fillWidth />
-                        }}
-                        ListFooterComponent={renderFooter}
-                    /> : (
-                        <View>
-
-                            <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 110 }}>
-                                <Text>Περιμένετε..</Text>
-                            </View>
+                        <View style={{ alignItems: 'center', justifyContent: 'center', marginTop: 110 }}>
+                            <Text>Περιμένετε..</Text>
                         </View>
-                    )
-                }
+                    </View>
+                )
+            }
 
 
 
-                <Loader isLoading={isFocused ? isLoading : false} />
+            <Loader isLoading={isFocused ? isLoading : false} />
 
 
 
 
-            </View>
+
             <CustomInfoLayout
                 isVisible={showInfoModal}
                 title={infoMessage.info}
                 icon={!infoMessage.success ? 'x-circle' : 'check-circle'}
                 success={infoMessage.success}
             />
-        </BaseView >
+        </BaseView>
 
     );
 
 }
 
-export default PreviewInterestedInMeScreen
+export default GeneralHocScreen
 
 const styles = StyleSheet.create({
     timer: {
@@ -334,9 +283,7 @@ const styles = StyleSheet.create({
         marginRight: 8,
         color: 'black'
     },
-    container: {
-        flex: 1,
-    },
+
     footer: {
         padding: 10,
         justifyContent: 'center',
@@ -356,4 +303,12 @@ const styles = StyleSheet.create({
         fontSize: 15,
         textAlign: 'center',
     },
+
+    container: {
+        flex: 1,
+        width: Dimensions.get('window').width,
+        height: Dimensions.get('window').height,
+        backgroundColor: 'white'
+    }
+
 });

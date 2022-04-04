@@ -17,7 +17,7 @@ import { Colors } from 'react-native/Libraries/NewAppScreen';
 import { PictureComponent } from '../../components/PictureComponent';
 import { getValue, keyNames } from '../../utils/Storage';
 import { RatingDialog } from '../../utils/RatingDialog';
-import { getInterestedInMe, rateUser, searchUser, updateProfile } from '../../services/MainServices';
+import { getInterestedInMe, getUsersToRate, rateUser, searchUser, updateProfile } from '../../services/MainServices';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { BASE_URL } from '../../constants/Constants';
 import { constVar } from '../../utils/constStr';
@@ -27,7 +27,7 @@ import { CloseIconComponent } from '../../components/CloseIconComponent';
 import { Animated, Easing } from "react-native";
 import { useSelector, useDispatch } from 'react-redux';
 import { RoundButton } from '../../Buttons/RoundButton';
-import { ADD_AVERAGE, SET_PROFILE_PHOTO } from '../../actions/types';
+import { ADD_AVERAGE, OPEN_HOC_MODAL, SET_PROFILE_PHOTO } from '../../actions/types';
 import { TextInput } from 'react-native-gesture-handler';
 import { carBrands, newCarBrands, onLaunchCamera, onLaunchGallery, range } from '../../utils/Functions';
 import { OpenImageModal } from '../../utils/OpenImageModal';
@@ -39,9 +39,17 @@ import { ViewRow } from '../../components/HOCS/ViewRow';
 import { CustomText } from '../../components/CustomText';
 import RNFetchBlob from 'rn-fetch-blob';
 import { request, PERMISSIONS, RESULTS, check } from 'react-native-permissions';
-
+import { CustomIcon } from '../../components/CustomIcon'
+import { isEmailContainedInUsersRates, isReviewToEdit } from '../../customSelectors/GeneralSelectors';
 const ProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
+    const myUser = useSelector(state => state.authReducer.user)
+    let emailContainedInUsersRates = useSelector(isEmailContainedInUsersRates(route?.params?.email))
+
+    // i am checking if the current profile belongs to users to rate. If so, checking toEdit field 
+    //in order to send to BE
+    let editReview = useSelector(isReviewToEdit(route?.params?.email))
+
     let initalData = { email: '', facebook: '', initialFacebook: '', instagram: '', initialInstagram: '', carBrand: 'ΟΛΑ', initialCarBrand: 'ΟΛΑ', carDate: '', initialCarDate: '', fullName: '', phone: '', initialPhone: '', age: '', initialAge: '', gender: 'man', image: '', hasInterested: false, hasReviews: false, hasPosts: false, count: 0, average: null, interestedForYourPosts: false, hasRequests: false }
     const [data, setData] = useState(initalData)
     const [isLoading, setIsLoading] = React.useState(false)
@@ -63,7 +71,7 @@ const ProfileScreen = ({ navigation, route }) => {
     const [pickerData, setPickerData] = useState([])
     const dispatch = useDispatch()
 
-    const myUser = useSelector(state => state.authReducer.user)
+
 
     const scrollRef = useRef();
 
@@ -106,7 +114,7 @@ const ProfileScreen = ({ navigation, route }) => {
     }
     function userInfo(icon, title, subTitle, editable, keyboardType) {
         return (
-            <ViewRow style={{ marginHorizontal: 16 }}>
+            <ViewRow style={{ marginHorizontal: 16, marginTop: 28 }}>
                 <MaterialCommunityIcons name={icon} size={32} color={colors.colorPrimary} />
                 <Spacer width={16} />
                 <View>
@@ -212,8 +220,10 @@ const ProfileScreen = ({ navigation, route }) => {
                 {
                     route.params?.email === myUser.email &&
                     <TouchableOpacity activeOpacity={1} onPress={resetToInitialState} style={{ position: 'absolute', justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16 }}>
-                        {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
-                            <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
+                        {!editProfile ?
+                            <CustomIcon type={'Entypo'} name="edit" size={24} style={{ alignSelf: 'center' }} />
+                            :
+                            <CustomIcon name="close" color='black' size={30} style={{ alignSelf: 'center' }} />
                         }
                     </TouchableOpacity>
                 }
@@ -312,12 +322,17 @@ const ProfileScreen = ({ navigation, route }) => {
             interestedForYourPosts: data.interestedForYourPosts,
             hasRequests: data.hasRequests
         })
+        if (emailContainedInUsersRates) {
+            setTimeout(() => {
+                setRatingDialogOpened(true)
+            }, 700);
+        }
+
 
         dispatch({ type: ADD_AVERAGE, payload: { average: data.average, count: data.count } })
     }
 
     useEffect(() => {
-
         searchUser({
             email: route.params.email,
             successCallback: searchUserSuccessCallback,
@@ -358,11 +373,13 @@ const ProfileScreen = ({ navigation, route }) => {
             emailreviewer: myUser.email,
             rating: rating,
             text: text,
+            //editReview : editReview? true: undefined,  
             successCallback: ratingSuccessCallback,
             errorCallback: ratingErrorCallback
         })
     }
     const ratingSuccessCallback = (message, average) => {
+
         setUserViewRate(false)
         setInfoMessage({ info: message, success: true })
         showCustomLayout(() => {
@@ -370,6 +387,12 @@ const ProfileScreen = ({ navigation, route }) => {
             if (!_.isNull(average))
                 setCurrentRating(average.toString())
         })
+        getUsersToRateIfNeeded()
+    }
+
+    const getUsersToRateIfNeeded = async () => {
+        if (emailContainedInUsersRates)
+            dispatch(getUsersToRate())
     }
 
     const openPicker = (option) => {
@@ -421,26 +444,23 @@ const ProfileScreen = ({ navigation, route }) => {
 
     const storeImageLocally = async () => {
 
+
+
         check(PERMISSIONS.ANDROID.WRITE_EXTERNAL_STORAGE)
             .then((result) => {
                 switch (result) {
                     case PermissionsAndroid.RESULTS.GRANTED:
-                        console.log("permission granted")
-                        try {
-                            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
-                            RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64');
+                        const path = `${RNFetchBlob.fs.dirs.DCIMDir}/images/${myUser.email}.png`;
+                        RNFetchBlob.fs.writeFile(path, singleFile.data, 'base64')
+                        dispatch({ type: SET_PROFILE_PHOTO, payload: singleFile.data })
 
-                            dispatch({ type: SET_PROFILE_PHOTO, payload: singleFile.data })
-                        } catch (error) {
-                            console.log(error.message, "error.message");
-                        }
                         break;
                     default:
                         break;
                 }
             })
             .catch((error) => {
-                console.log(error)
+                console.log("sadsadsadsdsadasdasdsa", error)
             });
 
 
@@ -503,11 +523,13 @@ const ProfileScreen = ({ navigation, route }) => {
             ))
     }
     function EditIcon({ }) {
+
         return (
             <TouchableOpacity
                 style={{ justifyContent: 'flex-end', alignItems: 'center', right: 9, top: 16, zIndex: 1, position: 'absolute' }}
                 activeOpacity={1}
                 onPress={resetToInitialState}>
+
                 {!editProfile ? <Entypo name="edit" color='black' size={24} style={{ alignSelf: 'center' }} /> :
                     <EvilIcons name="close" color='black' size={30} style={{ alignSelf: 'center' }} />}
             </TouchableOpacity>
@@ -583,26 +605,34 @@ const ProfileScreen = ({ navigation, route }) => {
 
                     </View>
 
-                    <Spacer height={28} />
-                    {userInfo('email', constVar.email, data.email, false)}
-                    <Spacer height={28} />
+
+                    {route.params?.email === myUser.email && userInfo('email', constVar.email, data.email, false)}
+
                     {userInfo('phone', constVar.mobile, data.phone, editProfile ? true : false, "numeric")}
-                    <Spacer height={28} />
+
                     {userInfo('account-details', constVar.age, data.age, false, "numeric")}
-                    <Spacer height={28} />
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.socialTitle}</Text>
-                    <Spacer height={10} />
+
+                    <CustomText
+                        type={'title1'}
+                        containerStyle={{ marginVertical: 10 }}
+                        text={constVar.socialTitle}
+                        textAlign={'center'} />
+
                     <HorizontalLine />
-                    <Spacer height={28} />
+
                     {userInfo('facebook', constVar.facebook, data.facebook, editProfile ? true : false)}
-                    <Spacer height={28} />
+
                     {userInfo('instagram', constVar.instagram, data.instagram, editProfile ? true : false)}
                     <Spacer height={28} />
 
-                    <Text style={{ fontSize: 18, fontWeight: 'bold', alignSelf: 'center' }}>{constVar.car}</Text>
-                    <Spacer height={10} />
-                    <HorizontalLine />
-                    <Spacer height={28} />
+                    <CustomText
+                        type={'title1'}
+                        text={constVar.car}
+                        textAlign={'center'} />
+
+
+                    <HorizontalLine containerStyle={{ marginTop: 10, marginBottom: 28 }} />
+
                     <CarDetails />
 
                     {(((data.hasInterested || data.hasPosts || data.hasReviews || data.interestedForYourPosts)

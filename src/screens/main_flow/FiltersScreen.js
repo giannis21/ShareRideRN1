@@ -114,14 +114,9 @@ const FiltersScreen = ({ navigation, route }) => {
         navigation.goBack()
     }
     const getInitialValue = () => {
-        if (dataSlotPickerTitle === constVar.selectAge) {
-            return ' data.age'
-        } else if (dataSlotPickerTitle === constVar.selectCar) {
-            return 'data.carBrand'
-        } else {
-            return 'data.carDate'
-        }
+        return dataSlotPickerTitle === constVar.selectCar ? carValue : carDate
     }
+
     const addToStorage = async () => {
         if (filtersReducer?.returnStartDate !== constVar.returnStartDate ||
             filtersReducer?.startdate !== constVar.initialDate ||
@@ -354,7 +349,6 @@ const FiltersScreen = ({ navigation, route }) => {
 
                         <Text style={{ fontSize: 15 }}>Χρονολογία <Text style={{ fontSize: 12 }}>{'(>)'}</Text></Text>
                         <ViewRow>
-                            {console.log({ carDate })}
                             <Text style={{ fontSize: 15, marginEnd: 10 }}>{carDate}</Text>
                             <AntDesign name={'caretdown'} size={16} color={colors.colorPrimary} />
                         </ViewRow>
@@ -413,6 +407,7 @@ const FiltersScreen = ({ navigation, route }) => {
                 onConfirm={(selectedValue, secValue, thirdValue) => {
 
                     if (dataSlotPickerTitle === constVar.selectCar) {
+
                         setCarValue(selectedValue)
                     } else {
                         setCarDate(selectedValue)

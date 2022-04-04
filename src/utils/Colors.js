@@ -24,5 +24,6 @@ export const colors = {
     grey100: '#FAFAFA',
     grey200: '#EEEEEE',
     blue50: '#e5f5fa',
-    title_grey: '#595959'
+    title_grey: '#595959',
+    like_red: '#C62D1D'
 }

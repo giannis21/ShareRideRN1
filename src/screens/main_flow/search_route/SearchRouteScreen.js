@@ -2,7 +2,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, Animated, Easing } from 'react-native';
 import { BaseView } from '../../../layout/BaseView';
 import { routes } from '../../../navigation/RouteNames';
-import { createRequest, getFavoritePosts, getPlaceInfo, getRequests, getRequests2, getTerms, resetValues, searchForPosts } from '../../../services/MainServices';
+import { createRequest, getFavoritePosts, getPlaceInfo, getRequests, getRequests2, getTerms, getUsersToRate, resetValues, searchForPosts } from '../../../services/MainServices';
 import { colors } from '../../../utils/Colors';
 import { Loader } from '../../../utils/Loader';
 import { MainHeader } from '../../../utils/MainHeader';
@@ -29,12 +29,14 @@ import { FavDestComponent } from '../../../components/FavDestComponent';
 import { createTable, getDBConnection, getFavorites } from '../../../database/db-service';
 import SearchTopTabBar from '../../../components/SearchTopTabBar'
 import RNFetchBlob from 'rn-fetch-blob';
+import FastImage from 'react-native-fast-image';
+import { NotificationsModal } from '../../../utils/NotificationsModal';
 const SearchRouteScreen = ({ navigation, route }) => {
     var _ = require('lodash');
+
     const [isLoading, setIsLoading] = useState(false)
     const [openSearch, setOpenSearch] = useState({ from: true, open: false })
     const [openSearchedPost, setOpenSearchedPosts] = useState(false)
-    const [isModalVisible, setIsModalVisible] = useState(false)
     const [showInfoModal, setShowInfoModal] = useState(false);
     const [infoMessage, setInfoMessage] = useState({ info: '', success: false });
     const [total_pages, setTotalPages] = useState(1);
@@ -43,6 +45,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const [modalCloseVisible, setModalCloseVisible] = useState(false)
     const [lastActiveIndex, setLastActiveIndex] = useState(0)
     const [carouselItem, setCarouselItem] = useState(null)
+    const [notificationsModalOpen, setNotificationModalOpen] = useState(false)
 
     const myUser = useSelector(state => state.authReducer.user)
     const post = useSelector(state => state.postReducer)
@@ -52,14 +55,33 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const dispatch = useDispatch()
     const Tab = createMaterialTopTabNavigator();
 
+
     useEffect(() => {
         dispatch(getFavoritePosts())
         dispatch(getRequests())
         dispatch(getTerms())
+        dispatch(getUsersToRate())
+
     }, [myUser.email])
 
+    // useEffect(async () => {
+
+    //     await FastImage.clearDiskCache().then(() => {
+    //         console.log("image chaced")
+    //     }).catch((err) => {
+    //         console.log("eeeeerrrrr", err)
+    //     })
+    // }, [myUser.email])
+
+    // // i retrive image from local storage only when i want 
+    // useEffect(() => {
+    //     if(myUser.photoProfile !==''){
+    //         retrieveImage()
+    //     }
+    // }, [myUser.photoProfile])
+
+
     useEffect(() => {
-        retrieveImage()
         loadDataCallback()
     }, [searchReducer.triggerDatabase])
 
@@ -94,12 +116,11 @@ const SearchRouteScreen = ({ navigation, route }) => {
 
     const retrieveImage = async () => {
         try {
-            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
+            const path = `${RNFetchBlob.fs.dirs.DocumentDir}/images/${myUser.email}.png`;
             const data = await RNFetchBlob.fs.readFile(path, 'base64');
-            console.log({ data })
             dispatch({ type: SET_PROFILE_PHOTO, payload: data })
         } catch (error) {
-            console.log(error.message);
+            console.log("error.messag", error.message);
         }
     }
 
@@ -114,10 +135,10 @@ const SearchRouteScreen = ({ navigation, route }) => {
         let sendObj = {
             data: {
                 email: myUser.email,
-                startplace: lastActiveIndex === 0 ? carouselItem.startplace : post.searchStartplace,
-                startcoord: lastActiveIndex === 0 ? carouselItem.startcoord : post.searchStartcoord,
-                endplace: lastActiveIndex === 0 ? carouselItem.endplace : post.searchEndplace,
-                endcoord: lastActiveIndex === 0 ? carouselItem.endcoord : post.searchEndcoord,
+                startplace: lastActiveIndex === 0 ? carouselItem?.startplace : post.searchStartplace,
+                startcoord: lastActiveIndex === 0 ? carouselItem?.startcoord : post.searchStartcoord,
+                endplace: lastActiveIndex === 0 ? carouselItem?.endplace : post.searchEndplace,
+                endcoord: lastActiveIndex === 0 ? carouselItem?.endcoord : post.searchEndcoord,
                 startdate: await getStartDate(),
                 enddate: await getEndDate(),
                 page: 1,
@@ -125,7 +146,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 age: await getStartAge(),
                 age_end: await getEndAge(),
                 car: await getCar(),
-                cardate: await getValue(filterKeys.carAge) ?? null,
+                cardate: await getValue(filterKeys.carAge) ?? 2000,
                 gender: await getGender(),
                 withReturn: await hasReturnDate(),
                 petAllowed: await getPetAllowed(),
@@ -311,7 +332,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
     const { addΤοFav, addStopStyle } = styles
     return (
 
-        <BaseView statusBarColor={colors.colorPrimary} removePadding>
+        <BaseView statusBarColor={colors.colorPrimary} removePadding containerStyle={{ flex: 1 }}>
             <Loader isLoading={isLoading} />
             <MainHeader
                 onClose={() => {
@@ -330,10 +351,15 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 onFilterPress={() => {
                     navigation.navigate(routes.FILTERS_SCREEN)
                 }}
+                onNotificationPress={() => {
+                    setNotificationModalOpen(true)
+                    //navigation.navigate(routes.FILTERS_SCREEN)
+                }}
                 onFavoritePostsPress={() => {
                     navigation.navigate(routes.FAVORITE_POSTS_SCREEN)
                 }}
             />
+
             {!openSearch.open && !openSearchedPost && searchReducer.favoriteRoutes.length > 0 &&
                 <View style={{ top: 0, right: 0, left: 0, bottom: 0, height: '100%' }}>
                     <Tab.Navigator
@@ -376,7 +402,7 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 </View>
             }
 
-            {!openSearch.open && _.isEmpty(searchReducer.favoriteRoutes) &&
+            {!openSearch.open && _.isEmpty(dataSource) &&
                 <SearchScreenComponent
                     navigation
                     onSearchPosts={() => { searchPosts() }}
@@ -417,6 +443,17 @@ const SearchRouteScreen = ({ navigation, route }) => {
                 buttonPress={() => { BackHandler.exitApp() }}
                 descrStyle={true}
             />
+            <NotificationsModal
+                onSubmit={(rating, text) => { }}
+                isVisible={notificationsModalOpen}
+                onProfileClick={(email, toEdit) => {
+                    setNotificationModalOpen(false)
+                    navigation.navigate(routes.PROFILE_STACK, { screen: routes.PROFILE_SCREEN, params: { email: email } })
+                }}
+                closeAction={() => {
+                    setNotificationModalOpen(false)
+                }} />
+
         </BaseView >
 
     );

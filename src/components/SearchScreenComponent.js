@@ -246,6 +246,8 @@ export function SearchScreenComponent({
 
         insertRoute(data, db).then((data) => {
             dispatch({ type: TRIGGER_DATABASE })
+            setInfoMessage({ info: 'Η διαδρομή προστέθηκε στα αγαπημένα σου!', success: true })
+            showCustomLayout()
         }).catch((error) => {
             console.log(error)
         })
@@ -259,8 +261,6 @@ export function SearchScreenComponent({
                 startcoord: post.searchStartcoord,
                 endplace: post.searchEndplace,
                 endcoord: post.searchEndcoord,
-                startdate: "2022-12-20",
-                enddate: "2029-12-22"
             }
         }
 

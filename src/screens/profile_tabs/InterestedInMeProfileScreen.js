@@ -93,7 +93,7 @@ const InterestedInMeProfileScreen = ({ navigation, route }) => {
 
     const deleteInterested = (fullname, postid) => {
         try {
-            console.log(fullname, postid)
+
             // let postToBeDeleted = dataSource.find((item) => item?.post?.postid === postid)
 
             // let deletedUser = postToBeDeleted?.users.find((user) => user.fullname === fullname)

@@ -2,8 +2,8 @@
 
 export const constVar = {
 
-    hereEmail: "εδώ, δίνεις το email σου",
-    herePass: "εδώ, τον κωδικό σου",
+    hereEmail: "εδώ, δίνεις το email σου*",
+    herePass: "εδώ, τον κωδικό σου*",
     forgotPass: "Ξέχασες τον κωδικό σου;",
     login: "Είσοδος",
     askForPostsFavorites: 'Η δημιουργία του post πραγματοποιήθηκε επιτυχώς. Μπορείς να το αποθηκεύσεις στα αγαπημένα έτσι ώστε να μην συμπληρώσεις ξανά τις πληροφορίες.',
@@ -23,12 +23,12 @@ export const constVar = {
     carBrandTitle: "Μάρκα",
     carAgeTitle: "Χρονολογία",
     carAgeLabel: "Χρονολογία οχήματος",
-    confirmPass: "επιβεβαίωση κωδικού",
+    confirmPass: "επιβεβαίωση κωδικού*",
     man: "Άντρας",
     woman: "Γυναίκα",
     age: "ηλικία",
-    phone: "αριθμός τηλεφώνου",
-    fullName: "ονοματεπώνυμο",
+    phone: "αριθμός τηλεφώνου*",
+    fullName: "ονοματεπώνυμο*",
     passwordDifferent: "Ο κωδικός με τον κωδικο επιβεβαίωσης είναι διαφορετικοί.",
     givePass: "δώσε έναν νέο κωδικό",
     giveCurrentPass: "δώσε τον τωρινό κωδικό",
@@ -39,7 +39,7 @@ export const constVar = {
 
     email: "Email",
     mobile: "Αριθμός τηλεφώνου",
-    age: "Ηλικία",
+    age: "Ηλικία*",
     socialTitle: "Κοινωνικά δίκτυα",
     carBrand: "Μάρκα αυτοκινήτου",
     facebook: "Facebook",

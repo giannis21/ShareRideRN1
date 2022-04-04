@@ -8,6 +8,9 @@ import { getHeaderConfig } from "../utils/Functions";
 import { getValue, setValue, keyNames } from '../utils/Storage'
 import { constVar } from "../utils/constStr";
 import { configureStore } from "../configureStore";
+import RNFetchBlob from "rn-fetch-blob";
+import { BASE_URL } from "../constants/Constants";
+import { store } from "../../App";
 export const createToken = async ({ email, password, successCallBack, errorCallback }) => {
 
   const send = {
@@ -45,9 +48,8 @@ const login = async ({ send, token, successCallBack, errorCallback }) => {
 
   await instance.post(`/login`, send, config)
     .then(res => {
-      storeInfoLocally(res.data, send.data.pass)
       successCallBack(res.data.message, getUser(res.data, send.data.pass))
-
+      storeInfoLocally(res.data, send.data.pass)
     }).catch(function (error) {
       console.log("error.response.data ", error.response.data)
       errorCallback(error.response.data.message ?? constVar.sthWentWrong)
@@ -66,7 +68,6 @@ export const forgotPass = async ({ email, successCallBack, errorCallback }) => {
 
   await instance.post(`/passotp`, send, config)
     .then(res => {
-      console.log(res.data.otp)
       successCallBack(res.data.otp, email, res.data.message)
 
 
@@ -148,7 +149,9 @@ export const registerUser = async (data, imageBase64, successCallBack, errorCall
     });
 }
 
-const storeInfoLocally = (res, password) => {
+const storeInfoLocally = async (res, password) => {
+
+
   try {
     const d = new Date();
     setValue(keyNames.lastLoginDate, d.getTime().toString())
@@ -162,6 +165,24 @@ const storeInfoLocally = (res, password) => {
     setValue(keyNames.instagram, res.user.instagram ?? "-")
     setValue(keyNames.phone, res.user.mobile.toString())
     setValue(keyNames.password, password)
+    console.log("cristisssssssss", res.user.photo)
+    //image save
+    await RNFetchBlob.config({ fileCache: false })
+      .fetch('GET', BASE_URL + res.user.photo)
+      .then(async resp => {
+        const path = `${RNFetchBlob.fs.dirs.DocumentDir}/images/${res.user.email}.png`;
+        RNFetchBlob.fs.writeFile(path, resp.data, 'base64').then(() => {
+          console.log("image saved", BASE_URL + res.user.photo)
+          store.dispatch({ type: types.SET_PROFILE_PHOTO, payload: resp.data })
+        })
+
+      })
+      .catch(err => {
+        console.log(err);
+      })
+
+
+
   } catch (err) {
     console.log(err)
   }

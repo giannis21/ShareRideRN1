@@ -99,8 +99,7 @@ export function SearchedPostsComponent({
         );
     };
     const onProfileClick = (email) => {
-
-        navigation.navigate(routes.PROFILE_SCREEN, { email: email })
+        navigation.navigate(routes.PROFILE_STACK, { screen: routes.PROFILE_SCREEN, params: { email } })
     }
     return (
 

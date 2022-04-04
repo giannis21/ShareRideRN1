@@ -117,7 +117,6 @@ export function FiltersModal({
         setCost(await getValue(filterKeys.maxCost) ?? '0')
         let ageRange = await getValue(filterKeys.ageRange)
         if (ageRange) {
-            console.log(ageRange.split('-')[1])
             setAge(ageRange.split('-')[0])
             setHighAge(ageRange.split('-')[1])
         } else {

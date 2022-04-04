@@ -2,7 +2,7 @@ import React from 'react';
 import { View, StyleSheet, Text, Image, TouchableOpacity } from 'react-native';
 import Feather from 'react-native-vector-icons/Feather';
 import { colors } from '../utils/Colors';
-
+import FastImage from 'react-native-fast-image'
 
 export function PictureComponent({
     onPress,
@@ -31,30 +31,42 @@ export function PictureComponent({
 
     }
 
-
     const getUri = () => {
         let imageSingleData = isLocal ? singleFile : singleFile.data
         return 'data:image/jpg;base64,' + imageSingleData
     }
+    console.log(url)
     return (
 
         <TouchableOpacity disabled={!onPress} style={[getStyle(), containerStyle]} onPress={() => onPress && onPress()} >
             <View style={[{ justifyContent: 'center', alignItems: 'center', width: '100%', height: '100%' }]} >
 
-                <Image
+                {/* <Image
                     style={[{ width: imageWidth, height: imageWidth }, styles.circle]}
                     source={
-                        url ? { uri: url } : (
+
+                        url ? { uri: "http://192.168.1.5:3000/images/giannisfragoulis21@gmail.com.jpeg" } : (
                             !_.isNull(singleFile)
                                 ? { uri: getUri() }
                                 : require('../assets/images/profile.png')
-
-
                         )
 
                     }
-                />
+                    key={new Date()}
+                /> */}
+                <FastImage
+                    style={[{ width: imageWidth, height: imageWidth }, styles.circle]}
+                    source={
 
+                        url ? { uri: url, cache: FastImage.cacheControl.web } : (
+                            !_.isNull(singleFile)
+                                ? { uri: getUri(), cache: FastImage.cacheControl.web }
+                                : require('../assets/images/profile.png')
+                        )
+
+                    }
+
+                />
             </View>
 
 

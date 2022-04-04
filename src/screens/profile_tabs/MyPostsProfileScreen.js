@@ -1,13 +1,13 @@
 
-import React, { useState, useEffect } from 'react';
-import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions } from 'react-native';
+import React, { useState, useEffect, useCallback } from 'react';
+import { View, Text, StyleSheet, Button, TouchableWithoutFeedback, FlatList, TouchableOpacity, ActivityIndicator, Dimensions, BackHandler } from 'react-native';
 import { PostLayoutComponent } from '../../components/PostLayoutComponent';
 import { BaseView } from '../../layout/BaseView';
 import { Spacer } from '../../layout/Spacer';
 import { routes } from '../../navigation/RouteNames';
 import { addRemovePostToFavorites, deletePost, getFavoritePosts, getPostsUser } from '../../services/MainServices';
 import { colors } from '../../utils/Colors';
-import { useNavigation } from '@react-navigation/native';
+import { useFocusEffect, useNavigation } from '@react-navigation/native';
 import { OpenImageModal } from '../../utils/OpenImageModal';
 import { Loader } from '../../utils/Loader';
 import { useIsFocused } from '@react-navigation/native';
@@ -16,8 +16,9 @@ import { constVar } from '../../utils/constStr';
 import { CustomInfoLayout } from '../../utils/CustomInfoLayout';
 import { TopContainerExtraFields } from '../../components/TopContainerExtraFields';
 import { useDispatch, useSelector } from 'react-redux';
-import { ADD_ACTIVE_POST } from '../../actions/types';
+import { ADD_ACTIVE_POST, OPEN_HOC_MODAL } from '../../actions/types';
 import { postExistsInFav } from '../../customSelectors/PostsSelectors';
+import { getIsHocScreenActive } from '../../customSelectors/GeneralSelectors';
 
 const MyPostsProfileScreen = ({ navigation, route }) => {
     var _ = require('lodash');
@@ -38,9 +39,27 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
     let dispatch = useDispatch()
     const myUser = useSelector(state => state.authReducer.user)
     const post = useSelector(state => state.postReducer)
+    const isHocScreenActive = useSelector(getIsHocScreenActive);
+
+    // const handleBackButtonClick = async () => {
+    //     console.log(isHocScreenActive)
+    //     //   return true
+    //     if (isHocScreenActive) {
+    //         openHoc(false)
+    //     } else {
+    //         navigation.goBack()
+    //     }
+
+    //     return true;
+    // }
+
+    // useFocusEffect(useCallback(() => {
+    //     BackHandler.addEventListener("hardwareBackPress5", handleBackButtonClick);
+    //     return () => BackHandler.removeEventListener("hardwareBackPress5", handleBackButtonClick);
+    // }, [isHocScreenActive]));
+
 
     useEffect(() => {
-
         if (myUser.email)
             getPostsUser({
                 email: myUser.email,
@@ -156,6 +175,11 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
 
         );
     };
+
+    const openHoc = (val = true) => {
+        dispatch({ type: OPEN_HOC_MODAL, payload: val })
+    }
+
     return (
         <BaseView containerStyle={{ flex: 1, paddingHorizontal: 8, backgroundColor: 'white' }}>
             <View style={styles.container}>
@@ -179,7 +203,7 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
                                     showMenu={true}
                                     item={item.item}
                                     onMenuClicked={onMenuClicked}
-
+                                    openHocScreen={openHoc}
                                     onPress={(post) => {
                                         navigation.navigate(routes.POST_PREVIEW_SCREEN, { showFavoriteIcon: false })
                                         dispatch({
@@ -191,7 +215,6 @@ const MyPostsProfileScreen = ({ navigation, route }) => {
                             }}
                             ListFooterComponent={renderFooter}
                         />
-
 
                         <OpenImageModal
                             postId={deletedPost?.post?.postid}

@@ -89,7 +89,7 @@ const LoginScreen = ({ navigation, route }) => {
 
     setIsLoading(true)
     createToken({
-      email: email,
+      email: email.replace(/ +/g, ''),
       password: password,
       successCallBack: userSuccessCallback,
       errorCallback: userErrorCallback

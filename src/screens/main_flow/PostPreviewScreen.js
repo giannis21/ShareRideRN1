@@ -90,16 +90,23 @@ const PostPreviewScreen = ({ navigation, route }) => {
         }, 1000);
     }
     const onProfileClick = (email) => {
-
+        navigation.navigate(routes.PROFILE_STACK, { screen: routes.PROFILE_SCREEN, params: { email } })
     }
     const goToProfile = () => {
 
         if (isSafeClick && item?.user?.email !== myUser.email) {
-            navigation1.push(routes.PROFILE_SCREEN, { email: item?.user?.email })
+            try {
+                navigation.navigate(routes.PROFILE_STACK, { screen: routes.PROFILE_SCREEN, params: { email: item?.user?.email } })
+
+
+            } catch (err) {
+                navigation1.push(routes.PROFILE_SCREEN, { email: item?.user?.email })
+            }
+
             safeClickListener()
         }
     }
-    console.log(item?.user, myUser.email)
+
     const showCustomLayout = (callback) => {
         setShowInfoModal(true)
         setTimeout(function () {

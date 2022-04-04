@@ -128,7 +128,7 @@ const PostsInterestedProfileScreen = ({ navigation, route }) => {
     }
     const showMoreUsers = (post) => {
 
-        console.log(post)
+
     }
     const onActionSheet = (index) => {
         let newData = dataSource.filter((obj) => obj !== deletedPost)

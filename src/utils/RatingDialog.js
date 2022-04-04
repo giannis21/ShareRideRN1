@@ -17,7 +17,7 @@ export const RatingDialog = ({ isVisible, closeAction, onSubmit }) => {
     return (
 
         <Modal
-            //animationType="fade"
+            animationType="fade"
             transparent={true}
             style={[modal, { backgroundColor: 'red' }]}
             visible={isVisible}

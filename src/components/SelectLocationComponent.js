@@ -16,9 +16,6 @@ export function SelectLocationComponent({
 }) {
     const post = useSelector(state => state.postReducer)
 
-    useEffect(() => {
-        console.log(post.searchStartplace)
-    }, [])
     const getInitText = () => {
         let text = ''
         if (isPostScreen) {

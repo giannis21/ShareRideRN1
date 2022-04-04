@@ -45,7 +45,6 @@ export function AuthReducer(state = intialState, action) {
         check: action.payload
       };
     case SET_PROFILE_PHOTO:
-      console.log("reducer called", action.payload)
       return {
         ...state,
         user: {

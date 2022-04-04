@@ -113,7 +113,6 @@ export function PostReducer(state = intialState, action) {
         }
         case REMOVE_MIDDLE_STOP: {
             let moreplacesNew;
-            console.log("state.moreplaces", typeof state.moreplaces)
             //let currentArray = [...Array.from(JSON.parse(state?.moreplaces))]
             if (state.moreplaces.find((obj) => obj.placecoords === action.payload)) {
                 moreplacesNew = state.moreplaces.filter((obj) => obj.placecoords !== action.payload)

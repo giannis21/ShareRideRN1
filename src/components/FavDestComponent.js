@@ -11,6 +11,7 @@ import { useIsFocused } from '@react-navigation/native';
 import { createTable, deleteRoute, getDBConnection, getFavorites } from '../database/db-service';
 import { useDispatch, useSelector } from 'react-redux';
 import { TRIGGER_DATABASE } from '../actions/types';
+import { getFavoriteRoutes } from '../customSelectors/SearchSelectors';
 const { width } = Dimensions.get('screen');
 
 export function FavDestComponent({
@@ -18,16 +19,17 @@ export function FavDestComponent({
     onSearchPosts,
     onCarouselItemChange
 }) {
-    const [activeIndex, setActiveIndex] = useState(0);
-    let data = useSelector(state => state.searchReducer.favoriteRoutes)
+
+    let data = useSelector(getFavoriteRoutes())
+
     const [carouselData, setCarouselData] = useState([])
-    const [suppliesReady, setSuppliesReady] = useState(false);
     const [isRender, setIsRender] = useState(false)
-    let isFocused = useIsFocused()
+
     let dispatch = useDispatch()
+
     useEffect(() => {
-        setCarouselData(data.reverse())
-    }, [data.length]);
+        setCarouselData(data)
+    }, [data]);
 
 
     const deleteItem = async (item) => {
@@ -90,18 +92,12 @@ export function FavDestComponent({
             <FlatList
                 horizontal
                 data={carouselData}
-                // ItemSeparatorComponent={() => (
-                //     <View style={{ height: 10 }} />
-                // )}
                 extraData={isRender}
                 keyExtractor={(item, index) => index}
                 enableEmptySections={true}
                 renderItem={({ item, index }) => {
-
                     return <RenderFavorite item={item} index={index} onItemPress={(index) => { updateList(index, item.compoundKey) }} />
                 }}
-            //showsHorizontalScrollIndicator={false}
-
             />
             {/* <Carousel
                 enableMomentum={false}

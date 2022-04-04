@@ -59,6 +59,7 @@ export const searchUser = async ({ email, successCallback, errorCallback }) => {
 
     await instance.post(`/searchuser`, send, config)
         .then(res => {
+            console.log("user search ", res.data)
             successCallback(res.data)
         }).catch(function (error) {
             console.log("error ", error.response.status, error.response.data)
@@ -126,7 +127,6 @@ export const getFavoritePosts = () => async (dispatch) => {
 
     instance.get('/getFavourites', config)
         .then(res => {
-            console.log(res.data.favourites)
             dispatch({
                 type: types.SET_FAVORITE_POSTS,
                 payload: res.data.favourites
@@ -151,6 +151,25 @@ export const getTerms = () => async (dispatch) => {
             })
         }).catch(function (error) {
             console.log(error)
+        });
+}
+export const getUsersToRate = () => async (dispatch) => {
+    let config = await getHeaderConfig()
+
+    instance.post('/notifyme', {}, config)
+        .then(res => {
+            console.log(res.data)
+            dispatch({
+                type: types.SET_USERS_TO_RATE,
+                payload: res.data
+            })
+        }).catch(function (error) {
+            if (error.response.status == 404)
+                dispatch({
+                    type: types.SET_USERS_TO_RATE,
+                    payload: []
+                })
+            console.log("error1", error)
         });
 }
 
@@ -186,7 +205,6 @@ export const getInterestedPerUser = async ({ email, successCallback, errorCallba
         .then(res => {
             let itemStringified = JSON.stringify(res.data.postUser)
             let itemStringified1 = JSON.parse(itemStringified)
-            console.log("res.data", itemStringified1)
             successCallback(res.data)
         }).catch(function (error) {
             console.log(error)
@@ -222,7 +240,6 @@ export const deletePost = async ({ postID, successCallback, errorCallback }) => 
             "postid": postID
         }
     }
-    console.log({ send })
     await instance.post(`/deletePost`, send, config)
         .then(res => {
             successCallback(res.data.message)
@@ -236,7 +253,6 @@ export const createPost = async ({ data, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
     await instance.post(`/createpost`, data, config)
         .then(res => {
-            console.log("create post ", res.data)
             successCallback(res.data.message, res.data.body.postid)
         }).catch(function (error) {
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
@@ -274,6 +290,7 @@ export const searchForPosts = async ({ sendObj, successCallback, errorCallback }
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
+
 
 export const deleteInterested = async ({ piid, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
@@ -340,15 +357,15 @@ export const updateProfile = async ({ sendObj, successCallback, errorCallback })
 
     await instance.post(`/updateProfile`, sendObj, config)
         .then(res => {
-            console.log("profile ujpdated")
             successCallback(res.data.message)
         }).catch(function (error) {
             console.log("profile ujpdated nnn", error)
-            //errorCallback(error.response.data.message ?? constVar.sthWentWrong)
+            errorCallback(error.response.data.message ?? constVar.sthWentWrong)
         });
 }
 export const createRequest = async ({ data, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
+
     await instance.post(`/createRequest`, data, config)
         .then(res => {
             successCallback(res.data.message)
@@ -385,7 +402,6 @@ export const sendReport = async ({ text, successCallback, errorCallback }) => {
     let config = await getHeaderConfig()
     await instance.post('/sendReport', { text: text }, config)
         .then(res => {
-            console.log(res.data.message)
             successCallback(res.data.message)
         }).catch(function (error) {
             errorCallback(error.response.data.message ?? constVar.sthWentWrong)

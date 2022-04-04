@@ -50,7 +50,7 @@ const ContactFormScreen = ({ navigation, route }) => {
     }
 
     const handleEmailSending = () => {
-        console.log("sdfsdf")
+
         sendEmail(
             'giannisfragoulis21@gmail.com',
             'Θέμα',

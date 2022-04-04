@@ -10,6 +10,8 @@ import { Spacer } from '../layout/Spacer';
 
 import { colors } from '../utils/Colors';
 import { StarsRating } from '../utils/StarsRating';
+import { CustomIcon } from './CustomIcon';
+import { ViewRow } from './HOCS/ViewRow';
 import { PictureComponent } from './PictureComponent';
 
 export function UserComponent({
@@ -18,7 +20,7 @@ export function UserComponent({
     deleteInterested,
     giveApproval,
     fillWidth,
-
+    iconName
 }) {
     const { userStyleAdded, stretch, noStretch, container } = styles
 
@@ -38,11 +40,11 @@ export function UserComponent({
                     <Spacer width={14} />
                     <View style={{ alignSelf: 'center' }}>
                         <Text style={{ fontSize: 14, fontWeight: 'bold' }}>{user.fullname}</Text>
-                        {user.average && user.average > 0 &&
-                            <View style={{ alignItems: 'center', flexDirection: 'row' }}>
+                        {user?.average > 0 &&
+                            <ViewRow style={{ alignItems: 'center' }}>
                                 <StarsRating rating={user.average} size="small" />
                                 <Text style={{ fontSize: 10, color: '#595959', opacity: 0.6 }}> ({user.count})</Text>
-                            </View>
+                            </ViewRow>
                         }
 
 
@@ -60,7 +62,7 @@ export function UserComponent({
                         <FontAwesome name="close" size={24} color='red' style={{ marginHorizontal: 10 }} /> 
                     </TouchableOpacity> */}
                     <TouchableOpacity onPress={() => {
-                        console.log(user.piid, user.isVerified)
+
                         giveApproval(user.piid, user.isVerified)
                     }}>
                         {_.isNull(user.isVerified) ?
@@ -71,7 +73,7 @@ export function UserComponent({
                                 hidesWhenStopped={true}
                                 color={colors.colorPrimary}
                             /> : (
-                                <Entypo name={user.isVerified ? "check" : "add-user"} size={22} color={colors.infoColor} style={{ marginHorizontal: 5 }} />
+                                <CustomIcon type={!iconName ? 'Entypo' : 'MaterialIcons'} name={iconName ? iconName : user.isVerified ? "check" : "add-user"} size={22} color={colors.infoColor} style={{ marginHorizontal: 5 }} />
                             )
                         }
 

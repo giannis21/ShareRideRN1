@@ -37,7 +37,6 @@ const SettingsScreen = ({ navigation, route }) => {
     }
 
     useEffect(() => {
-        console.log(myUser.photoProfile)
         setSingleFile(myUser.photoProfile)
     }, [myUser.photoProfile])
 
@@ -75,15 +74,6 @@ const SettingsScreen = ({ navigation, route }) => {
         resetValues(() => {
             navigation.navigate(routes.AUTHSTACK, { screen: routes.LOGIN_SCREEN })
         })
-    }
-    const retrieveImage = async () => {
-        try {
-            const path = `${RNFetchBlob.fs.dirs.DCIMDir}/${myUser.email}.png`;
-            const data = await RNFetchBlob.fs.readFile(path, 'base64');
-            setSingleFile(data)
-        } catch (error) {
-            console.log(error.message);
-        }
     }
 
     const Action = ({ title, onItemPress, icon, type, containerStyle }) => {

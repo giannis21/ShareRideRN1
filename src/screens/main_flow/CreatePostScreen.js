@@ -202,7 +202,6 @@ const CreatePostScreen = ({ navigation, route }) => {
             data: send,
             successCallback: ((message, postid) => {
                 //setInfoMessage({ info: message, success: true }) 
-                console.log({ postid })
                 setModalInfo({ preventActionText: 'Όχι', buttonText: 'Προσθήκη', description: constVar.askForPostsFavorites, postid: postid })
                 setModalCloseVisible(true)
                 // showCustomLayout()

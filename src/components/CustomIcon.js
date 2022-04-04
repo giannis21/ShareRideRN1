@@ -5,6 +5,8 @@ import Ionicons from 'react-native-vector-icons/Ionicons';
 import AntDesign from 'react-native-vector-icons/AntDesign';
 import Fontisto from 'react-native-vector-icons/Fontisto';
 import Entypo from 'react-native-vector-icons/Entypo';
+import EvilIcons from 'react-native-vector-icons/EvilIcons';
+import MaterialIcons from 'react-native-vector-icons/MaterialIcons';
 
 
 export function CustomIcon({
@@ -23,6 +25,8 @@ export function CustomIcon({
             {type === 'Ionicons' && <Ionicons name={name} size={size} color={color} />}
             {type === 'Fontisto' && <Fontisto name={name} size={size} color={color} />}
             {type === 'Entypo' && <Entypo name={name} size={size} color={color} />}
+            {type === 'EvilIcons' && <EvilIcons name={name} size={size} color={color} />}
+            {type === 'MaterialIcons' && <MaterialIcons name={name} size={size} color={color} />}
         </View>
 
     )
